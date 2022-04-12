@@ -1,6 +1,6 @@
 <template>
   <q-expansion-item
-    v-if='children.length > 0'
+    v-if='children.length > 0 && !mini'
     :key='menu.label'
     :content-inset-level='insetLevel'
     class='item'
@@ -23,6 +23,7 @@
       v-for='item in children'
       :key='item.label'
       :menu='item'
+      :mini='mini'
     />
   </q-expansion-item>
   <q-item
@@ -54,9 +55,11 @@ import { useRouter } from 'vue-router'
 
 interface Props {
   menu: MenuItem
+  mini: boolean
 }
 const props = defineProps<Props>()
 const menu = toRef(props, 'menu')
+const mini = toRef(props, 'mini')
 
 const insetLevel = computed(() => {
   return menu.value.level === undefined ? 0 : menu.value.level * 0.1 + 0.3

@@ -17,6 +17,7 @@
         :menu='item'
         :disable='!logined.getLogined'
         @click='onItemClick(item)'
+        :mini='leftDrawerMini'
       />
     </q-list>
   </q-drawer>
