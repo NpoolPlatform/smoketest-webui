@@ -16,11 +16,11 @@ const HeaderTools = defineAsyncComponent(() => import('src/components/header/Hea
 
 <style lang='sass' scoped>
 .header
-  height: 60px
+  height: 32px
   padding: 0 60px
-  background-color: $grey-2
+  background-color: $blue-4
 
 .logo
-  max-height: 80%
-  width: 80px
+  max-height: 100%
+  width: 64px
 </style>

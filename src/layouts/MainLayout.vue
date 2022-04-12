@@ -1,5 +1,5 @@
 <template>
-  <q-layout view='hHh Lpr lFf'>
+  <q-layout>
     <Announcement />
     <MainHeader />
 
@@ -33,3 +33,12 @@ onMounted(() => {
 })
 
 </script>
+
+<stype lang='sass' scoped>
+.aa
+  background-color: red
+
+.bb
+  height: 100% !important
+  background-color: yellow
+</stype>

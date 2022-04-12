@@ -1,8 +1,8 @@
 <template>
-  <div class='row'>
-    <q-space />
-    <Signin />
-    <q-space />
+  <div class='column justify-center signin'>
+    <div class='row justify-center'>
+      <Signin />
+    </div>
   </div>
 </template>
 
@@ -14,4 +14,6 @@ const Signin = defineAsyncComponent(() => import('src/components/user/Signin.vue
 </script>
 
 <style lang='sass' scoped>
+.signin
+  margin-top: 200px
 </style>

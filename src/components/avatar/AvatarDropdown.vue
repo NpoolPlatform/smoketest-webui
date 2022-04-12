@@ -8,6 +8,7 @@
     :dropdown-icon='icon'
     auto-close
     menu-self='top end'
+    color='black'
   >
     <slot />
   </q-btn-dropdown>
