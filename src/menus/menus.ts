@@ -25,7 +25,7 @@ const MainDrawerMenus = [
         label: '应用邮件模板',
         caption: '管理应用邮件模板',
         icon: 'perm_identity',
-        target: '/application/email/template',
+        target: '/email/template',
         level: 1,
         sectionBegin: false,
         children: []
