@@ -1,5 +1,14 @@
 <template>
-  <q-btn-dropdown flat dense :dropdown-icon='icon'>
+  <q-btn-dropdown
+    flat
+    dense
+    rounded
+    :ripple='false'
+    size='1.3rem'
+    :dropdown-icon='icon'
+    auto-close
+    menu-self='top end'
+  >
     <slot />
   </q-btn-dropdown>
 </template>
@@ -20,6 +29,4 @@ const icon = computed(() => 'img:' + props.icon)
 </script>
 
 <style lang='sass' scoped>
-.btn-icon
-  background-color: red
 </style>

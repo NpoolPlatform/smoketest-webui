@@ -1,32 +1,26 @@
 <template>
   <q-toolbar class='header'>
-    <Logo :class='[setting.ShowBigLogo ? "big-logo" : "small-logo"]' />
+    <Logo class='logo' />
     <q-space />
     <HeaderTools />
   </q-toolbar>
 </template>
 
 <script setup lang='ts'>
-import { useSettingStore } from 'npool-cli-v2'
 import { defineAsyncComponent } from 'vue'
 
 const Logo = defineAsyncComponent(() => import('src/components/logo/Logo.vue'))
 const HeaderTools = defineAsyncComponent(() => import('src/components/header/HeaderTools.vue'))
 
-const setting = useSettingStore()
-
 </script>
 
 <style lang='sass' scoped>
 .header
-  height: 80px
-  padding: 0 80px
+  height: 60px
+  padding: 0 60px
+  background-color: $grey-2
 
-.small-logo
-  max-height: 40px
-  max-width: 71px
-
-.big-logo
-  max-height: 60px
-  max-width: 106px
+.logo
+  max-height: 80%
+  width: 80px
 </style>

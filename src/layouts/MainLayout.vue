@@ -1,6 +1,7 @@
 <template>
-  <q-layout view='hHh Lpr lFf background-main body-main'>
-    <MainHeader v-if='setting.ShowMainHeader' />
+  <q-layout view='hHh Lpr lFf'>
+    <Announcement />
+    <MainHeader />
 
     <q-page-container>
       <router-view />
@@ -12,12 +13,12 @@
 
 <script setup lang='ts'>
 import { defineAsyncComponent, onMounted } from 'vue'
-import { useSettingStore, useNotificationStore, notify } from 'npool-cli-v2'
+import { useNotificationStore, notify } from 'npool-cli-v2'
 
 const MainHeader = defineAsyncComponent(() => import('src/components/header/MainHeader.vue'))
+const Announcement = defineAsyncComponent(() => import('src/components/announcement/Announcement.vue'))
 const LangLoader = defineAsyncComponent(() => import('src/components/lang/LangLoader.vue'))
 
-const setting = useSettingStore()
 const notification = useNotificationStore()
 
 onMounted(() => {

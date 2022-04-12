@@ -22,6 +22,18 @@ const routes: RouteRecordRaw[] = [
           ShowFooterTop: true,
           ShowSignHelper: true,
           ShowTopTip: false,
+          NeedLogined: true
+        }
+      }, {
+        path: 'signin',
+        component: () => import('pages/Signin.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
           NeedLogined: false
         }
       }

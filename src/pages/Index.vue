@@ -1,10 +1,10 @@
 <template>
-  <Banner />
+  <Index />
 </template>
 
 <script setup lang='ts'>
 import { defineAsyncComponent } from 'vue'
 
-const Banner = defineAsyncComponent(() => import('src/components/index/Banner.vue'))
+const Index = defineAsyncComponent(() => import('src/components/index/Index.vue'))
 
 </script>
