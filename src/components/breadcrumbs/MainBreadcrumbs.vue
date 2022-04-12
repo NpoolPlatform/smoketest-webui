@@ -18,6 +18,7 @@ const breadcrumbs = computed(() => menu.MainBreadcrumbs)
 
 <style lang='sass' scoped>
 .main
-  margin: 3px auto
   border-bottom: 1px solid $grey-4
+  font-size: 0.875em
+  line-height: 1em
 </style>
