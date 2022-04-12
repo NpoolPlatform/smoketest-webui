@@ -6,10 +6,4 @@
 </template>
 
 <style lang='sass' scoped>
-.announcement
-  background-color: $grey-4
-  line-height: 20px
-
-.icon
-  font-size: 20px
 </style>

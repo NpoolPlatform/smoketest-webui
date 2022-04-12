@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { MenuItem, MenuState } from './types'
+import { HomePageBreadcrumbs } from './const'
+import { MenuState } from './types'
 
 export const useMenuStore = defineStore('menu', {
   state: (): MenuState => ({
-    MainBreadcrumbs: [],
-    ActiveMainBreadcrumb: undefined as unknown as MenuItem
+    MainBreadcrumbs: [HomePageBreadcrumbs],
+    ActiveMainBreadcrumb: HomePageBreadcrumbs
   }),
   getters: {},
   actions: {}

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view='hHh Lpr lFf'>
+  <q-layout view='hHh Lpr fFf'>
     <MainHeader />
     <MainDrawer />
 
@@ -8,6 +8,8 @@
       <MainBreadcrumbs />
       <router-view />
     </q-page-container>
+
+    <Footer />
 
     <LangLoader />
   </q-layout>
@@ -18,6 +20,7 @@ import { defineAsyncComponent, onMounted } from 'vue'
 import { useNotificationStore, notify } from 'npool-cli-v2'
 
 const MainHeader = defineAsyncComponent(() => import('src/components/header/MainHeader.vue'))
+const Footer = defineAsyncComponent(() => import('src/components/footer/Footer.vue'))
 const Announcement = defineAsyncComponent(() => import('src/components/announcement/Announcement.vue'))
 const LangLoader = defineAsyncComponent(() => import('src/components/lang/LangLoader.vue'))
 const MainBreadcrumbs = defineAsyncComponent(() => import('src/components/breadcrumbs/MainBreadcrumbs.vue'))
