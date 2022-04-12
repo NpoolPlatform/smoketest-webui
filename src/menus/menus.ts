@@ -1,5 +1,5 @@
 import { uid } from 'quasar'
-import { MenuItem } from 'src/store'
+import { MenuItem } from 'src/localstore'
 
 const MainDrawerMenus = [
   {

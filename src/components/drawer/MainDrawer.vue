@@ -26,7 +26,7 @@
 import { ref, defineAsyncComponent } from 'vue'
 import { useLoginedUserStore } from 'npool-cli-v2'
 import { MainDrawerMenus } from 'src/menus/menus'
-import { MenuItem, useMenuStore, HomePageBreadcrumbs } from 'src/store'
+import { MenuItem, useMenuStore, HomePageBreadcrumbs } from 'src/localstore'
 
 const DrawerMenu = defineAsyncComponent(() => import('src/components/drawer/DrawerMenu.vue'))
 

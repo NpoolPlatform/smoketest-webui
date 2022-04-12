@@ -1,6 +1,6 @@
 commonLabels:
-  # app: dashboard-template
+  # app: procyon-dashboard-v2
 
 resources:
-  - 01-dashboard-template.yaml
+  - 01-procyon-dashboard-v2.yaml
   - 02-ingress.yaml

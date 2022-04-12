@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang='ts'>
-import { useMenuStore } from 'src/store'
+import { useMenuStore } from 'src/localstore'
 import { defineAsyncComponent, computed } from 'vue'
 
 const Breadcrumbs = defineAsyncComponent(() => import('src/components/breadcrumbs/Breadcrumbs.vue'))

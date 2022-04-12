@@ -49,7 +49,7 @@
 
 <script setup lang='ts'>
 import { useLoginedUserStore } from 'npool-cli-v2'
-import { MenuItem, useMenuStore } from 'src/store'
+import { MenuItem, useMenuStore } from 'src/localstore'
 import { defineProps, toRef, computed } from 'vue'
 import { useRouter } from 'vue-router'
 

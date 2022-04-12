@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang='ts'>
-import { MenuItem } from 'src/store'
+import { MenuItem } from 'src/localstore'
 import { toRef, defineProps } from 'vue'
 
 interface Props {
