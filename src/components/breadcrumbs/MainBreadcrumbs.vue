@@ -1,0 +1,23 @@
+<template>
+  <Breadcrumbs
+    class='main'
+    :breadcrumbs='breadcrumbs'
+  />
+</template>
+
+<script setup lang='ts'>
+import { useMenuStore } from 'src/store'
+import { defineAsyncComponent, computed } from 'vue'
+
+const Breadcrumbs = defineAsyncComponent(() => import('src/components/breadcrumbs/Breadcrumbs.vue'))
+
+const menu = useMenuStore()
+const breadcrumbs = computed(() => menu.MainBreadcrumbs)
+
+</script>
+
+<style lang='sass' scoped>
+.main
+  margin: 3px auto
+  border-bottom: 1px solid $grey-4
+</style>

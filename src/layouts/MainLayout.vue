@@ -1,9 +1,11 @@
 <template>
-  <q-layout>
-    <Announcement />
+  <q-layout view='hHh Lpr lFf'>
     <MainHeader />
+    <MainDrawer />
 
     <q-page-container>
+      <Announcement />
+      <MainBreadcrumbs />
       <router-view />
     </q-page-container>
 
@@ -18,6 +20,8 @@ import { useNotificationStore, notify } from 'npool-cli-v2'
 const MainHeader = defineAsyncComponent(() => import('src/components/header/MainHeader.vue'))
 const Announcement = defineAsyncComponent(() => import('src/components/announcement/Announcement.vue'))
 const LangLoader = defineAsyncComponent(() => import('src/components/lang/LangLoader.vue'))
+const MainBreadcrumbs = defineAsyncComponent(() => import('src/components/breadcrumbs/MainBreadcrumbs.vue'))
+const MainDrawer = defineAsyncComponent(() => import('src/components/drawer/MainDrawer.vue'))
 
 const notification = useNotificationStore()
 
@@ -35,10 +39,4 @@ onMounted(() => {
 </script>
 
 <stype lang='sass' scoped>
-.aa
-  background-color: red
-
-.bb
-  height: 100% !important
-  background-color: yellow
 </stype>

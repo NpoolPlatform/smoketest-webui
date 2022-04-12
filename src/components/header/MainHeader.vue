@@ -1,9 +1,11 @@
 <template>
-  <q-toolbar class='header'>
-    <Logo class='logo' />
-    <q-space />
-    <HeaderTools />
-  </q-toolbar>
+  <q-header class='header'>
+    <q-toolbar>
+      <Logo class='logo' />
+      <q-space />
+      <HeaderTools />
+    </q-toolbar>
+  </q-header>
 </template>
 
 <script setup lang='ts'>
@@ -16,7 +18,7 @@ const HeaderTools = defineAsyncComponent(() => import('src/components/header/Hea
 
 <style lang='sass' scoped>
 .header
-  height: 32px
+  height: 48px
   padding: 0 60px
   background-color: $blue-4
 
