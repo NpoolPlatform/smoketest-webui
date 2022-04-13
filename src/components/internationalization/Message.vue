@@ -18,6 +18,7 @@
     :loading='messageLoading'
     row-key='ID'
     :rows-per-page-options='[20]'
+    @row-click='(evt, row, index) => onRowClick(row as Message)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -39,13 +40,33 @@
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
     </q-card-section>
   </q-card>
+  <q-dialog
+    v-model='showing'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_CREATE_CONTACT') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <q-input v-model='target.MessageID' :label='$t("MSG_MESSAGE_ID")' />
+        <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
+      </q-card-section>
+      <q-item class='row'>
+        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
-import { Language, NotificationType, useLangStore, useLocaleStore } from 'npool-cli-v2'
+import { Language, Message, NotificationType, useAdminLangStore, useLangStore, useLocaleStore } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 
 const lang = useLangStore()
+const adminLang = useAdminLangStore()
 const locale = useLocaleStore()
 
 const langLoading = ref(true)
@@ -74,6 +95,10 @@ watch(language, () => {
   })
 })
 
+const showing = ref(false)
+const updating = ref(false)
+const target = ref({} as unknown as Message)
+
 onMounted(() => {
   lang.getLangs({
     Message: {
@@ -90,7 +115,60 @@ onMounted(() => {
 })
 
 const onCreate = () => {
-  // TODO
+  target.value = {} as unknown as Message
+  showing.value = true
+  updating.value = false
+}
+
+const onRowClick = (message: Message) => {
+  target.value = message
+  showing.value = true
+  updating.value = true
+}
+
+const onMenuHide = () => {
+  showing.value = false
+}
+
+const onSubmit = () => {
+  showing.value = false
+
+  if (updating.value) {
+    adminLang.updateMessage({
+      Info: target.value,
+      Message: {
+        Error: {
+          Title: 'MSG_UPDATE_MESSAGE',
+          Message: 'MSG_UPDATE_MESSAGE_FAIL',
+          Popup: true,
+          Type: NotificationType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+    return
+  }
+
+  adminLang.createMessage({
+    TargetLangID: language.value.ID,
+    Info: target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_EMAIL_TEMPLATE',
+        Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+
+const onCancel = () => {
+  showing.value = false
+  onMenuHide()
 }
 
 </script>
