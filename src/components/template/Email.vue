@@ -132,6 +132,7 @@ const onSubmit = () => {
   }
 
   templates.createEmailTemplate({
+    TargetLangID: language.value.ID,
     Info: target.value,
     Message: {
       Error: {
