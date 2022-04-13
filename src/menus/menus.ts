@@ -34,7 +34,7 @@ const MainDrawerMenus = [
         label: '应用内联系',
         caption: '管理应用内联系地址',
         icon: 'perm_identity',
-        target: '/application/contacts',
+        target: '/contact/template',
         level: 1,
         sectionBegin: false,
         children: []
