@@ -2,12 +2,12 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_EMAIL_TEMPLATES")'
-    :rows='emails'
+    :title='$t("MSG_SMS_TEMPLATES")'
+    :rows='smss'
     key='ID'
-    :loading='emailLoading'
+    :loading='smsLoading'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(row as EmailTemplate)'
+    @row-click='(evt, row, index) => onRowClick(row as SMSTemplate)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -28,7 +28,7 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_EMAIL_TEMPLATE') }}</span>
+        <span>{{ $t('MSG_CREATE_SMS_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
         <div class='dark-bg'>
@@ -36,13 +36,9 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
         <q-select :options='MessageUsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
-        <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
-        <q-input v-model='replyTos' :label='$t("MSG_REPLY_TOS_COMMA")' />
-        <q-input v-model='ccTos' :label='$t("MSG_CC_TOS_COMMA")' />
         <q-input v-model='target.Subject' :label='$t("MSG_SUBJECT")' />
-        <q-input v-model='target.Body' :label='$t("MSG_BODY")' type='textarea' />
+        <q-input v-model='target.Message' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
         <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -53,54 +49,42 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useTemplateStore, EmailTemplate, Language, MessageUsedFors } from 'npool-cli-v2'
-import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
+import { NotificationType, useTemplateStore, SMSTemplate, Language, MessageUsedFors } from 'npool-cli-v2'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 
 const templates = useTemplateStore()
-const emails = computed(() => templates.EmailTemplates)
-const emailLoading = ref(true)
+const smss = computed(() => templates.SMSTemplates)
+const smsLoading = ref(true)
 
 onMounted(() => {
-  templates.getEmailTemplates({
+  templates.getSMSTemplates({
     Message: {
       Error: {
-        Title: 'MSG_GET_EMAIL_TEMPLATES',
-        Message: 'MSG_GET_EMAIL_TEMPLATES_FAIL',
+        Title: 'MSG_GET_SMS_TEMPLATES',
+        Message: 'MSG_GET_SMS_TEMPLATES_FAIL',
         Popup: true,
         Type: NotificationType.Error
       }
     }
   }, () => {
-    emailLoading.value = false
+    smsLoading.value = false
   })
 })
 
 const showing = ref(false)
 const updating = ref(false)
 
-const target = ref({} as unknown as EmailTemplate)
-const replyTos = ref(target.value?.ReplyTos?.join(','))
-watch(replyTos, () => {
-  target.value.ReplyTos = replyTos.value.split(',')
-})
-const ccTos = ref(target.value?.CCTos?.join(','))
-watch(replyTos, () => {
-  target.value.CCTos = ccTos.value.split(',')
-})
-
+const target = ref({} as unknown as SMSTemplate)
 const language = ref(undefined as unknown as Language)
-watch(language, () => {
-  target.value.LangID = language.value.ID
-})
 
 const onMenuHide = () => {
   language.value = undefined as unknown as Language
-  target.value = {} as unknown as EmailTemplate
+  target.value = {} as unknown as SMSTemplate
 }
 
-const onRowClick = (template: EmailTemplate) => {
+const onRowClick = (template: SMSTemplate) => {
   target.value = template
   showing.value = true
   updating.value = true
@@ -115,12 +99,12 @@ const onSubmit = () => {
   showing.value = false
 
   if (updating.value) {
-    templates.updateEmailTemplate({
+    templates.updateSMSTemplate({
       Info: target.value,
       Message: {
         Error: {
-          Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
-          Message: 'MSG_UPDATE_EMAIL_TEMPLATE_FAIL',
+          Title: 'MSG_UPDATE_SMS_TEMPLATE',
+          Message: 'MSG_UPDATE_SMS_TEMPLATE_FAIL',
           Popup: true,
           Type: NotificationType.Error
         }
@@ -131,12 +115,12 @@ const onSubmit = () => {
     return
   }
 
-  templates.createEmailTemplate({
+  templates.createSMSTemplate({
     Info: target.value,
     Message: {
       Error: {
-        Title: 'MSG_CREATE_EMAIL_TEMPLATE',
-        Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
+        Title: 'MSG_CREATE_SMS_TEMPLATE',
+        Message: 'MSG_CREATE_SMS_TEMPLATE_FAIL',
         Popup: true,
         Type: NotificationType.Error
       }
