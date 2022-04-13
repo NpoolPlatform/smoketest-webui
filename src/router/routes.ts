@@ -72,6 +72,18 @@ const routes: RouteRecordRaw[] = [
           ShowTopTip: false,
           NeedLogined: true
         }
+      }, {
+        path: 'app/languages',
+        component: () => import('pages/internationalization/Language.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
       }
     ]
   },

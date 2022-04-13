@@ -4,7 +4,7 @@
     flat
     :title='$t("MSG_CONTACTS")'
     :rows='contacts'
-    key='ID'
+    row-key='ID'
     :loading='contactLoading'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as Contact)'

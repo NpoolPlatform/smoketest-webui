@@ -4,7 +4,7 @@
     flat
     :title='$t("MSG_EMAIL_TEMPLATES")'
     :rows='emails'
-    key='ID'
+    row-key='ID'
     :loading='emailLoading'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as EmailTemplate)'

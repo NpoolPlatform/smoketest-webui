@@ -4,7 +4,7 @@
     flat
     :title='$t("MSG_SMS_TEMPLATES")'
     :rows='smss'
-    key='ID'
+    row-key='ID'
     :loading='smsLoading'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as SMSTemplate)'

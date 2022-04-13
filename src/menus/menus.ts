@@ -38,26 +38,46 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
-      } as MenuItem, {
+      } as MenuItem
+    ]
+  } as MenuItem, {
+    menuId: uid(),
+    label: '国际化',
+    caption: '管理应用语言包',
+    icon: 'perm_identity',
+    target: '/app/languages',
+    level: 1,
+    sectionBegin: false,
+    children: [
+      {
         menuId: uid(),
-        label: '国际化',
-        caption: '管理应用语言支持',
+        label: '语言设置',
+        caption: '管理应用支持语言',
         icon: 'perm_identity',
-        target: '/application/languages',
+        target: '/app/languages',
         level: 1,
         sectionBegin: false,
         children: []
       } as MenuItem, {
         menuId: uid(),
-        label: '商品定价与上下架',
-        caption: '管理应用内商品定价',
+        label: '语言包管理',
+        caption: '管理应用文案',
         icon: 'perm_identity',
-        target: '/application/goods',
+        target: '/app/messages',
         level: 1,
         sectionBegin: false,
         children: []
       } as MenuItem
     ]
+  } as MenuItem, {
+    menuId: uid(),
+    label: '商品',
+    caption: '应用内商品定价与上下架',
+    icon: 'perm_identity',
+    target: '/app/goods',
+    level: 1,
+    sectionBegin: false,
+    children: []
   } as MenuItem, {
     menuId: uid(),
     label: '审核',
