@@ -39,17 +39,18 @@
 
 <script setup lang='ts'>
 import { ref, computed } from 'vue'
-import { Language, useLangStore } from 'npool-cli-v2'
+import { Language, useLangStore, useLocaleStore } from 'npool-cli-v2'
 
 const downArrow = ref('img: icons/DownArrow.svg')
 const internet = ref('img: icons/Internet.svg')
 
 const lang = useLangStore()
-const langs = computed(() => lang.Languages)
-const langLabel = computed(() => lang.CurLang?.Short !== '' ? lang.CurLang?.Short : lang.CurLang.Lang)
+const locale = useLocaleStore()
+const langs = computed(() => locale.Languages)
+const langLabel = computed(() => locale.CurLang?.Short !== '' ? locale.CurLang?.Short : locale.CurLang.Lang)
 
-const onLangItemClick = (myLang: Language) => {
-  lang.setLang(myLang)
+const onLangItemClick = (language: Language) => {
+  lang.setLang(language)
 }
 
 </script>
