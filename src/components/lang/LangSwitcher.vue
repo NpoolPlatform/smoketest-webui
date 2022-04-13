@@ -38,8 +38,19 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, computed } from 'vue'
+import { ref, computed, defineProps, withDefaults, toRef, defineEmits } from 'vue'
 import { Language, useLangStore, useLocaleStore } from 'npool-cli-v2'
+
+interface Props {
+  language?: Language
+  emitResult?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  language: undefined,
+  emitResult: false
+})
+const emitResult = toRef(props, 'emitResult')
 
 const downArrow = ref('img: icons/DownArrow.svg')
 const internet = ref('img: icons/Internet.svg')
@@ -49,7 +60,13 @@ const locale = useLocaleStore()
 const langs = computed(() => locale.Languages)
 const langLabel = computed(() => locale.CurLang?.Short !== '' ? locale.CurLang?.Short : locale.CurLang.Lang)
 
+const emit = defineEmits<{(e: 'update:language', language: Language): void}>()
+
 const onLangItemClick = (language: Language) => {
+  if (emitResult.value) {
+    emit('update:language', language)
+    return
+  }
   lang.setLang(language)
 }
 
