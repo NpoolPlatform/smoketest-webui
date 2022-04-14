@@ -127,11 +127,13 @@ const langLoading = ref(true)
 const messageLoading = ref(false)
 
 const langs = computed(() => locale.Languages)
-const messages = computed(() => locale.LangMessages)
-const loadedMessages = ref([] as Array<Message>)
+
 const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
+const messages = computed(() => locale.getLangMessages(language.value?.ID))
+
 const loadedLanguage = ref(undefined as unknown as Language)
+const loadedMessages = ref([] as Array<Message>)
 
 watch(language, () => {
   messageLoading.value = true
