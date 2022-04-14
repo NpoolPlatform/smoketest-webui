@@ -243,7 +243,20 @@ const onFileLoaded = (evt: Event) => {
 }
 
 const onBatchSubmit = () => {
-  // TODO
+  adminLang.createMessages({
+    TargetLangID: language.value.ID,
+    Infos: loadedMessages.value,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_MESSAGES',
+        Message: 'MSG_CREATE_MESSAGES_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onMenuHide = () => {
