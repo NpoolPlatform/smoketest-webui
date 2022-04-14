@@ -89,9 +89,9 @@ const coins = computed(() => coin.Coins)
 const coinLoading = ref(true)
 
 const good = useGoodStore()
-const goods = computed(() => buildGoods(good.Goods))
-const goodLoading = ref(true)
 const adminGood = useAdminGoodStore()
+const goods = computed(() => buildGoods(adminGood.Goods))
+const goodLoading = ref(true)
 
 const appGoods = computed(() => good.AppGoods)
 const appGoodLoading = ref(true)
@@ -133,7 +133,7 @@ onMounted(() => {
     coinLoading.value = false
   })
 
-  good.getGoods({
+  adminGood.getAllGoods({
     Message: {
       Error: {
         Title: 'MSG_GET_GOODS',
