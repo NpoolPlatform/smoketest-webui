@@ -189,7 +189,7 @@ const onOnlineChange = (online: boolean) => {
         }
       }
     }, () => {
-      // TODO
+      appGood.value.Online = online
     })
     return
   }
@@ -205,7 +205,7 @@ const onOnlineChange = (online: boolean) => {
       }
     }
   }, () => {
-    // TODO
+    appGood.value.Online = online
   })
 }
 
