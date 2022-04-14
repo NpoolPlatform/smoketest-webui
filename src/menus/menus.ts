@@ -77,7 +77,34 @@ const MainDrawerMenus = [
     target: '/app/goods',
     level: 1,
     sectionBegin: false,
-    children: []
+    children: [{
+      menuId: uid(),
+      label: '上下架',
+      caption: '价格与上下架管理',
+      icon: 'perm_identity',
+      target: '/app/goods',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '推荐',
+      caption: '添加商品推荐',
+      icon: 'perm_identity',
+      target: '/app/good/recommends',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '促销',
+      caption: '管理促销信息',
+      icon: 'perm_identity',
+      target: '/app/good/promotions',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem]
   } as MenuItem, {
     menuId: uid(),
     label: '审核',
