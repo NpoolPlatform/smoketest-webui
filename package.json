@@ -26,9 +26,11 @@
   ],
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "@types/file-saver": "^2.0.5",
     "axios": "^0.26.1",
     "core-js": "^3.6.5",
-    "npool-cli-v2": "^0.1.203",
+    "file-saver": "^2.0.5",
+    "npool-cli-v2": "^0.1.205",
     "pinia": "^2.0.13",
     "quasar": "^2.0.0",
     "vue": "^3.0.0",

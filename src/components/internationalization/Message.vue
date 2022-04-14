@@ -32,6 +32,13 @@
           :label='$t("MSG_CREATE")'
           @click='onCreate'
         />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_EXPORT")'
+          @click='onExport'
+        />
       </div>
     </template>
   </q-table>
@@ -62,12 +69,15 @@
 </template>
 
 <script setup lang='ts'>
-import { Language, Message, NotificationType, useAdminLangStore, useLangStore, useLocaleStore } from 'npool-cli-v2'
+import { formatTime, Language, Message, NotificationType, useAdminLangStore, useApplicationStore, useLangStore, useLocaleStore } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
+import { saveAs } from 'file-saver'
+import { AppID } from 'src/const/const'
 
 const lang = useLangStore()
 const adminLang = useAdminLangStore()
 const locale = useLocaleStore()
+const application = useApplicationStore()
 
 const langLoading = ref(true)
 const messageLoading = ref(false)
@@ -81,6 +91,7 @@ watch(language, () => {
   messageLoading.value = true
 
   lang.getLangMessages({
+    TargetLangID: language.value.ID,
     LangID: language.value.ID,
     Message: {
       Error: {
@@ -100,6 +111,20 @@ const updating = ref(false)
 const target = ref({} as unknown as Message)
 
 onMounted(() => {
+  application.getApplication({
+    ID: AppID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP',
+        Message: 'MSG_GET_APP_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+
   lang.getLangs({
     Message: {
       Error: {
@@ -124,6 +149,22 @@ const onRowClick = (message: Message) => {
   target.value = message
   showing.value = true
   updating.value = true
+}
+
+const onExport = () => {
+  if (!language.value) {
+    return
+  }
+
+  const blob = new Blob([JSON.stringify({
+    Language: language.value,
+    Messags: messages.value
+  })], { type: 'text/plain;charset=utf-8' })
+  const filename = application.Application.App.Name + '-' +
+                   language.value.Name + '-' +
+                   formatTime(new Date().getTime() / 1000) +
+                   '.json'
+  saveAs(blob, filename)
 }
 
 const onMenuHide = () => {
