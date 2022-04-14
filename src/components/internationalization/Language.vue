@@ -53,7 +53,7 @@ const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
 
 onMounted(() => {
-  lang.getLangs({
+  appLang.getLangs({
     Message: {
       Error: {
         Title: 'MSG_GET_LANGS',
