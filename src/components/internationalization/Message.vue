@@ -131,6 +131,7 @@ const messages = computed(() => locale.LangMessages)
 const loadedMessages = ref([] as Array<Message>)
 const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
+const loadedLanguage = ref(undefined as unknown as Language)
 
 watch(language, () => {
   messageLoading.value = true
@@ -236,6 +237,7 @@ const onFileLoaded = (evt: Event) => {
       const index = locale.Languages.findIndex((el) => el.ID === loaded.Language.ID)
       locale.Languages.splice(index, index < 0 ? 0 : 1, loaded.Language)
       selectedLang.value = [loaded.Language]
+      loadedLanguage.value = loaded.Language
       loadedMessages.value = loaded.Messages
     }
     reader.readAsText(filename)
@@ -244,7 +246,7 @@ const onFileLoaded = (evt: Event) => {
 
 const onBatchSubmit = () => {
   adminLang.createMessages({
-    TargetLangID: language.value.ID,
+    TargetLangID: loadedLanguage.value.ID,
     Infos: loadedMessages.value,
     Message: {
       Error: {
