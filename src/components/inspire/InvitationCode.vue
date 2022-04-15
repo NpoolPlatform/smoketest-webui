@@ -2,6 +2,35 @@
   <q-table
     dense
     flat
+    :title='$t("MSG_USERS")'
+    :rows='users'
+    row-key='ID'
+    :rows-per-page-options='[10]'
+    selection='single'
+    v-model:selected='selectedUser'
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_CREATE")'
+          @click='onCreateInvitationCodeClick'
+        />
+      </div>
+    </template>
+  </q-table>
+  <q-table
+    dense
+    flat
     :title='$t("MSG_INVITATION_CODES")'
     :rows='ecodes'
     row-key='ID'
@@ -11,7 +40,7 @@
 </template>
 
 <script setup lang='ts'>
-import { useAdminInspireStore, NotificationType, InvitationCode, useUsersStore } from 'npool-cli-v2'
+import { useAdminInspireStore, NotificationType, InvitationCode, useUsersStore, AppUser } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -34,6 +63,9 @@ const ecodes = computed(() => Array.from(codes.value).map((code) => {
   myCode.PhoneNO = user.getUserByID(code.UserID)?.User.PhoneNO as string
   return myCode
 }))
+const users = computed(() => Array.from(user.Users.filter((el) => codes.value.findIndex((code) => el.User.ID === code.UserID) < 0).map((el) => el.User)))
+const selectedUser = ref([] as Array<AppUser>)
+const username = ref('')
 
 onMounted(() => {
   inspire.getInvitationCodes({
@@ -62,5 +94,27 @@ onMounted(() => {
     // TODO
   })
 })
+
+const onCreateInvitationCodeClick = () => {
+  if (selectedUser.value.length === 0) {
+    return
+  }
+  inspire.createInvitationCode({
+    TargetUserID: selectedUser.value[0].ID as string,
+    Info: {
+      UserID: selectedUser.value[0].ID as string
+    },
+    Message: {
+      Error: {
+        Title: t('MSG_CREATE_INVITATION_CODE'),
+        Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
 
 </script>
