@@ -146,7 +146,7 @@ const MainDrawerMenus = [
         label: '超时支付',
         caption: '管理超时支付账户',
         icon: 'format_list_numbered',
-        target: '/review/user/payment/balance',
+        target: '/review/payment',
         level: 1,
         sectionBegin: false,
         children: []
@@ -166,7 +166,7 @@ const MainDrawerMenus = [
         label: '用户列表',
         caption: '查看全部用户',
         icon: 'format_list_numbered',
-        target: '/users/users',
+        target: '/users',
         level: 1,
         sectionBegin: false,
         children: []
@@ -175,7 +175,7 @@ const MainDrawerMenus = [
         label: '角色列表',
         caption: '查看全部角色',
         icon: 'format_list_numbered',
-        target: '/users/roles',
+        target: '/roles',
         level: 1,
         sectionBegin: false,
         children: []
@@ -184,7 +184,7 @@ const MainDrawerMenus = [
         label: '角色用户',
         caption: '管理角色用户',
         icon: 'format_list_numbered',
-        target: '/users/roleusers',
+        target: '/roleusers',
         level: 1,
         sectionBegin: false,
         children: []
