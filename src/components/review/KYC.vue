@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useReviewStore, KYCReview, useKYCsStore, ImageType, DocumentType, useLocaleStore, ReviewState } from 'npool-cli-v2'
+import { NotificationType, useReviewStore, KYCReview, useKYCsStore, ImageType, DocumentType, useLocaleStore, ReviewState, useLoginedUserStore } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -62,6 +62,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const review = useReviewStore()
 const locale = useLocaleStore()
+const logined = useLoginedUserStore()
 
 const reviews = computed(() => review.KYCReviews)
 const displayReviews = computed(() => Array.from(review.KYCReviews).map((el) => el.Review))
@@ -141,6 +142,8 @@ const onRowClick = (index: number) => {
 }
 
 const updateReview = () => {
+  target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
+
   review.updateKYCReview({
     TargetLangID: locale.CurLang?.ID as string,
     Info: target.value.Review,

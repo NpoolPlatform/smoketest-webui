@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLocaleStore } from 'npool-cli-v2'
+import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLocaleStore, useLoginedUserStore } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -63,6 +63,7 @@ const { t } = useI18n({ useScope: 'global' })
 const review = useReviewStore()
 const coins = useCoinStore()
 const locale = useLocaleStore()
+const logined = useLoginedUserStore()
 
 const reviews = computed(() => review.WithdrawReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawReviews).map((el) => el.Review))
@@ -113,6 +114,8 @@ const onRowClick = (index: number) => {
 }
 
 const updateReview = () => {
+  target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
+
   review.updateWithdrawReview({
     TargetLangID: locale.CurLang?.ID as string,
     Info: target.value.Review,
