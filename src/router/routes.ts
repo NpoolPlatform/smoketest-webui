@@ -180,6 +180,18 @@ const routes: RouteRecordRaw[] = [
           ShowTopTip: false,
           NeedLogined: true
         }
+      }, {
+        path: 'users',
+        component: () => import('pages/user/User.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
       }
     ]
   },

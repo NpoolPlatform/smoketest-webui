@@ -166,7 +166,7 @@ const MainDrawerMenus = [
         label: '用户列表',
         caption: '查看全部用户',
         icon: 'format_list_numbered',
-        target: '/users/users',
+        target: '/users',
         level: 1,
         sectionBegin: false,
         children: []
