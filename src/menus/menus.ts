@@ -184,7 +184,7 @@ const MainDrawerMenus = [
         label: '角色用户',
         caption: '管理角色用户',
         icon: 'format_list_numbered',
-        target: '/users/roleusers',
+        target: '/roleusers',
         level: 1,
         sectionBegin: false,
         children: []
