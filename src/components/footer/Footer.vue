@@ -10,6 +10,4 @@
 <style lang='sass' scoped>
 .announcement
   color: $blue-6
-  font-size: 12px
-  padding: 3px 0
 </style>

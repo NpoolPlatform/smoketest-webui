@@ -21,4 +21,5 @@ const breadcrumbs = computed(() => menu.MainBreadcrumbs)
   border-bottom: 1px solid $grey-4
   font-size: 0.875em
   line-height: 1em
+  padding: 3px 0
 </style>
