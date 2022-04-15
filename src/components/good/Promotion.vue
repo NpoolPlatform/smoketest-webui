@@ -48,7 +48,6 @@
         <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
         <q-input type='number' v-model='target.Price' :label='$t("MSG_PRICE")' />
         <q-input type='date' v-model='start' :label='$t("MSG_START")' />
-        <div>{{ target }}</div>
         <q-input type='date' v-model='end' :label='$t("MSG_END")' />
       </q-card-section>
       <q-item class='row'>

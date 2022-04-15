@@ -8,7 +8,26 @@
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedRoleUser'
-  />
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_DELETE")'
+          @click='onDeleteRoleUser'
+        />
+      </div>
+    </template>
+  </q-table>
   <q-table
     dense
     flat
@@ -24,7 +43,7 @@
     dense
     flat
     :title='$t("MSG_USERS")'
-    :rows='users'
+    :rows='displayUsers'
     row-key='ID'
     :loading='userLoading'
     :rows-per-page-options='[10]'
@@ -33,6 +52,13 @@
   >
     <template #top-right>
       <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
         <q-btn
           dense
           flat
@@ -60,12 +86,29 @@ const roleLoading = ref(true)
 const selectedRole = ref([] as Array<AppRole>)
 
 const user = useUsersStore()
-const users = computed(() => Array.from(user.Users).map((el) => el.User))
+const users = computed(() => Array.from(user.Users.filter((user) => {
+  if (!user.Roles) {
+    return true
+  }
+  if (selectedRole.value.length === 0) {
+    return true
+  }
+  return user.Roles.findIndex((role) => role.ID === selectedRole.value[0].ID) < 0
+})).map((el) => el.User))
 const userLoading = ref(true)
 const selectedUser = ref([] as Array<AppUser>)
 
-const roleUsers = computed(() => Array.from(user.Users.filter((user) => user.Roles && user.Roles?.findIndex((role) => role.ID === selectedRole.value[0]?.ID) >= 0)).map((el) => el.User))
+const roleUsers = computed(() => {
+  if (selectedRole.value.length === 0) {
+    return [] as Array<AppUser>
+  }
+  const curUsers = role.RoleUsers.filter((roleUser) => roleUser.RoleID === selectedRole.value[0].ID)
+  return Array.from(user.Users.filter((user) => curUsers.findIndex((u) => u.UserID === user.User.ID) >= 0)).map((el) => el.User)
+})
 const selectedRoleUser = ref([] as Array<AppUser>)
+
+const username = ref('')
+const displayUsers = computed(() => users.value.filter((user) => user.EmailAddress?.includes(username.value) || user.PhoneNO?.includes(username.value)))
 
 onMounted(() => {
   role.getRoles({
@@ -93,10 +136,61 @@ onMounted(() => {
   }, () => {
     userLoading.value = false
   })
+
+  role.getRoleUsers({
+    Message: {
+      Error: {
+        Title: 'MSG_GET_ROLE_USERS',
+        Message: 'MSG_GET_ROLE_USERS_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 })
 
 const onAddRoleUser = () => {
-  // TODO
+  if (selectedRole.value.length === 0 || selectedUser.value.length === 0) {
+    return
+  }
+  role.createRoleUser({
+    TargetUserID: selectedUser.value[0].ID as string,
+    Info: {
+      RoleID: selectedRole.value[0].ID,
+      UserID: selectedUser.value[0].ID
+    },
+    Message: {
+      Error: {
+        Title: 'MSG_ADD_ROLE_USER',
+        Message: 'MSG_ADD_ROLE_USER_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+
+const onDeleteRoleUser = () => {
+  if (selectedRoleUser.value.length === 0) {
+    return
+  }
+  role.deleteRoleUser({
+    ID: selectedRoleUser.value[0].ID as string,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_ROLE_USER',
+        Message: 'MSG_DELETE_ROLE_USER_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 </script>
