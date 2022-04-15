@@ -48,7 +48,7 @@
     dense
     flat
     :title='$t("MSG_PURCHASE_AMOUNT_SETTINGS")'
-    :rows='purchaseAmountSettings'
+    :rows='amountSettings'
     row-key='ID'
     :rows-per-page-options='[10]'
   >
@@ -77,13 +77,13 @@
         <span>{{ $t('MSG_USERNAME') }}: {{ selectedUser[0]?.EmailAddress?.length ? selectedUser[0]?.EmailAddress : selectedUser[0]?.PhoneNO }}</span>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.Amount' :label='$t("MSG_AMOUNT")' />
-        <q-input v-model='target.Percent' :label='$t("MSG_PERCENT")' />
+        <q-input type='number' v-model='target.Amount' :label='$t("MSG_AMOUNT")' />
+        <q-input type='number' v-model='target.Percent' :label='$t("MSG_PERCENT")' />
         <q-input v-model='target.BadgeLarge' :label='$t("MSG_BADGE_LARGE")' />
         <q-input v-model='target.BadgeSmall' :label='$t("MSG_BADGE_SMALL")' />
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
-        <q-input v-model='target.Start' :label='$t("MSG_START")' />
-        <q-input v-model='target.End' :label='$t("MSG_END")' />
+        <q-input type='date' v-model='start' :label='$t("MSG_START")' />
+        <q-input type='date' v-model='end' :label='$t("MSG_END")' />
       </q-card-section>
       <q-item class='row'>
         <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -94,8 +94,17 @@
 </template>
 
 <script setup lang='ts'>
-import { useAdminInspireStore, NotificationType, useCoinStore, CommissionCoinSetting, PurchaseAmountSetting, useUsersStore, AppUser, InvalidID } from 'npool-cli-v2'
-import { computed, onMounted, ref } from 'vue'
+import {
+  useAdminInspireStore,
+  NotificationType,
+  useCoinStore,
+  CommissionCoinSetting,
+  PurchaseAmountSetting,
+  useUsersStore,
+  AppUser,
+  InvalidID
+} from 'npool-cli-v2'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -106,6 +115,11 @@ const user = useUsersStore()
 
 interface CoinSetting extends CommissionCoinSetting {
   CoinName: string
+}
+
+interface AmountSetting extends PurchaseAmountSetting {
+  EmailAddress: string
+  PhoneNO: string
 }
 
 const inspire = useAdminInspireStore()
@@ -121,6 +135,13 @@ const users = computed(() => Array.from(user.Users.filter((el) => purchaseAmount
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => user.EmailAddress?.includes(username.value) || user.PhoneNO?.includes(username.value)))
+
+const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).map((el) => {
+  const s = el as unknown as AmountSetting
+  s.EmailAddress = user.getUserByID(s.UserID)?.User?.EmailAddress as string
+  s.PhoneNO = user.getUserByID(s.UserID)?.User?.PhoneNO as string
+  return s
+}))
 
 onMounted(() => {
   inspire.getCommissionSetting({
@@ -193,6 +214,14 @@ const showing = ref(false)
 const target = ref({
   UserID: InvalidID
 } as unknown as PurchaseAmountSetting)
+const start = ref('')
+watch(start, () => {
+  target.value.Start = new Date(start.value).getTime() / 1000
+})
+const end = ref('')
+watch(end, () => {
+  target.value.End = new Date(end.value).getTime() / 1000
+})
 
 const onMenuHide = () => {
   showing.value = false
