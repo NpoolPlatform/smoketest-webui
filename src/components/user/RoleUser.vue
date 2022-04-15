@@ -178,8 +178,14 @@ const onDeleteRoleUser = () => {
   if (selectedRoleUser.value.length === 0) {
     return
   }
+
+  const index = role.RoleUsers.findIndex((el) => el.UserID === selectedRoleUser.value[0].ID)
+  if (index < 0) {
+    return
+  }
+
   role.deleteRoleUser({
-    ID: selectedRoleUser.value[0].ID as string,
+    ID: role.RoleUsers[index].ID as string,
     Message: {
       Error: {
         Title: 'MSG_DELETE_ROLE_USER',
