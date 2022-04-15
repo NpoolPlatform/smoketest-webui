@@ -3,4 +3,4 @@ commonLabels:
 
 resources:
   - 01-procyon-dashboard-v2.yaml
-  - 02-ingress.yaml
+  - 02-traefik-ingress.yaml
