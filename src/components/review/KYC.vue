@@ -33,7 +33,7 @@
         <q-item-section>
           <q-img :ratio='1' :src='(images?.get(ImageType.Front)?.Base64 as string)' />
         </q-item-section>
-        <q-item-section v-if='target.Kyc?.CardType === ImageType.Back'>
+        <q-item-section v-if='target.Kyc?.CardType === DocumentType.IDCard'>
           <q-img :ratio='1' :src='(images?.get(ImageType.Back)?.Base64 as string)' />
         </q-item-section>
         <q-item-section>
