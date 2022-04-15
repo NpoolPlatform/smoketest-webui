@@ -139,8 +139,8 @@ const onSubmit = () => {
       Info: target.value,
       Message: {
         Error: {
-          Title: t('MSG_UPDATE_RECOMMENDS'),
-          Message: t('MSG_UPDATE_RECOMMENDS_FAIL'),
+          Title: t('MSG_CREATE_RECOMMENDS'),
+          Message: t('MSG_CREATE_RECOMMENDS_FAIL'),
           Popup: true,
           Type: NotificationType.Error
         }
