@@ -11,16 +11,14 @@ metadata:
 
 spec:
   rules:
-    - host: vue-template.npool.top
+    - host: dashboard.npool.top
       http: &http_rules
         paths:
           - path: /
             backend:
               serviceName: procyon-dashboard-v2
               servicePort: 80
-    - host: vue-template.xpool.top
+    - host: dashboard.xpool.top
       http: *http_rules
-    - host: www.vue-template.npool.top
-      http: *http_rules
-    - host: www.vue-template.xpool.top
+    - host: dashboard.procyon.vip
       http: *http_rules
