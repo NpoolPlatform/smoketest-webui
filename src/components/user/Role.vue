@@ -2,10 +2,10 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_USERS")'
-    :rows='users'
+    :title='$t("MSG_ROLES")'
+    :rows='roles'
     row-key='ID'
-    :loading='userLoading'
+    :loading='roleLoading'
     :rows-per-page-options='[20]'
   />
   <q-card>
@@ -16,25 +16,25 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useUsersStore } from 'npool-cli-v2'
+import { NotificationType, useRoleStore } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 
-const user = useUsersStore()
-const users = computed(() => Array.from(user.Users).map((user) => user.User))
-const userLoading = ref(true)
+const role = useRoleStore()
+const roles = computed(() => role.Roles)
+const roleLoading = ref(true)
 
 onMounted(() => {
-  user.getUsers({
+  role.getRoles({
     Message: {
       Error: {
-        Title: 'MSG_GET_USERS',
-        Message: 'MSG_GET_USERS_FAIL',
+        Title: 'MSG_GET_ROLES',
+        Message: 'MSG_GET_ROLES_FAIL',
         Popup: true,
         Type: NotificationType.Error
       }
     }
   }, () => {
-    userLoading.value = false
+    roleLoading.value = false
   })
 })
 

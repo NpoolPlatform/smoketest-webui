@@ -175,7 +175,7 @@ const MainDrawerMenus = [
         label: '角色列表',
         caption: '查看全部角色',
         icon: 'format_list_numbered',
-        target: '/users/roles',
+        target: '/roles',
         level: 1,
         sectionBegin: false,
         children: []
