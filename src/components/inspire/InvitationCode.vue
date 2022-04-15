@@ -3,7 +3,7 @@
     dense
     flat
     :title='$t("MSG_USERS")'
-    :rows='users'
+    :rows='displayUsers'
     row-key='ID'
     :rows-per-page-options='[10]'
     selection='single'
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang='ts'>
-import { useAdminInspireStore, NotificationType, InvitationCode, useUsersStore, AppUser } from 'npool-cli-v2'
+import { useAdminInspireStore, NotificationType, UserInvitationCode, useUsersStore, AppUser } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -51,13 +51,13 @@ const inspire = useAdminInspireStore()
 const codes = computed(() => inspire.InvitationCodes)
 const codeLoading = ref(true)
 
-interface Code extends InvitationCode {
+interface Code extends UserInvitationCode {
   EmailAddress: string
   PhoneNO: string
 }
 
 const user = useUsersStore()
-const ecodes = computed(() => Array.from(codes.value).map((code) => {
+const ecodes = computed(() => Array.from(codes.value).map((code: UserInvitationCode) => {
   const myCode = code as unknown as Code
   myCode.EmailAddress = user.getUserByID(code.UserID)?.User.EmailAddress as string
   myCode.PhoneNO = user.getUserByID(code.UserID)?.User.PhoneNO as string
@@ -66,6 +66,7 @@ const ecodes = computed(() => Array.from(codes.value).map((code) => {
 const users = computed(() => Array.from(user.Users.filter((el) => codes.value.findIndex((code) => el.User.ID === code.UserID) < 0).map((el) => el.User)))
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
+const displayUsers = computed(() => users.value.filter((user) => user.EmailAddress?.includes(username.value) || user.PhoneNO?.includes(username.value)))
 
 onMounted(() => {
   inspire.getInvitationCodes({
