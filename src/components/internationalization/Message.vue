@@ -146,12 +146,12 @@ const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
 const messages = computed(() => locale.getLangMessages(language.value?.ID))
 const appMsgId = ref('')
-const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => msg.ID.includes(appMsgId.value)) : [])
+const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => msg.MessageID.includes(appMsgId.value)) : [])
 
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
 const loadedMsgId = ref('')
-const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => msg.ID.includes(loadedMsgId.value)))
+const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => msg.MessageID.includes(loadedMsgId.value)))
 
 watch(language, () => {
   messageLoading.value = true
