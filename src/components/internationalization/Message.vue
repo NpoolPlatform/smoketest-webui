@@ -151,7 +151,7 @@ const displayAppMsgs = computed(() => messages.value ? messages.value.filter((ms
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
 const loadedMsgId = ref('')
-const displayLoadedMsgs = computed(() => messages.value ? messages.value.filter((msg) => msg.ID.includes(loadedMsgId.value)) : [])
+const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => msg.ID.includes(loadedMsgId.value)))
 
 watch(language, () => {
   messageLoading.value = true
