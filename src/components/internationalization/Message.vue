@@ -14,7 +14,7 @@
     dense
     flat
     :title='$t("MSG_APP_MESSAGES")'
-    :rows='messages'
+    :rows='displayAppMsgs'
     :loading='messageLoading'
     row-key='ID'
     :rows-per-page-options='[20]'
@@ -25,6 +25,13 @@
         <div v-if='!language' class='column justify-center'>
           <span class='warning'>{{ $t('MSG_SELECT_LANGUAGE') }}</span>
         </div>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='appMsgId'
+          :label='$t("MSG_USERNAME")'
+        />
         <q-btn
           dense
           flat
@@ -46,12 +53,19 @@
     dense
     flat
     :title='$t("MSG_LOADED_MESSAGES")'
-    :rows='loadedMessages'
+    :rows='displayLoadedMsgs'
     row-key='MessageID'
     :rows-per-page-options='[20]'
   >
     <template #top-right>
       <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='loadedMsgId'
+          :label='$t("MSG_USERNAME")'
+        />
         <q-btn
           dense
           flat
@@ -131,9 +145,13 @@ const langs = computed(() => locale.Languages)
 const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
 const messages = computed(() => locale.getLangMessages(language.value?.ID))
+const appMsgId = ref('')
+const displayAppMsgs = computed(() => messages.value.filter((msg) => msg.ID.includes(appMsgId.value)))
 
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
+const loadedMsgId = ref('')
+const displayLoadedMsgs = computed(() => messages.value.filter((msg) => msg.ID.includes(loadedMsgId.value)))
 
 watch(language, () => {
   messageLoading.value = true
