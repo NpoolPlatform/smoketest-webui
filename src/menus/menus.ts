@@ -67,6 +67,15 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
+      } as MenuItem, {
+        menuId: uid(),
+        label: '国家列表',
+        caption: '查看国家列表',
+        icon: 'perm_identity',
+        target: '/countries',
+        level: 1,
+        sectionBegin: false,
+        children: []
       } as MenuItem
     ]
   } as MenuItem, {

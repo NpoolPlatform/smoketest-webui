@@ -138,7 +138,7 @@ const locale = useLocaleStore()
 const application = useApplicationStore()
 
 const langLoading = ref(true)
-const messageLoading = ref(false)
+const messageLoading = ref(true)
 
 const langs = computed(() => locale.Languages)
 
