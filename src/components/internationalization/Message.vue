@@ -17,7 +17,7 @@
     :rows='displayAppMsgs'
     :loading='messageLoading'
     row-key='ID'
-    :rows-per-page-options='[20]'
+    :rows-per-page-options='[20, 40, 60, 80, 100, 0]'
     @row-click='(evt, row, index) => onRowClick(row as Message)'
   >
     <template #top-right>
@@ -29,8 +29,8 @@
           dense
           flat
           class='small'
-          v-model='appMsgId'
-          :label='$t("MSG_USERNAME")'
+          v-model='searchStr'
+          :label='$t("MSG_SEARCH")'
         />
         <q-btn
           dense
@@ -145,8 +145,10 @@ const langs = computed(() => locale.Languages)
 const selectedLang = ref([] as Array<Language>)
 const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
 const messages = computed(() => locale.getLangMessages(language.value?.ID))
-const appMsgId = ref('')
-const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => msg.MessageID.includes(appMsgId.value)) : [])
+const searchStr = ref('')
+const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => {
+  return msg.MessageID.includes(searchStr.value) || msg.Message.includes(searchStr.value)
+}) : [])
 
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
