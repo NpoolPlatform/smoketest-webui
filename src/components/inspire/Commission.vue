@@ -95,14 +95,15 @@
 
 <script setup lang='ts'>
 import {
-  useAdminInspireStore,
   NotificationType,
   useCoinStore,
   CommissionCoinSetting,
   PurchaseAmountSetting,
   useUsersStore,
   AppUser,
-  InvalidID
+  InvalidID,
+  useCommissionStore,
+  usePurchaseAmountSettingStore
 } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -122,14 +123,16 @@ interface AmountSetting extends PurchaseAmountSetting {
   PhoneNO: string
 }
 
-const inspire = useAdminInspireStore()
-const setting = computed(() => inspire.CommissionSetting ? [inspire.CommissionSetting] : [])
-const coinSettings = computed(() => Array.from(inspire.CommissionCoinSettings).map((el) => {
+const commission = useCommissionStore()
+const setting = computed(() => commission.CommissionSetting ? [commission.CommissionSetting] : [])
+const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings).map((el) => {
   const s = el as unknown as CoinSetting
-  s.CoinName = coin.getCoinByID(s.CoinTypeID)?.Name
+  s.CoinName = coin.getCoinByID(s.CoinTypeID)?.Name as string
   return s
 }))
-const purchaseAmountSettings = computed(() => inspire.PurchaseAmountSettings)
+
+const purchaseAmount = usePurchaseAmountSettingStore()
+const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
 
 const users = computed(() => Array.from(user.Users.filter((el) => purchaseAmountSettings.value.findIndex((setting) => setting.UserID === el.User.ID) < 0).map((el) => el.User)))
 const selectedUser = ref([] as Array<AppUser>)
@@ -144,7 +147,7 @@ const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).m
 }))
 
 onMounted(() => {
-  inspire.getCommissionSetting({
+  commission.getCommissionSetting({
     Message: {
       Error: {
         Title: t('MSG_GET_COMMISSION_SETTING'),
@@ -157,7 +160,7 @@ onMounted(() => {
     // TODO
   })
 
-  inspire.getCommissionCoinSettings({
+  commission.getCommissionCoinSettings({
     Message: {
       Error: {
         Title: t('MSG_GET_COMMISSION_COIN_SETTING'),
@@ -170,7 +173,7 @@ onMounted(() => {
     // TODO
   })
 
-  inspire.getPurchaseAmountSettings({
+  purchaseAmount.getPurchaseAmountSettings({
     Message: {
       Error: {
         Title: t('MSG_GET_PURCHASE_AMOUNT_SETTING'),
@@ -232,13 +235,13 @@ const onSubmit = () => {
     target.value.UserID = selectedUser.value[0].ID as string
   }
 
-  inspire.createPurchaseAmountSetting({
+  purchaseAmount.createUserPurchaseAmountSetting({
     TargetUserID: target.value.UserID,
     Info: target.value,
     Message: {
       Error: {
-        Title: t('MSG_CREATE_PURCHASE_AMOUNT_SETTING'),
-        Message: t('MSG_CREATE_PURCHASE_AMOUNT_SETTING_FAIL'),
+        Title: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING'),
+        Message: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING_FAIL'),
         Popup: true,
         Type: NotificationType.Error
       }

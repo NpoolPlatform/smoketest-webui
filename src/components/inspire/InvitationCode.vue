@@ -40,27 +40,27 @@
 </template>
 
 <script setup lang='ts'>
-import { useAdminInspireStore, NotificationType, UserInvitationCode, useUsersStore, AppUser } from 'npool-cli-v2'
+import { NotificationType, InvitationCode, useUsersStore, AppUser, useInvitationStore } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const inspire = useAdminInspireStore()
+const inspire = useInvitationStore()
 const codes = computed(() => inspire.InvitationCodes)
 const codeLoading = ref(true)
 
-interface Code extends UserInvitationCode {
+interface Code extends InvitationCode {
   EmailAddress: string
   PhoneNO: string
 }
 
 const user = useUsersStore()
-const ecodes = computed(() => Array.from(codes.value).map((code: UserInvitationCode) => {
+const ecodes = computed(() => Array.from(codes.value).map((code: InvitationCode) => {
   const myCode = code as unknown as Code
-  myCode.EmailAddress = user.getUserByID(code.UserID)?.User.EmailAddress as string
-  myCode.PhoneNO = user.getUserByID(code.UserID)?.User.PhoneNO as string
+  myCode.EmailAddress = user.getUserByID(code.UserID as string)?.User.EmailAddress as string
+  myCode.PhoneNO = user.getUserByID(code.UserID as string)?.User.PhoneNO as string
   return myCode
 }))
 const users = computed(() => Array.from(user.Users.filter((el) => codes.value.findIndex((code) => el.User.ID === code.UserID) < 0).map((el) => el.User)))
