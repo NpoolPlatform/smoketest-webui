@@ -63,8 +63,8 @@
           dense
           flat
           class='small'
-          v-model='loadedMsgId'
-          :label='$t("MSG_USERNAME")'
+          v-model='loadedSearchStr'
+          :label='$t("MSG_SEARCH")'
         />
         <q-btn
           dense
@@ -138,7 +138,7 @@ const locale = useLocaleStore()
 const application = useApplicationStore()
 
 const langLoading = ref(true)
-const messageLoading = ref(true)
+const messageLoading = ref(false)
 
 const langs = computed(() => locale.Languages)
 
@@ -152,8 +152,10 @@ const displayAppMsgs = computed(() => messages.value ? messages.value.filter((ms
 
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
-const loadedMsgId = ref('')
-const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => msg.MessageID.includes(loadedMsgId.value)))
+const loadedSearchStr = ref('')
+const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => {
+  return msg.MessageID.includes(loadedSearchStr.value) || msg.Message.includes(loadedSearchStr.value)
+}))
 
 watch(language, () => {
   messageLoading.value = true
