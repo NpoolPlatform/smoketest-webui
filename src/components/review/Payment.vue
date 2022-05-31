@@ -3,11 +3,23 @@
     dense
     flat
     :title='$t("MSG_REVIEW_TIMEOUT_PAYMENTS")'
-    :rows='payments'
+    :rows='displayPayments'
     row-key='ID'
     :loading='paymentLoading'
     :rows-per-page-options='[20]'
-  />
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='searchStr'
+          :label='$t("MSG_SEARCH")'
+        />
+      </div>
+    </template>
+  </q-table>
   <q-table
     dense
     flat
@@ -35,6 +47,9 @@ const { t } = useI18n({ useScope: 'global' })
 const billing = useAdminBillingStore()
 const payments = computed(() => billing.Payments)
 const balances = computed(() => billing.PaymentBalances)
+
+const searchStr = ref('')
+const displayPayments = computed(() => payments.value.filter((el) => el.ID.includes(searchStr.value)))
 
 const coin = useCoinStore()
 
