@@ -17,6 +17,11 @@
     :loading='balanceLoading'
     :rows-per-page-options='[20]'
   />
+  <q-card>
+    <q-card-section class='bg-primary text-white'>
+      {{ $t('MSG_ADVERTISEMENT_POSITION') }}
+    </q-card-section>
+  </q-card>
 </template>
 
 <script setup lang='ts'>
@@ -37,6 +42,7 @@ interface MyBalance extends UserPaymentBalance {
   CoinName: string
   CoinUSDCurrency: number
   USDAmount: number
+  OrderID: string
 }
 const myBalances = computed(() => {
   const bls = [] as Array<MyBalance>
@@ -53,6 +59,7 @@ const myBalances = computed(() => {
     el.CoinName = coin.getCoinByID(payment.CoinInfoID)?.Name as string
     el.CoinUSDCurrency = payment.CoinUSDCurrency
     el.USDAmount = el.Amount * payment.CoinUSDCurrency
+
     bls.push(el)
   })
   return bls
