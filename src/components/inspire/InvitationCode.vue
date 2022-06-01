@@ -63,10 +63,15 @@ const ecodes = computed(() => Array.from(codes.value).map((code: InvitationCode)
   myCode.PhoneNO = user.getUserByID(code.UserID as string)?.User.PhoneNO as string
   return myCode
 }))
-const users = computed(() => Array.from(user.Users.filter((el) => codes.value.findIndex((code) => el.User.ID === code.UserID) < 0).map((el) => el.User)))
+const users = computed(() => Array.from(user.Users.filter((el) => {
+  return codes.value.findIndex((code) => el.User.ID === code.UserID) < 0
+}).map((el) => el.User)))
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
-const displayUsers = computed(() => users.value.filter((user) => user.EmailAddress?.includes(username.value) || user.PhoneNO?.includes(username.value)))
+const displayUsers = computed(() => users.value.filter((user) => {
+  return user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
+        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
+}))
 
 onMounted(() => {
   inspire.getInvitationCodes({

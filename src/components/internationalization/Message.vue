@@ -147,14 +147,16 @@ const language = computed(() => selectedLang.value.length > 0 ? selectedLang.val
 const messages = computed(() => locale.getLangMessages(language.value?.ID))
 const searchStr = ref('')
 const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => {
-  return msg.MessageID.includes(searchStr.value) || msg.Message.includes(searchStr.value)
+  return msg.MessageID.toLowerCase().includes(searchStr.value.toLowerCase()) ||
+        msg.Message.toLowerCase().includes(searchStr.value.toLowerCase())
 }) : [])
 
 const loadedLanguage = ref(undefined as unknown as Language)
 const loadedMessages = ref([] as Array<Message>)
 const loadedSearchStr = ref('')
 const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => {
-  return msg.MessageID.includes(loadedSearchStr.value) || msg.Message.includes(loadedSearchStr.value)
+  return msg.MessageID.toLowerCase().includes(loadedSearchStr.value.toLowerCase()) ||
+        msg.Message.toLowerCase().includes(loadedSearchStr.value.toLowerCase())
 }))
 
 watch(language, () => {

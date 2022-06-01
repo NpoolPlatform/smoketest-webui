@@ -49,7 +49,7 @@ const payments = computed(() => billing.Payments)
 const balances = computed(() => billing.PaymentBalances)
 
 const searchStr = ref('')
-const displayPayments = computed(() => payments.value.filter((el) => el.ID.includes(searchStr.value)))
+const displayPayments = computed(() => payments.value.filter((el) => el.ID.toLowerCase().includes(searchStr.value.toLowerCase())))
 
 const coin = useCoinStore()
 

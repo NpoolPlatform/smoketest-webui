@@ -134,10 +134,15 @@ const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings
 const purchaseAmount = usePurchaseAmountSettingStore()
 const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
 
-const users = computed(() => Array.from(user.Users.filter((el) => purchaseAmountSettings.value.findIndex((setting) => setting.UserID === el.User.ID) < 0).map((el) => el.User)))
+const users = computed(() => Array.from(user.Users.filter((el) => {
+  return purchaseAmountSettings.value.findIndex((setting) => setting.UserID === el.User.ID) < 0
+}).map((el) => el.User)))
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
-const displayUsers = computed(() => users.value.filter((user) => user.EmailAddress?.includes(username.value) || user.PhoneNO?.includes(username.value)))
+const displayUsers = computed(() => users.value.filter((user) => {
+  return user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
+        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
+}))
 
 const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).map((el) => {
   const s = el as unknown as AmountSetting
