@@ -158,7 +158,7 @@ const onAddRoleUser = () => {
   role.createRoleUser({
     TargetUserID: selectedUser.value[0].ID as string,
     Info: {
-      RoleID: selectedRole.value[0].ID,
+      RoleID: selectedRole.value[0].ID as string,
       UserID: selectedUser.value[0].ID
     },
     Message: {
