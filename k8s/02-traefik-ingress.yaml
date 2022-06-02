@@ -4,6 +4,7 @@ metadata:
   name: procyon-dashboard-v2-treafik-ingress
   namespace: kube-system
   annotations:
+    cert-manager.io/cluster-issuer: godaddydns-procyon-letsencrypt-issuer
     k8s.kuboard.cn/displayName: procyon-dashboard-v2-treafik
     k8s.kuboard.cn/workload: procyon-dashboard-v2-treafik
     kubernetes.io/ingress.class: "traefik-internet"
@@ -15,11 +16,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - dashboard.procyon.vip
-      secretName: procyon-vip-cert
-    - hosts:
-        - procdashboard.npool.top
-      secretName: npool-top-cert
+        - '*.procyon.vip'
+        - procyon.vip
+      secretName: procyon-vip-tls
   rules:
     - host: dashboard.procyon.vip
       http: &http_rules

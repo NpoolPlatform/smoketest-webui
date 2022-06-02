@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: procyon-dashboard-v2
-          image: uhub.service.ucloud.cn/entropypool/procyon-dashboard-v2:latest
+          image: uhub.service.ucloud.cn/entropypool/procyon-dashboard-v2:0.1.30
           imagePullPolicy: Always
           env:
             - name: ENV_ENVIRONMENT_TARGET
