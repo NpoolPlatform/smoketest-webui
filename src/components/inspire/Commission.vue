@@ -13,7 +13,6 @@
       <div class='row indent flat'>
         <q-input
           dense
-          flat
           class='small'
           v-model='username'
           :label='$t("MSG_USERNAME")'
@@ -134,9 +133,7 @@ const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings
 const purchaseAmount = usePurchaseAmountSettingStore()
 const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
 
-const users = computed(() => Array.from(user.Users.filter((el) => {
-  return purchaseAmountSettings.value.findIndex((setting) => setting.UserID === el.User.ID) < 0
-}).map((el) => el.User)))
+const users = computed(() => Array.from(user.Users).map((el) => el.User))
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => {
