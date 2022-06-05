@@ -226,6 +226,42 @@ const MainDrawerMenus = [
       sectionBegin: false,
       children: []
     } as MenuItem]
+  } as MenuItem, {
+    menuId: uid(),
+    label: '报表和账单',
+    caption: '查看报表和账单',
+    icon: 'format_list_numbered',
+    target: '/billing',
+    level: 0,
+    sectionBegin: false,
+    children: [{
+      menuId: uid(),
+      label: '销售收入',
+      caption: '查看销售收入',
+      icon: 'format_list_numbered',
+      target: '/billing/incoming',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '订单',
+      caption: '查看订单',
+      icon: 'format_list_numbered',
+      target: '/billing/order',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '提现',
+      caption: '查看提现记录',
+      icon: 'format_list_numbered',
+      target: '/billing/withdraw',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem]
   } as MenuItem
 ] as Array<MenuItem>
 
