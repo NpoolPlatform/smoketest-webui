@@ -42,6 +42,24 @@ const MainDrawerMenus = [
     ]
   } as MenuItem, {
     menuId: uid(),
+    label: '币种',
+    caption: '设置币种信息',
+    icon: 'format_list_numbered',
+    target: '/coin',
+    level: 0,
+    sectionBegin: false,
+    children: [{
+      menuId: uid(),
+      label: '汇率',
+      caption: '设定币种当前汇率',
+      icon: 'format_list_numbered',
+      target: '/coin/currency',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem]
+  } as MenuItem, {
+    menuId: uid(),
     label: '国际化',
     caption: '管理应用语言包',
     icon: 'perm_identity',
