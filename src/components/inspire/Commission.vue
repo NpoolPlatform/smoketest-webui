@@ -233,6 +233,10 @@ const onMenuHide = () => {
 }
 
 const onSubmit = () => {
+  if (target.value.Start <= 0) {
+    return
+  }
+
   if (selectedUser.value.length > 0) {
     target.value.UserID = selectedUser.value[0].ID as string
   }
@@ -263,6 +267,7 @@ const onCreatePurchaseAmountSettingClick = () => {
   target.value = {
     UserID: InvalidID
   } as unknown as PurchaseAmountSetting
+  start.value = ''
 }
 
 </script>
