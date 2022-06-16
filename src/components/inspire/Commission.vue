@@ -81,6 +81,7 @@
         <span>{{ $t('MSG_USERNAME') }}: {{ selectedUser[0]?.EmailAddress?.length ? selectedUser[0]?.EmailAddress : selectedUser[0]?.PhoneNO }}</span>
       </q-card-section>
       <q-card-section>
+        <q-select dense :options='myGoods' v-model='selectedGood' :label='$t("MSG_GOOD")' />
         <q-input type='number' v-model='target.Amount' :label='$t("MSG_AMOUNT")' />
         <q-input type='number' v-model='target.Percent' :label='$t("MSG_PERCENT")' />
         <q-input v-model='target.BadgeLarge' :label='$t("MSG_BADGE_LARGE")' />
@@ -107,7 +108,9 @@ import {
   AppUser,
   InvalidID,
   useCommissionStore,
-  usePurchaseAmountSettingStore
+  usePurchaseAmountSettingStore,
+  useAdminGoodStore,
+  Good
 } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -125,6 +128,7 @@ interface CoinSetting extends CommissionCoinSetting {
 interface AmountSetting extends PurchaseAmountSetting {
   EmailAddress: string
   PhoneNO: string
+  GoodName: string
 }
 
 const commission = useCommissionStore()
@@ -134,6 +138,35 @@ const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings
   s.CoinName = coin.getCoinByID(s.CoinTypeID)?.Name as string
   return s
 }))
+
+const good = useAdminGoodStore()
+const goods = computed(() => good.Goods)
+
+interface MyGood {
+  label: string
+  value: Good
+}
+const myGoods = computed(() => Array.from(goods.value).map((el) => {
+  return {
+    label: el.Good.Good.Title + '(' + (el.Good.Good.ID as string) + ')',
+    value: el
+  } as MyGood
+}))
+const selectedGood = computed({
+  get: () => {
+    const g = good.getGoodByID(target.value.GoodID)
+    if (g) {
+      return {
+        label: g.Good.Good.Title + '(' + (g.Good.Good.ID as string) + ')',
+        value: g
+      } as MyGood
+    }
+    return undefined as unknown as MyGood
+  },
+  set: (val: MyGood) => {
+    target.value.GoodID = val.value.Good.Good.ID as string
+  }
+})
 
 const purchaseAmount = usePurchaseAmountSettingStore()
 const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
@@ -150,6 +183,11 @@ const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).m
   const s = el as unknown as AmountSetting
   s.EmailAddress = user.getUserByID(s.UserID)?.User?.EmailAddress as string
   s.PhoneNO = user.getUserByID(s.UserID)?.User?.PhoneNO as string
+  s.GoodName = ''
+  const index = goods.value.findIndex((gel) => gel.Good.Good.ID === el.GoodID)
+  if (index >= 0) {
+    s.GoodName = goods.value[index].Good.Good.Title
+  }
   return s
 }))
 
@@ -211,6 +249,19 @@ onMounted(() => {
       Error: {
         Title: t('MSG_GET_USERS'),
         Message: t('MSG_GET_USERS_FAIL'),
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+
+  good.getAllGoods({
+    Message: {
+      Error: {
+        Title: t('MSG_GET_ALL_GOODS'),
+        Message: t('MSG_GET_ALL_GOODS_FAIL'),
         Popup: true,
         Type: NotificationType.Error
       }
