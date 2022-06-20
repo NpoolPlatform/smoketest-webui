@@ -298,7 +298,7 @@ const onSubmit = () => {
   }
 
   purchaseAmount.createUserPurchaseAmountSetting({
-    TargetUserID: target.value.UserID,
+    TargetUserID: target.value.UserID as string,
     Info: target.value,
     Message: {
       Error: {
