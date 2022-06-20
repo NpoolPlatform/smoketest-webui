@@ -181,8 +181,8 @@ const displayUsers = computed(() => users.value.filter((user) => {
 
 const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).map((el) => {
   const s = el as unknown as AmountSetting
-  s.EmailAddress = user.getUserByID(s.UserID)?.User?.EmailAddress as string
-  s.PhoneNO = user.getUserByID(s.UserID)?.User?.PhoneNO as string
+  s.EmailAddress = user.getUserByID(s.UserID as string)?.User?.EmailAddress as string
+  s.PhoneNO = user.getUserByID(s.UserID as string)?.User?.PhoneNO as string
   s.GoodName = ''
   const index = goods.value.findIndex((gel) => gel.Good.Good.ID === el.GoodID)
   if (index >= 0) {
