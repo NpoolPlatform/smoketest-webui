@@ -132,7 +132,7 @@ watch(replyTos, () => {
 
 const language = ref(undefined as unknown as Language)
 watch(language, () => {
-  target.value.LangID = language.value.ID
+  target.value.LangID = language.value?.ID
 })
 
 const onMenuHide = () => {
@@ -172,7 +172,7 @@ const onSubmit = () => {
   }
 
   templates.createEmailTemplate({
-    TargetLangID: language.value.ID,
+    TargetLangID: language.value?.ID,
     Info: target.value,
     Message: {
       Error: {
