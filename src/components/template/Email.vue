@@ -115,19 +115,19 @@ watch(myTarget, () => {
     DefaultToUsername: myTarget.value.DefaultToUsername,
     UsedFor: myTarget.value.UsedFor,
     Sender: myTarget.value.Sender,
-    ReplyTos: myTarget.value.ReplyTos.split(','),
-    CCTos: myTarget.value.CCTos.split(','),
+    ReplyTos: myTarget.value.ReplyTos?.split(','),
+    CCTos: myTarget.value.CCTos?.split(','),
     Subject: myTarget.value.Subject,
     Body: myTarget.value.Body
   } as EmailTemplate
 })
 
 watch(replyTos, () => {
-  target.value.ReplyTos = replyTos.value.split(',')
+  target.value.ReplyTos = replyTos.value?.split(',')
 })
 const ccTos = ref(target.value?.CCTos?.join(','))
 watch(replyTos, () => {
-  target.value.CCTos = ccTos.value.split(',')
+  target.value.CCTos = ccTos.value?.split(',')
 })
 
 const language = ref(undefined as unknown as Language)
