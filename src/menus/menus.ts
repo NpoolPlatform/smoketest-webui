@@ -280,6 +280,24 @@ const MainDrawerMenus = [
       sectionBegin: false,
       children: []
     } as MenuItem]
+  } as MenuItem, {
+    menuId: uid(),
+    label: '订单管理',
+    caption: '离线订单管理',
+    icon: 'format_list_numbered',
+    target: '/order',
+    level: 0,
+    sectionBegin: false,
+    children: [{
+      menuId: uid(),
+      label: '离线订单',
+      caption: '创建离线订单',
+      icon: 'format_list_numbered',
+      target: '/order/offline',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem]
   } as MenuItem
 ] as Array<MenuItem>
 
