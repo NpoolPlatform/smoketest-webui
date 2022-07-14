@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, computed, defineProps, withDefaults, toRef, defineEmits } from 'vue'
+import { ref, computed, defineProps, withDefaults, toRef, defineEmits, onMounted } from 'vue'
 import { Language, useLangStore, useLocaleStore } from 'npool-cli-v2'
 
 interface Props {
@@ -69,6 +69,12 @@ const onLangItemClick = (language: Language) => {
   }
   lang.setLang(language)
 }
+
+onMounted(() => {
+  if (emitResult.value && locale.CurLang) {
+    emit('update:language', locale.CurLang)
+  }
+})
 
 </script>
 

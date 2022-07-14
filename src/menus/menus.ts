@@ -4,6 +4,26 @@ import { MenuItem } from 'src/localstore'
 const MainDrawerMenus = [
   {
     menuId: uid(),
+    label: '公告与通知',
+    caption: '管理公告与通知',
+    icon: 'pending',
+    target: '/notification',
+    level: 0,
+    sectionBegin: false,
+    children: [
+      {
+        menuId: uid(),
+        label: '公告',
+        caption: '管理应用公告',
+        icon: 'perm_identity',
+        target: '/announcement',
+        level: 1,
+        sectionBegin: false,
+        children: []
+      } as MenuItem
+    ]
+  } as MenuItem, {
+    menuId: uid(),
     label: '应用',
     caption: '管理应用',
     icon: 'pending',

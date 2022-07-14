@@ -116,7 +116,7 @@ const onSubmit = () => {
   }
 
   templates.createSMSTemplate({
-    TargetLangID: language.value.ID,
+    TargetLangID: language.value?.ID,
     Info: target.value,
     Message: {
       Error: {
