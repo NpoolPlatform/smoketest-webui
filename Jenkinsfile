@@ -243,8 +243,7 @@ pipeline {
         expression { TARGET_ENV ==~ /.*development.*/ }
       }
       steps {
-        sh 'sed -i "s/*.npool.top/*.$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml'
-        sh 'sed -i "s/- npool.top/- $ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml'
+        sh 'sed -i "s/npool.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml'
         sh(returnStdout: false, script: '''
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
@@ -269,8 +268,7 @@ pipeline {
           git reset --hard
           git checkout $tag
 
-          sed -i "s/*.npool.top/*.$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/- npool.top/- $ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/npool.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
@@ -301,8 +299,7 @@ pipeline {
           git reset --hard
           git checkout $tag
 
-          ssed -i "s/*.npool.top/*.$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/- npool.top/- $ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/npool.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
