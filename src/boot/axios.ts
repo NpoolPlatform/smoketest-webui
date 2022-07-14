@@ -15,7 +15,8 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = createAPI('https://api.procyon.vip/api', AppID) as AxiosInstance
+const baseURL = window.location.origin.replace('dashboard', 'api') + '/api'
+const api = createAPI(baseURL, AppID) as AxiosInstance
 
 // define common response handle
 interface CommonError {

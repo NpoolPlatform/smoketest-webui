@@ -1,6 +1,6 @@
-<a href="https://github.com/NpoolPlatform/procyon-dashboard-v2/actions/workflows/ci.yml"><img src="https://github.com/NpoolPlatform/procyon-dashboard-v2/workflows/test/badge.svg" alt="build status"></a>
+<a href="https://github.com/NpoolPlatform/app-dashboard-v3/actions/workflows/ci.yml"><img src="https://github.com/NpoolPlatform/app-dashboard-v3/workflows/test/badge.svg" alt="build status"></a>
 
-# procyon dashboard v2 (procyon-dashboard-v2)
+# app dashboard v3 (app-dashboard-v3)
 
 vue3 framework use quasar ui and pinia manage store
 

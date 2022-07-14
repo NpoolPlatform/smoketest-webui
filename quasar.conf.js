@@ -87,7 +87,7 @@ module.exports = configure(function (ctx) {
     devServer: {
       proxy: {
         '/api': {
-          target: 'https://api.procyon.vip',
+          target: 'https://api.ohhash.com',
           pathRewrite: {
             '^/api': '/api'
           },
@@ -158,8 +158,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: 'procyon dashboard v2',
-        short_name: 'procyon dashboard v2',
+        name: 'dashboard V3',
+        short_name: 'Dashboard V3',
         description: 'vue3 framework use quasar ui and pinia manage store',
         display: 'standalone',
         orientation: 'portrait',
@@ -225,7 +225,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'procyon-dashboard-v2'
+        appId: 'APP-dashboard-v3'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

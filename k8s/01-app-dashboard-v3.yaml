@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: procyon-dashboard-v2
+  name: app-dashboard-v3
   namespace: kube-system
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: procyon-dashboard-v2
+      app: app-dashboard-v3
   template:
     metadata:
       labels:
-        app: procyon-dashboard-v2
+        app: app-dashboard-v3
     spec:
       containers:
-        - name: procyon-dashboard-v2
-          image: uhub.service.ucloud.cn/entropypool/procyon-dashboard-v2:latest
+        - name: app-dashboard-v3
+          image: uhub.service.ucloud.cn/entropypool/app-dashboard-v3:latest
           imagePullPolicy: Always
           env:
             - name: ENV_ENVIRONMENT_TARGET
@@ -42,7 +42,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: procyon-dashboard-v2
+  name: app-dashboard-v3
   namespace: kube-system
 spec:
   ports:
@@ -50,4 +50,4 @@ spec:
       port: 80
       targetPort: 80
   selector:
-    app: procyon-dashboard-v2
+    app: app-dashboard-v3

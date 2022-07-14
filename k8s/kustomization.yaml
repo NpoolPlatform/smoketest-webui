@@ -1,6 +1,6 @@
 commonLabels:
-  # app: procyon-dashboard-v2
+  # app: app-dashboard-v3
 
 resources:
-  - 01-procyon-dashboard-v2.yaml
+  - 01-app-dashboard-v3.yaml
   - 02-traefik-ingress.yaml
