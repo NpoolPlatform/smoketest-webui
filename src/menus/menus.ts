@@ -243,6 +243,42 @@ const MainDrawerMenus = [
       level: 1,
       sectionBegin: false,
       children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '定额券',
+      caption: '管理定额代金券',
+      icon: 'format_list_numbered',
+      target: '/inspire/fixamount',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '折扣券',
+      caption: '管理折扣代金券',
+      icon: 'format_list_numbered',
+      target: '/inspire/discount',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '用户定向券',
+      caption: '管理定向用户代金券',
+      icon: 'format_list_numbered',
+      target: '/inspire/special/offer',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '空投',
+      caption: '给指定用户空投代金券',
+      icon: 'format_list_numbered',
+      target: '/inspire/airdrop',
+      level: 1,
+      sectionBegin: false,
+      children: []
     } as MenuItem]
   } as MenuItem, {
     menuId: uid(),

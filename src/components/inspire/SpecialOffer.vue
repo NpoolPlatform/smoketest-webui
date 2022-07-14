@@ -1,0 +1,257 @@
+<template>
+  <q-table
+    dense
+    flat
+    :title='$t("MSG_USERS")'
+    :rows='displayUsers'
+    row-key='ID'
+    :rows-per-page-options='[10]'
+    selection='single'
+    v-model:selected='selectedUser'
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_CREATE")'
+          @click='onCreate'
+          :disable='selectedUser.length === 0'
+        />
+      </div>
+    </template>
+  </q-table>
+  <q-table
+    dense
+    flat
+    :title='$t("MSG_SPECIAL_OFFERS")'
+    :rows='displayCoupons'
+    row-key='ID'
+    :loading='loading'
+    :rows-per-page-options='[10]'
+    @row-click='(evt, row, index) => onRowClick(row as UserSpecialOffer)'
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_CREATE")'
+          @click='onCreate'
+        />
+      </div>
+    </template>
+  </q-table>
+  <q-dialog
+    v-model='showing'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_CREATE_SPECIAL_OFFER') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <span>
+          {{ $t('MSG_USERNAME') }}: {{ selectedUser[0]?.EmailAddress?.length ? selectedUser[0]?.EmailAddress : selectedUser[0]?.PhoneNO }}
+        </span>
+      </q-card-section>
+      <q-card-section>
+        <q-input v-model='target.Message' :label='$t("MSG_COUPON_DESCRIPTION")' />
+        <q-input type='date' v-model='start' :label='$t("MSG_START")' />
+        <q-input type='number' v-model='target.DurationDays' :label='$t("MSG_DURATION_DAYS")' :suffix='$t("MSG_DAYS")' />
+        <q-input type='number' v-model='target.Amount' :label='$t("MSG_COUPON_AMOUNT")' :suffix='PriceCoinName' />
+      </q-card-section>
+      <q-item class='row'>
+        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script setup lang='ts'>
+import {
+  NotificationType,
+  useLoginedUserStore,
+  formatTime,
+  UserSpecialOffer,
+  useChurchSpecialOfferStore,
+  useSpecialOfferStore,
+  PriceCoinName,
+  useChurchUsersStore,
+  UserInfo,
+  AppUser
+} from 'npool-cli-v2'
+import { computed, onMounted, watch, ref } from 'vue'
+import { AppID } from 'src/const/const'
+import { useI18n } from 'vue-i18n'
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
+
+const appID = computed(() => AppID)
+
+const user = useChurchUsersStore()
+const users = computed(() => {
+  const appUsers = user.Users.get(appID.value) ? user.Users.get(appID.value) as Array<UserInfo> : []
+  return Array.from(appUsers).map((el) => el.User)
+})
+const username = ref('')
+const displayUsers = computed(() => users.value.filter((el) => {
+  return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
+}))
+const selectedUser = ref([] as Array<AppUser>)
+const userID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : undefined as unknown as string)
+
+interface MyCoupon extends UserSpecialOffer {
+  EmailAddress: string
+  PhoneNO: string
+}
+
+const coupon = useChurchSpecialOfferStore()
+const acoupon = useSpecialOfferStore()
+const appCoupons = computed(() => coupon.SpecialOffers.get(appID.value) ? coupon.SpecialOffers.get(appID.value) : [])
+const coupons = computed(() => Array.from(appCoupons.value as Array<UserSpecialOffer>).map((el) => {
+  const c = el as MyCoupon
+  c.EmailAddress = user.getUserByAppUserID(appID.value, c.UserID as string)?.User.EmailAddress as string
+  c.PhoneNO = user.getUserByAppUserID(appID.value, c.UserID as string)?.User.PhoneNO as string
+  return c
+}))
+const displayCoupons = computed(() => coupons.value.filter((el) => {
+  return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
+}))
+const loading = ref(true)
+
+const logined = useLoginedUserStore()
+
+const prepare = () => {
+  loading.value = true
+  coupon.getSpecialOffers({
+    TargetAppID: appID.value,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_SPECIAL_OFFERS'),
+        Message: t('MSG_GET_SPECIAL_OFFERS_FAIL'),
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    loading.value = false
+  })
+
+  user.getUsers({
+    TargetAppID: appID.value,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_USERS'),
+        Message: t('MSG_GET_USERS_FAIL'),
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+
+watch(appID, () => {
+  prepare()
+})
+
+onMounted(() => {
+  prepare()
+})
+
+const showing = ref(false)
+const updating = ref(false)
+const target = ref({
+  ReleaseByUserID: logined.LoginedUser?.User.ID
+} as unknown as UserSpecialOffer)
+const start = computed({
+  get: () => formatTime(target.value.Start, true)?.replace(/\//g, '-'),
+  set: (val) => {
+    target.value.Start = new Date(val).getTime() / 1000
+  }
+})
+watch(userID, () => {
+  target.value.UserID = userID.value
+})
+
+const onCreate = () => {
+  showing.value = true
+  updating.value = false
+}
+
+const onRowClick = (coupon: UserSpecialOffer) => {
+  showing.value = true
+  updating.value = true
+  target.value = coupon
+}
+
+const onMenuHide = () => {
+  showing.value = false
+  target.value = {
+    ReleaseByUserID: logined.LoginedUser?.User.ID
+  } as unknown as UserSpecialOffer
+}
+
+const onSubmit = () => {
+  showing.value = false
+
+  if (updating.value) {
+    acoupon.updateSpecialOffer({
+      Info: target.value,
+      Message: {
+        Error: {
+          Title: 'MSG_UPDATE_SPECIAL_OFFER',
+          Message: 'MSG_UPDATE_SPECIAL_OFFER_FAIL',
+          Popup: true,
+          Type: NotificationType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+    return
+  }
+
+  coupon.createSpecialOffer({
+    TargetAppID: appID.value,
+    TargetUserID: userID.value as string,
+    Info: target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_SPECIAL_OFFER',
+        Message: 'MSG_CREATE_SPECIAL_OFFER_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+
+const onCancel = () => {
+  showing.value = false
+}
+
+</script>
