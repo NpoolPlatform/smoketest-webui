@@ -51,23 +51,18 @@ import {
   NotificationType,
   useLoginedUserStore,
   formatTime,
-  useChurchFixAmountStore,
   useFixAmountStore,
   FixAmountCoupon,
   PriceCoinName
 } from 'npool-cli-v2'
-import { computed, onMounted, watch, ref } from 'vue'
-import { AppID } from 'src/const/const'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const appID = computed(() => AppID)
-
-const coupon = useChurchFixAmountStore()
-const acoupon = useFixAmountStore()
-const coupons = computed(() => coupon.FixAmounts.get(appID.value) ? coupon.FixAmounts.get(appID.value) : [])
+const coupon = useFixAmountStore()
+const coupons = computed(() => coupon.FixAmounts)
 const loading = ref(true)
 
 const logined = useLoginedUserStore()
@@ -75,7 +70,6 @@ const logined = useLoginedUserStore()
 const prepare = () => {
   loading.value = true
   coupon.getFixAmounts({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_FIX_AMOUNTS'),
@@ -88,10 +82,6 @@ const prepare = () => {
     loading.value = false
   })
 }
-
-watch(appID, () => {
-  prepare()
-})
 
 onMounted(() => {
   prepare()
@@ -131,7 +121,7 @@ const onSubmit = () => {
   showing.value = false
 
   if (updating.value) {
-    acoupon.updateFixAmount({
+    coupon.updateFixAmount({
       Info: target.value,
       Message: {
         Error: {
@@ -148,7 +138,6 @@ const onSubmit = () => {
   }
 
   coupon.createFixAmount({
-    TargetAppID: appID.value,
     Info: target.value,
     Message: {
       Error: {

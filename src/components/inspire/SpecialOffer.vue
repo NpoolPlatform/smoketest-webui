@@ -92,27 +92,19 @@ import {
   useLoginedUserStore,
   formatTime,
   UserSpecialOffer,
-  useChurchSpecialOfferStore,
   useSpecialOfferStore,
   PriceCoinName,
-  useChurchUsersStore,
-  UserInfo,
-  AppUser
+  AppUser,
+  useUsersStore
 } from 'npool-cli-v2'
 import { computed, onMounted, watch, ref } from 'vue'
-import { AppID } from 'src/const/const'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const appID = computed(() => AppID)
-
-const user = useChurchUsersStore()
-const users = computed(() => {
-  const appUsers = user.Users.get(appID.value) ? user.Users.get(appID.value) as Array<UserInfo> : []
-  return Array.from(appUsers).map((el) => el.User)
-})
+const user = useUsersStore()
+const users = computed(() => Array.from(user.Users).map((el) => el.User))
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((el) => {
   return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
@@ -125,13 +117,12 @@ interface MyCoupon extends UserSpecialOffer {
   PhoneNO: string
 }
 
-const coupon = useChurchSpecialOfferStore()
-const acoupon = useSpecialOfferStore()
-const appCoupons = computed(() => coupon.SpecialOffers.get(appID.value) ? coupon.SpecialOffers.get(appID.value) : [])
+const coupon = useSpecialOfferStore()
+const appCoupons = computed(() => coupon.SpecialOffers)
 const coupons = computed(() => Array.from(appCoupons.value as Array<UserSpecialOffer>).map((el) => {
   const c = el as MyCoupon
-  c.EmailAddress = user.getUserByAppUserID(appID.value, c.UserID as string)?.User.EmailAddress as string
-  c.PhoneNO = user.getUserByAppUserID(appID.value, c.UserID as string)?.User.PhoneNO as string
+  c.EmailAddress = user.getUserByID(c.UserID as string)?.User.EmailAddress as string
+  c.PhoneNO = user.getUserByID(c.UserID as string)?.User.PhoneNO as string
   return c
 }))
 const displayCoupons = computed(() => coupons.value.filter((el) => {
@@ -144,7 +135,6 @@ const logined = useLoginedUserStore()
 const prepare = () => {
   loading.value = true
   coupon.getSpecialOffers({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_SPECIAL_OFFERS'),
@@ -158,7 +148,6 @@ const prepare = () => {
   })
 
   user.getUsers({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_USERS'),
@@ -171,10 +160,6 @@ const prepare = () => {
     // TODO
   })
 }
-
-watch(appID, () => {
-  prepare()
-})
 
 onMounted(() => {
   prepare()
@@ -217,7 +202,7 @@ const onSubmit = () => {
   showing.value = false
 
   if (updating.value) {
-    acoupon.updateSpecialOffer({
+    coupon.updateSpecialOffer({
       Info: target.value,
       Message: {
         Error: {
@@ -234,7 +219,6 @@ const onSubmit = () => {
   }
 
   coupon.createSpecialOffer({
-    TargetAppID: appID.value,
     TargetUserID: userID.value as string,
     Info: target.value,
     Message: {

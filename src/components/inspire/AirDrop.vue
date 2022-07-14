@@ -58,33 +58,26 @@
 <script setup lang='ts'>
 import {
   NotificationType,
-  useChurchFixAmountStore,
   FixAmountCoupon,
   EventCouponTypes,
   CouponType,
-  useChurchDiscountStore,
   DiscountCoupon,
-  useChurchUsersStore,
-  UserInfo,
   AppUser,
-  useChurchUserCouponStore
+  useUsersStore,
+  useFixAmountStore,
+  useDiscountStore,
+  useUserCouponStore
 } from 'npool-cli-v2'
 import { computed, onMounted, watch, ref } from 'vue'
-import { AppID } from 'src/const/const'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const appID = computed(() => AppID)
+const coupon = useUserCouponStore()
 
-const coupon = useChurchUserCouponStore()
-
-const user = useChurchUsersStore()
-const users = computed(() => {
-  const appUsers = user.Users.get(appID.value) ? user.Users.get(appID.value) as Array<UserInfo> : []
-  return Array.from(appUsers).map((el) => el.User)
-})
+const user = useUsersStore()
+const users = computed(() => Array.from(user.Users).map((el) => el.User))
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((el) => {
   return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
@@ -96,10 +89,8 @@ interface MyFixAmount {
   value: FixAmountCoupon
 }
 
-const fixAmount = useChurchFixAmountStore()
-const appFixAmounts = computed(() => {
-  return fixAmount.FixAmounts.get(appID.value) ? fixAmount.FixAmounts.get(appID.value) as Array<FixAmountCoupon> : []
-})
+const fixAmount = useFixAmountStore()
+const appFixAmounts = computed(() => fixAmount.FixAmounts)
 const fixAmounts = computed(() => Array.from(appFixAmounts.value).map((el) => {
   return {
     label: el.Name + ' | ' + el.Denomination.toString(),
@@ -113,10 +104,8 @@ interface MyDiscount {
   value: DiscountCoupon
 }
 
-const discount = useChurchDiscountStore()
-const appDiscounts = computed(() => {
-  return discount.Discounts.get(appID.value) ? discount.Discounts.get(appID.value) as Array<DiscountCoupon> : []
-})
+const discount = useDiscountStore()
+const appDiscounts = computed(() => discount.Discounts)
 const discounts = computed(() => Array.from(appDiscounts.value).map((el) => {
   return {
     label: el.Name + ' | ' + el.Discount.toString() + '%',
@@ -139,7 +128,6 @@ watch(selectedFixAmount, () => {
 const prepare = () => {
   loading.value = true
   fixAmount.getFixAmounts({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_FIX_AMOUNTS'),
@@ -153,7 +141,6 @@ const prepare = () => {
   })
 
   discount.getDiscounts({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_DISCOUNTS'),
@@ -167,7 +154,6 @@ const prepare = () => {
   })
 
   user.getUsers({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_USERS'),
@@ -180,10 +166,6 @@ const prepare = () => {
     loading.value = false
   })
 }
-
-watch(appID, () => {
-  prepare()
-})
 
 onMounted(() => {
   prepare()
@@ -202,7 +184,6 @@ const onSubmit = () => {
   showing.value = false
   selectedUsers.value.forEach((user) => {
     coupon.createUserCoupon({
-      TargetAppID: appID.value,
       TargetUserID: user.ID as string,
       Info: {
         Type: couponType.value,

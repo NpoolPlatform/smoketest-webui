@@ -51,21 +51,16 @@ import {
   useLoginedUserStore,
   formatTime,
   DiscountCoupon,
-  useChurchDiscountStore,
   useDiscountStore
 } from 'npool-cli-v2'
-import { computed, onMounted, watch, ref } from 'vue'
-import { AppID } from 'src/const/const'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const appID = computed(() => AppID)
-
-const coupon = useChurchDiscountStore()
-const acoupon = useDiscountStore()
-const coupons = computed(() => coupon.Discounts.get(appID.value) ? coupon.Discounts.get(appID.value) : [])
+const coupon = useDiscountStore()
+const coupons = computed(() => coupon.Discounts)
 const loading = ref(true)
 
 const logined = useLoginedUserStore()
@@ -73,7 +68,6 @@ const logined = useLoginedUserStore()
 const prepare = () => {
   loading.value = true
   coupon.getDiscounts({
-    TargetAppID: appID.value,
     Message: {
       Error: {
         Title: t('MSG_GET_DISCOUNTS'),
@@ -86,10 +80,6 @@ const prepare = () => {
     loading.value = false
   })
 }
-
-watch(appID, () => {
-  prepare()
-})
 
 onMounted(() => {
   prepare()
@@ -129,7 +119,7 @@ const onSubmit = () => {
   showing.value = false
 
   if (updating.value) {
-    acoupon.updateDiscount({
+    coupon.updateDiscount({
       Info: target.value,
       Message: {
         Error: {
@@ -146,7 +136,6 @@ const onSubmit = () => {
   }
 
   coupon.createDiscount({
-    TargetAppID: appID.value,
     Info: target.value,
     Message: {
       Error: {
