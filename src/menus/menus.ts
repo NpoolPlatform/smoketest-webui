@@ -265,6 +265,15 @@ const MainDrawerMenus = [
       children: []
     } as MenuItem, {
       menuId: uid(),
+      label: '邀请关系',
+      caption: '查看邀请关系',
+      icon: 'format_list_numbered',
+      target: '/inspire/invitation/relation',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
       label: '定额券',
       caption: '管理定额代金券',
       icon: 'format_list_numbered',
