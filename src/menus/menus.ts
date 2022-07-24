@@ -266,7 +266,7 @@ const MainDrawerMenus = [
     } as MenuItem, {
       menuId: uid(),
       label: '邀请关系',
-      caption: '查看邀请关系',
+      caption: '查看邀请关系和业绩',
       icon: 'format_list_numbered',
       target: '/inspire/invitation/relation',
       level: 1,
