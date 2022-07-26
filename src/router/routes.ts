@@ -241,6 +241,18 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
+        path: 'inspire/invitation/relation',
+        component: () => import('pages/inspire/Relation.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
+      }, {
         path: 'inspire/commission',
         component: () => import('pages/inspire/Commission.vue'),
         meta: {
