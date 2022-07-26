@@ -123,6 +123,13 @@ const columns = [
   { name: 'Profit', align: 'center', label: 'Profit', field: 'Profit' }
 ]
 
+const getGoodPercent = (userID:string, goodID:string) => {
+  const index = purchaseAmount.PurchaseAmountSettings.findIndex((el) => el.UserID === userID && el.GoodID === goodID && el.End === 0)
+  if (index !== -1) {
+    return purchaseAmount.PurchaseAmountSettings[index].Percent
+  }
+  return 0
+}
 const regInvitation = useRegInvitationStore()
 const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : '')
 
@@ -207,7 +214,7 @@ const inviters = computed(() => {
               Product: good.getGoodByID(goodSummary.GoodID)?.Good?.Good?.Title,
               Name: good.getGoodByID(goodSummary.GoodID)?.Main?.Name as string,
               ProductID: goodSummary.GoodID,
-              Rate: goodSummary.Percent,
+              Rate: getGoodPercent(user.UserID, goodSummary.GoodID),
               Units: goodSummary.Units,
               Unit: goodSummary.Unit,
               TotalSales: goodSummary.Amount,
