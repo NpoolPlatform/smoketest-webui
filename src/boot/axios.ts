@@ -17,7 +17,7 @@ declare module '@vue/runtime-core' {
 // for each client)
 let baseURL = window.location.origin.replace('dashboard', 'api') + '/api'
 if (window.location.hostname.includes('.npool.top')) {
-  baseURL = windiw.location.protocol + '://api.npool.top' + (window.location.port.length ? ':' + window.location.port : '') + /api'
+  baseURL = window.location.protocol + '://api.npool.top' + (window.location.port.length ? ':' + window.location.port : '') + /api'
 }
 const api = createAPI(baseURL, AppID) as AxiosInstance
 
