@@ -16,6 +16,9 @@ declare module '@vue/runtime-core' {
 // "export default () => {}" function below (which runs individually
 // for each client)
 const baseURL = window.location.origin.replace('dashboard', 'api') + '/api'
+if (window.location.hostname.includes('.npool.top')) {
+  baseURL = windiw.location.protocol + '://api.npool.top' + (window.location.port.length ? ':' + window.location.port : '') + /api'
+}
 const api = createAPI(baseURL, AppID) as AxiosInstance
 
 // define common response handle
