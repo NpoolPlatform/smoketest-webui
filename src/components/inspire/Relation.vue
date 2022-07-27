@@ -78,6 +78,9 @@
                 </td>
               </tr>
             </div>
+            <div v-else>
+              0
+            </div>
           </table>
         </q-td>
       </q-tr>
@@ -224,6 +227,32 @@ const inviters = computed(() => {
           }
         }
       }
+      // for goods that user no buy but have kol
+      const items = goodsOfNoBuy(user.UserID)
+      if (items !== undefined) {
+        for (const item of items) {
+          // del goods have bought
+          const idx = referral.GoodSummaries.findIndex((el) => el.GoodID === item.GoodID)
+          if (idx === -1) {
+            const appGood = good.AppGoods.find((el) => el.GoodID === item.GoodID)
+            if (appGood !== undefined) {
+              if (appGood.Visible) {
+                obj.Profit.push({
+                  Product: good.getGoodByID(item.GoodID)?.Good?.Good?.Title,
+                  Name: good.getGoodByID(item.GoodID)?.Main?.Name as string,
+                  ProductID: item.GoodID,
+                  Rate: item.Percent,
+                  Units: 0,
+                  Unit: '',
+                  TotalSales: 0,
+                  SaleUnit: PriceCoinName,
+                  Commission: 0
+                })
+              }
+            }
+          }
+        }
+      }
     }
     profits.push(obj)
   }
@@ -303,7 +332,17 @@ const getInviters = () => {
     })
   }
 }
-
+// const goodsPercentWithNoBuy = (userID:string, goodID: string) => {
+//   let percent = 0
+//   const index = purchaseAmount.PurchaseAmountSettings.findIndex((el) => el.UserID === userID && el.GoodID === goodID && el.End === 0)
+//   if (index >= 0) {
+//     percent = purchaseAmount.PurchaseAmountSettings[index].Percent
+//   }
+//   return percent
+// }
+const goodsOfNoBuy = (userID:string) => {
+  return purchaseAmount.PurchaseAmountSettings.filter((el) => el.UserID === userID && el.End === 0)
+}
 // Profit
 const inspire = useAdminInspireStore()
 
