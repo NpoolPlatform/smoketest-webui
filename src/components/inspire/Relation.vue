@@ -93,8 +93,8 @@ import {
   usePurchaseAmountSettingStore,
   useAdminInspireStore,
   useGoodStore,
-  Referral,
-  PriceCoinName
+  PriceCoinName,
+  Referral
 } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -308,16 +308,27 @@ const getInviters = () => {
 const inspire = useAdminInspireStore()
 
 const getCurrentReferral = (userID:string) => {
-  const index = inspire.Referrals.findIndex((el) => el.User.ID === userID)
-  return index < 0 ? undefined as unknown as Referral : inspire.Referrals[index]
+  const referrals = inspire.Referrals.get(userID)
+  if (referrals !== undefined) {
+    const index = referrals.findIndex((el) => el.User.ID === userID)
+    return index < 0 ? undefined as unknown as Referral : referrals[index]
+  }
+  return undefined
 }
 
 const goodCommission = (goodID: string, userID: string) => {
-  const index = inspire.GoodCommissions.findIndex((el) => {
-    const referral = getCurrentReferral(userID)
-    return el.GoodID === goodID && el.AppID === referral.User.AppID && el.UserID === referral.User.ID
-  })
-  return index < 0 ? 0 : inspire.GoodCommissions[index].Amount
+  const goodsCommissions = inspire.GoodCommissions.get(userID)
+  if (goodsCommissions !== undefined) {
+    const index = goodsCommissions.findIndex((el) => {
+      const referral = getCurrentReferral(userID)
+      if (referral !== undefined) {
+        return el.GoodID === goodID && el.AppID === referral.User.AppID && el.UserID === referral.User.ID
+      }
+      return -1
+    })
+    return index < 0 ? 0 : goodsCommissions[index].Amount
+  }
+  return 0
 }
 
 const good = useGoodStore()
