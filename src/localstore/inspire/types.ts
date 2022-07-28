@@ -1,12 +1,12 @@
 interface ProductProfit {
-  Product: string
+  Product?: string
   ProductID: string
   Rate: number
-  Units: number
-  Unit: string
-  TotalSales: number
-  SaleUnit: string
-  Commission: number
+  Units?: number
+  Unit?: string
+  TotalSales?: number
+  SaleUnit?: string
+  Commission?: number
   Name: string
 }
 interface UserProfit {
@@ -15,6 +15,12 @@ interface UserProfit {
   EmailAddress: string
   Profit?: Array<ProductProfit>
 }
+interface UserGoodPercent {
+  UserID: string
+  InviterID: string
+  EmailAddress: string
+  Percent: Array<ProductProfit>
+}
 interface UsersProfit {
   User: Array<UserProfit>
 }
@@ -22,5 +28,6 @@ interface UsersProfit {
 export {
   UserProfit,
   ProductProfit,
+  UserGoodPercent,
   UsersProfit
 }

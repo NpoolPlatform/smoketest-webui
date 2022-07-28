@@ -26,10 +26,46 @@
     flat
     :title='$t("MSG_INVITEES")'
     :rows-per-page-options='[10]'
-    :column='columns'
     row-key='ID'
     :rows='invitees'
-  />
+  >
+    <template #body='props'>
+      <q-tr :props='props'>
+        <q-td key='UserID' label='UserID' :props='props'>
+          {{ props.row.UserID }}
+        </q-td>
+        <q-td key='InviterID' :props='props'>
+          {{ props.row.InviterID }}
+        </q-td>
+        <q-td key='EmailAddress' :props='props'>
+          {{ props.row.EmailAddress }}
+        </q-td>
+        <q-td key='Percent' :props='props'>
+          <table>
+            <div v-if='props.row.Percent.length > 0'>
+              <tr>
+                <th>Name</th>
+                <th>ProductID</th>
+                <th>Comm.Rate</th>
+              </tr>
+              <tr v-for='(product,index) in props.row.Percent' :key='index'>
+                <td class='name'>
+                  {{ product.Name }}
+                </td>
+                <td>{{ product.ProductID }}</td>
+                <td>
+                  {{ product.Rate }} <span>%</span>
+                </td>
+              </tr>
+            </div>
+            <div v-else>
+              0
+            </div>
+          </table>
+        </q-td>
+      </q-tr>
+    </template>
+  </q-table>
   <q-table
     dense
     flat
@@ -101,7 +137,7 @@ import {
 } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ProductProfit, UserProfit } from '../../localstore'
+import { ProductProfit, UserGoodPercent, UserProfit } from '../../localstore'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -119,13 +155,6 @@ const displayUsers = computed(() => users.value.filter((user) => {
 // relation
 const purchaseAmount = usePurchaseAmountSettingStore()
 
-const columns = [
-  { name: 'USERID', align: 'center', label: 'USERID', field: 'UserID' },
-  { name: 'INVITERID', align: 'center', label: 'INVITERID', field: 'InviterID' },
-  { name: 'EMAILADDRESS', align: 'center', label: 'EMAILADDRESS', field: 'EmailAddress' },
-  { name: 'Profit', align: 'center', label: 'Profit', field: 'Profit' }
-]
-
 const getGoodPercent = (userID:string, goodID:string) => {
   const index = purchaseAmount.PurchaseAmountSettings.findIndex((el) => el.UserID === userID && el.GoodID === goodID && el.End === 0)
   if (index !== -1) {
@@ -140,19 +169,37 @@ const invitees = computed(() => {
   if (selectedUser.value.length === 0) {
     return
   }
-  const result = [] as Array<UserProfit>
+  const result = [] as Array<UserGoodPercent>
   for (const item of regInvitation.RegInvitations) {
     if (item.InviterID === selectedUser.value[0].ID) {
+      const items = goodsOfNoBuy(item.InviteeID)
+      const goodsPercent = []
+      for (const item of items) {
+        if (isGoodsVisible(item.GoodID)) {
+          goodsPercent.push({
+            ProductID: item.GoodID,
+            Rate: item.Percent,
+            Name: good.getGoodByID(item.GoodID)?.Main?.Name as string
+          })
+        }
+      }
       result.push({
         UserID: item.InviteeID,
         InviterID: item.InviterID,
-        EmailAddress: user.getUserByID(item.InviteeID)?.User?.EmailAddress as string
+        EmailAddress: user.getUserByID(item.InviteeID)?.User?.EmailAddress as string,
+        Percent: goodsPercent
       })
     }
   }
   return result
 })
-
+const isGoodsVisible = (goodID:string) => {
+  const appGood = good.AppGoods.find((el) => el.GoodID === goodID)
+  if (appGood !== undefined) {
+    return appGood.Visible
+  }
+  return false
+}
 // need optimization
 const loading = ref(false)
 const inviters = computed(() => {
