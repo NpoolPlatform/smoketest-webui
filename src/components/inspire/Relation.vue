@@ -40,21 +40,31 @@
         <q-td key='EmailAddress' :props='props'>
           {{ props.row.EmailAddress }}
         </q-td>
-        <q-td key='Percent' :props='props'>
+        <q-td key='Profit' :props='props'>
           <table>
-            <div v-if='props.row.Percent.length > 0'>
+            <div v-if='props.row.Profit.length > 0'>
               <tr>
                 <th>Name</th>
                 <th>ProductID</th>
                 <th>Comm.Rate</th>
+                <th>Units</th>
+                <th>Total Sales</th>
+                <th>Commission</th>
               </tr>
-              <tr v-for='(product,index) in props.row.Percent' :key='index'>
+              <tr v-for='(product,index) in props.row.Profit' :key='index'>
                 <td class='name'>
                   {{ product.Name }}
                 </td>
                 <td>{{ product.ProductID }}</td>
                 <td>
                   {{ product.Rate }} <span>%</span>
+                </td>
+                <td class='units'>
+                  {{ product.Units }}{{ $t(product.Unit) }}
+                </td>
+                <td>{{ product.TotalSales }} <span class='price-coin-name'>{{ product.SaleUnit }}</span></td>
+                <td class='commission'>
+                  {{ product.Commission }} <span class='price-coin-name'>{{ product.SaleUnit }}</span>
                 </td>
               </tr>
             </div>
@@ -137,7 +147,7 @@ import {
 } from 'npool-cli-v2'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ProductProfit, UserGoodPercent, UserProfit } from '../../localstore'
+import { ProductProfit, UserProfit } from '../../localstore'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -165,34 +175,6 @@ const getGoodPercent = (userID:string, goodID:string) => {
 const regInvitation = useRegInvitationStore()
 const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : '')
 
-const invitees = computed(() => {
-  if (selectedUser.value.length === 0) {
-    return
-  }
-  const result = [] as Array<UserGoodPercent>
-  for (const item of regInvitation.RegInvitations) {
-    if (item.InviterID === selectedUser.value[0].ID) {
-      const items = goodsOfNoBuy(item.InviteeID)
-      const goodsPercent = []
-      for (const item of items) {
-        if (isGoodsVisible(item.GoodID)) {
-          goodsPercent.push({
-            ProductID: item.GoodID,
-            Rate: item.Percent,
-            Name: good.getGoodByID(item.GoodID)?.Main?.Name as string
-          })
-        }
-      }
-      result.push({
-        UserID: item.InviteeID,
-        InviterID: item.InviterID,
-        EmailAddress: user.getUserByID(item.InviteeID)?.User?.EmailAddress as string,
-        Percent: goodsPercent
-      })
-    }
-  }
-  return result
-})
 const isGoodsVisible = (goodID:string) => {
   const appGood = good.AppGoods.find((el) => el.GoodID === goodID)
   if (appGood !== undefined) {
@@ -200,6 +182,64 @@ const isGoodsVisible = (goodID:string) => {
   }
   return false
 }
+const invitees = computed(() => {
+  if (selectedUser.value.length === 0) {
+    return
+  }
+  const result = [] as Array<UserProfit>
+  const refs = inspire.Referrals.get(selectedUser.value[0].ID as string)
+  refs?.forEach((el) => {
+    const obj = {
+      UserID: el.User.ID as string,
+      InviterID: selectedUser.value[0].ID as string,
+      EmailAddress: el.User.EmailAddress as string,
+      Profit: [] as Array<ProductProfit>
+    }
+    for (const goodSummary of el.GoodSummaries) {
+      const appGood = good.AppGoods.find((el) => el.GoodID === goodSummary.GoodID)
+      if (appGood !== undefined) {
+        if (appGood.Visible) {
+          obj.Profit.push({
+            Product: good.getGoodByID(goodSummary.GoodID)?.Good?.Good?.Title,
+            Name: good.getGoodByID(goodSummary.GoodID)?.Main?.Name as string,
+            ProductID: goodSummary.GoodID,
+            Rate: getGoodPercent(el.User.ID as string, goodSummary.GoodID),
+            Units: goodSummary.Units,
+            Unit: goodSummary.Unit,
+            TotalSales: goodSummary.Amount,
+            SaleUnit: PriceCoinName,
+            Commission: goodCommission(goodSummary.GoodID, el.User.ID as string)
+          })
+        }
+      }
+    }
+    const items = goodsOfNoBuy(el.User.ID as string)
+    if (items !== undefined) {
+      for (const item of items) {
+        // del goods have bought
+        const idx = el.GoodSummaries.findIndex((el) => el.GoodID === item.GoodID)
+        if (idx === -1) {
+          if (isGoodsVisible(item.GoodID)) {
+            obj.Profit.push({
+              Product: good.getGoodByID(item.GoodID)?.Good?.Good?.Title,
+              Name: good.getGoodByID(item.GoodID)?.Main?.Name as string,
+              ProductID: item.GoodID,
+              Rate: item.Percent,
+              Units: 0,
+              Unit: '',
+              TotalSales: 0,
+              SaleUnit: PriceCoinName,
+              Commission: 0
+            })
+          }
+        }
+      }
+    }
+    result.push(obj)
+  })
+  return result
+})
+
 // need optimization
 const loading = ref(false)
 const inviters = computed(() => {
@@ -379,14 +419,6 @@ const getInviters = () => {
     })
   }
 }
-// const goodsPercentWithNoBuy = (userID:string, goodID: string) => {
-//   let percent = 0
-//   const index = purchaseAmount.PurchaseAmountSettings.findIndex((el) => el.UserID === userID && el.GoodID === goodID && el.End === 0)
-//   if (index >= 0) {
-//     percent = purchaseAmount.PurchaseAmountSettings[index].Percent
-//   }
-//   return percent
-// }
 const goodsOfNoBuy = (userID:string) => {
   return purchaseAmount.PurchaseAmountSettings.filter((el) => el.UserID === userID && el.End === 0)
 }
