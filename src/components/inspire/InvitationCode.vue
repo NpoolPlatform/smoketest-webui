@@ -5,9 +5,11 @@
     :title='$t("MSG_USERS")'
     :rows='displayUsers'
     row-key='ID'
-    :rows-per-page-options='[10]'
-    selection='single'
+    selection='multiple'
+    :loading='userLoading'
     v-model:selected='selectedUser'
+    :columns='columns'
+    :rows-per-page-options='[10]'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -17,6 +19,20 @@
           class='small'
           v-model='username'
           :label='$t("MSG_USERNAME")'
+        />
+        <q-input
+          dense
+          class='small'
+          type='date'
+          v-model='start'
+          :label='$t("MSG_START")'
+        />
+        <q-input
+          dense
+          class='small'
+          type='date'
+          v-model='end'
+          :label='$t("MSG_END")'
         />
         <q-btn
           dense
@@ -63,11 +79,21 @@ import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
-
+const columns = [
+  { name: 'ID', label: 'ID', field: 'ID' },
+  { name: 'APPID', label: 'APPID', field: 'AppID' },
+  { name: 'EMAILADDRESS', label: 'EMAILADDRESS', field: 'EmailAddress' },
+  { name: 'PHONENO', label: 'PHONENO', field: 'PhoneNO' },
+  { name: 'IMPORTFROMAPP', label: 'IMPORTFROMAPP', field: 'ImportFromApp' },
+  { name: 'CREATEAT', label: 'CREATEAT', field: 'CreateAt' }
+]
 const inspire = useInvitationStore()
 const codes = computed(() => inspire.InvitationCodes)
 const codeLoading = ref(true)
+const userLoading = ref(true)
 
+const start = ref('')
+const end = ref('')
 interface Code extends InvitationCode {
   EmailAddress: string
   PhoneNO: string
@@ -83,7 +109,7 @@ const ecodes = computed(() => Array.from(codes.value).map((code: InvitationCode)
 
 const searchStr = ref('')
 const displayCodes = computed(() => ecodes.value.filter((el) => {
-  return el.EmailAddress.includes(searchStr.value) || el.InvitationCode?.includes(searchStr.value) || el.PhoneNO.includes(searchStr.value)
+  return el.EmailAddress?.includes(searchStr.value) || el.InvitationCode?.includes(searchStr.value) || el.PhoneNO?.includes(searchStr.value)
 }))
 
 const users = computed(() => Array.from(user.Users.filter((el) => {
@@ -92,8 +118,15 @@ const users = computed(() => Array.from(user.Users.filter((el) => {
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => {
-  return user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
+  let display = user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
         user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
+  if (start.value.length) {
+    display = display && (user.CreateAt as number >= new Date(start.value).getTime() / 1000)
+  }
+  if (end.value.length) {
+    display = display && (user.CreateAt as number <= new Date(end.value).getTime() / 1000)
+  }
+  return display
 }))
 
 onMounted(() => {
@@ -109,7 +142,6 @@ onMounted(() => {
   }, () => {
     codeLoading.value = false
   })
-
   user.getUsers({
     Message: {
       Error: {
@@ -121,17 +153,18 @@ onMounted(() => {
     }
   }, () => {
     // TODO
+    userLoading.value = false
   })
 })
-
-const onCreateInvitationCodeClick = () => {
+const counter = ref(0)
+const addInvitationCode = (idx = 0) => {
   if (selectedUser.value.length === 0) {
     return
   }
   inspire.createInvitationCode({
-    TargetUserID: selectedUser.value[0].ID as string,
+    TargetUserID: selectedUser.value[idx].ID as string,
     Info: {
-      UserID: selectedUser.value[0].ID as string
+      UserID: selectedUser.value[idx].ID as string
     },
     Message: {
       Error: {
@@ -143,7 +176,16 @@ const onCreateInvitationCodeClick = () => {
     }
   }, () => {
     // TODO
+    counter.value++
+    if (counter.value >= selectedUser.value.length) {
+      counter.value = 0
+      return
+    }
+    addInvitationCode(counter.value)
   })
+}
+const onCreateInvitationCodeClick = () => {
+  addInvitationCode()
 }
 
 </script>
