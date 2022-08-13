@@ -1,5 +1,5 @@
 import { BaseRequest } from 'npool-cli-v2'
-import { OrderState } from './const'
+import { OrderState, OrderType } from './const'
 
 interface Order {
   ID: string;
@@ -68,25 +68,11 @@ interface CreateUserOrderRequest extends BaseRequest {
   FixAmountID?: string;
   DiscountID?: string;
   SpecialOfferID?: string;
-  OrderType?: string;
+  OrderType?: OrderType;
 }
 
 interface CreateUserOrderResponse {
   Info: Order;
-}
-
-interface UpdateOrderRequest extends BaseRequest {
-  ID: string;
-  PaymentID: string;
-  Canceled: boolean;
-}
-
-interface UpdateOrderResponse {
-  Info: Order;
-}
-
-interface GetOrderRequest extends BaseRequest {
-  ID: string;
 }
 
 interface GetOrderResponse {
@@ -95,12 +81,9 @@ interface GetOrderResponse {
 
 export {
   Order,
-  GetOrderRequest,
   GetOrderResponse,
   GetOrdersRequest,
   GetOrdersResponse,
   CreateUserOrderRequest,
-  CreateUserOrderResponse,
-  UpdateOrderRequest,
-  UpdateOrderResponse
+  CreateUserOrderResponse
 }
