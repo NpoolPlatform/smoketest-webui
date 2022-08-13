@@ -47,76 +47,34 @@
 <script setup lang='ts'>
 import {
   NotificationType,
-  OrderBase,
-  PaymentState,
-  useAdminGoodStore,
-  PriceCoinName,
-  useAdminBillingStore,
-  useAdminOrderStore
+  PriceCoinName
 } from 'npool-cli-v2'
-import { computed, onMounted, ref } from 'vue'
-
-interface MyOrder extends OrderBase {
-  GoodName: string
-  PaymentState: PaymentState
-  PaymentID: string
-  Amount: number
-  CoinUSDCurrency: number
-}
-
-const billing = useAdminBillingStore()
-const payments = computed(() => billing.Payments)
-
-const good = useAdminGoodStore()
-
-const order = useAdminOrderStore()
-const orders = computed(() => {
-  return Array.from(order.BaseOrders).map((el) => {
-    const o = el as MyOrder
-    o.PaymentState = 'MSG_NOT_AVAILABLE' as PaymentState
-    o.GoodName = ''
-    o.PaymentID = ''
-    o.Amount = 0
-    o.CoinUSDCurrency = 0
-    if (payments.value) {
-      const index = payments.value.findIndex((pel) => pel.OrderID === el.ID)
-      if (index >= 0) {
-        o.PaymentState = payments.value[index].State as PaymentState
-        o.PaymentID = payments.value[index].ID
-        o.Amount = payments.value[index].Amount
-        o.CoinUSDCurrency = payments.value[index].CoinUSDCurrency ? payments.value[index].CoinUSDCurrency : 1
-      }
-    }
-
-    const index = good.Goods.findIndex((gel) => gel.Good.Good.ID === el.GoodID)
-    if (index >= 0) {
-      o.GoodName = good.Goods[index].Good.Good.Title
-    }
-    return o
-  })
-})
+import { OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
+import { onMounted, ref, computed } from 'vue'
 
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
 
-const displayOrders = computed(() => orders.value.filter((el) => {
+const order = useAdminLocalOrderStore()
+
+const displayOrders = computed(() => order.Orders.filter((el) => {
   let display = el.GoodID.includes(goodId.value)
   if (start.value.length) {
-    display = display && (el.CreateAt >= new Date(start.value).getTime() / 1000)
+    display = display && (el.CreatedAt >= new Date(start.value).getTime() / 1000)
   }
   if (end.value.length) {
-    display = display && (el.CreateAt <= new Date(end.value).getTime() / 1000)
+    display = display && (el.CreatedAt <= new Date(end.value).getTime() / 1000)
   }
   return display
 }))
 
-const soldUnits = computed(() => displayOrders.value.filter((el) => el.PaymentState === PaymentState.DONE).reduce((sum, b) => sum + b.Units, 0))
-const paymentTimeouts = computed(() => displayOrders.value.filter((el) => el.PaymentState === PaymentState.TIMEOUT).length)
-const paymentAmount = computed(() => displayOrders.value.filter((el) => el.PaymentState === PaymentState.DONE).reduce((sum, b) => sum + b.Amount * b.CoinUSDCurrency, 0))
+const soldUnits = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAID).reduce((sum, b) => sum + b.Units, 0))
+const paymentTimeouts = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAYMENT_TIMEOUT).length)
+const paymentAmount = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAID).reduce((sum, b) => sum + Number(b.GoodValue) * Number(b.PaymentCoinUSDCurrency), 0))
 const orderUsers = computed(() => {
   const users = new Map<string, number>()
-  displayOrders.value.filter((el) => el.PaymentState === PaymentState.DONE).forEach((el) => {
+  displayOrders.value.filter((el) => el.State === OrderState.PAID).forEach((el) => {
     let u = users.get(el.UserID)
     if (!u) {
       u = 0
@@ -126,9 +84,10 @@ const orderUsers = computed(() => {
   })
   return users.size
 })
-
-const prepare = () => {
-  order.getBaseOrders({
+const getAppOrders = (offset: number, limit: number) => {
+  order.getAppOrders({
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
         Title: 'MSG_GET_ORDERS',
@@ -137,38 +96,21 @@ const prepare = () => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    // TODO
-  })
-
-  billing.getPayments({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_PAYMENTS',
-        Message: 'MSG_GET_PAYMENTS_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
+  }, (error: boolean, count?: number) => {
+    if (error) {
+      return
     }
-  }, () => {
-    // TODO
+    if (count !== undefined && count < limit) { // one less request
+      return
+    }
+    getAppOrders(offset + limit, limit)
   })
 }
 
 onMounted(() => {
-  prepare()
-  good.getAllGoods({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_ALL_GOODS',
-        Message: 'MSG_GET_ALL_GOODS_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  if (order.Orders.length === 0) {
+    getAppOrders(0, 100)
+  }
 })
 
 </script>
