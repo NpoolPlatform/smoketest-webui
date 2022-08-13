@@ -6,7 +6,12 @@ enum API {
 }
 
 const OrderTimeoutSeconds = 6 * 60 * 60
-
+enum OrderType {
+  DefaultOrderType = 'DefaultOrderType',
+  Normal = 'Normal',
+  Offline = 'Offline',
+  Airdrop = 'Airdrop'
+}
 enum OrderState {
   DEFAULT_STATE = 'DefaultState',
   WAIT_PAYMENT = 'WaitPayment',
@@ -18,4 +23,4 @@ enum OrderState {
   EXPIRED = 'Expired',
 }
 
-export { API, OrderTimeoutSeconds, OrderState }
+export { API, OrderTimeoutSeconds, OrderState, OrderType }
