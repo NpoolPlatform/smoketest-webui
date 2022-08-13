@@ -10,14 +10,17 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useAdminBillingStore } from 'npool-cli-v2'
+import { NotificationType } from 'npool-cli-v2'
+import { useAdminLedgerStore } from 'src/teststore/ledger'
 import { computed, onMounted } from 'vue'
 
-const billing = useAdminBillingStore()
-const withdraws = computed(() => billing.Withdraws)
+const ledger = useAdminLedgerStore()
+const withdraws = computed(() => ledger.Withdraws.Withdraws)
 
-const prepare = () => {
-  billing.getWithdraws({
+const getAppWithdraws = (offset: number, limit: number) => {
+  ledger.getAppWithdraws({
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
         Title: 'MSG_GET_WITHDRAWS',
@@ -26,13 +29,21 @@ const prepare = () => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean, count?: number) => {
+    if (error) {
+      return
+    }
+    if (count !== undefined && count < limit) { // one less request
+      return
+    }
+    getAppWithdraws(offset + limit, limit)
   })
 }
 
 onMounted(() => {
-  prepare()
+  if (ledger.Withdraws.Withdraws.length === 0) {
+    getAppWithdraws(0, 100)
+  }
 })
 
 </script>
