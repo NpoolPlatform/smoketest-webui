@@ -44,8 +44,8 @@
         <q-input v-model='target.Review.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject' />
+        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove(WithdrawReviewState.Approved)' />
+        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject(WithdrawReviewState.Approved)' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -53,7 +53,9 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLocaleStore, useLoginedUserStore, Review } from 'npool-cli-v2'
+import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLoginedUserStore, Review } from 'npool-cli-v2'
+import { useAdminReviewStore, Review as AdminReview } from 'src/teststore/review'
+import { WithdrawReviewState } from 'src/teststore/review/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -62,7 +64,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const review = useReviewStore()
 const coins = useCoinStore()
-const locale = useLocaleStore()
+// const locale = useLocaleStore()
 const logined = useLoginedUserStore()
 
 const reviews = computed(() => review.WithdrawReviews)
@@ -115,14 +117,30 @@ const onRowClick = (r: Review) => {
   }
   showing.value = true
 }
-
-const updateReview = () => {
+const lreview = useAdminReviewStore()
+const updateReview = (withdrawReviewState: WithdrawReviewState) => {
   target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
 
-  review.updateWithdrawReview({
-    TargetLangID: locale.CurLang?.ID as string,
-    Info: target.value.Review,
-    Message: {
+  // review.updateWithdrawReview({
+  //   TargetLangID: locale.CurLang?.ID as string,
+  //   Info: target.value.Review,
+  //   Message: {
+  //     Error: {
+  //       Title: t('MSG_UPDATE_WITHDRAW_REVIEW'),
+  //       Message: t('MSG_UPDATE_WITHDRAW_REVIEW_FAIL'),
+  //       Popup: true,
+  //       Type: NotificationType.Error
+  //     }
+  //   }
+  // }, () => {
+  //   // TODO
+  // })
+  lreview.updateWithdrawReview({
+    ID: target.value.Review.ID as string,
+    UserID: target.value.Review.ReviewerID as string,
+    Message: target.value.Review.Message as string,
+    State: withdrawReviewState,
+    NotificationMessage: {
       Error: {
         Title: t('MSG_UPDATE_WITHDRAW_REVIEW'),
         Message: t('MSG_UPDATE_WITHDRAW_REVIEW_FAIL'),
@@ -130,22 +148,29 @@ const updateReview = () => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean, resp?: AdminReview) => {
+    if (error) {
+      return
+    }
+    const existItem = review.WithdrawReviews.find((el) => el.Review.ID === target.value.Review.ID)
+    if (existItem) {
+      existItem.Review.Message = resp?.Message
+      existItem.Review.State = resp?.State
+    }
   })
 }
 
-const onApprove = () => {
+const onApprove = (withdrawReviewState: WithdrawReviewState) => {
   showing.value = false
   target.value.Review.State = ReviewState.Approved
-  updateReview()
+  updateReview(withdrawReviewState)
   onMenuHide()
 }
 
-const onReject = () => {
+const onReject = (withdrawReviewState: WithdrawReviewState) => {
   showing.value = false
   target.value.Review.State = ReviewState.Rejected
-  updateReview()
+  updateReview(withdrawReviewState)
   onMenuHide()
 }
 
