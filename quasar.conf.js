@@ -87,7 +87,7 @@ module.exports = configure(function (ctx) {
     devServer: {
       proxy: {
         '/api': {
-          target: 'https://api.ohhash.com',
+          target: 'https://api.procyon.vip',
           pathRewrite: {
             '^/api': '/api'
           },

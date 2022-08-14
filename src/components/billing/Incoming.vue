@@ -14,11 +14,19 @@
         v-model='searchStr'
         :label='$t("MSG_SEARCH")'
       />
+      <q-btn
+        dense
+        flat
+        class='btn flat'
+        :label='$t("MSG_EXPORT")'
+        @click='onExport'
+      />
     </template>
   </q-table>
 </template>
 
 <script setup lang='ts'>
+import { saveAs } from 'file-saver'
 import {
   NotificationType,
   Payment,
@@ -27,7 +35,9 @@ import {
   useCoinStore,
   useUsersStore,
   useAdminOrderStore,
-  useAdminBillingStore
+  useAdminBillingStore,
+  useApplicationStore,
+  formatTime
 } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
 
@@ -36,6 +46,7 @@ const users = computed(() => user.Users)
 
 const good = useAdminGoodStore()
 const account = useChurchAccountStore()
+const application = useApplicationStore()
 
 const coin = useCoinStore()
 
@@ -73,6 +84,37 @@ const myPayments = computed(() => Array.from(payments.value).map((el) => {
   }
   return myPayment
 }))
+
+const onExport = () => {
+  let orderStr = ''
+  displayPayments.value.forEach((el) => {
+    const obj = el as unknown as Record<string, unknown>
+    if (!orderStr.length) {
+      Object.keys(obj).forEach((k) => {
+        if (orderStr.length) {
+          orderStr += ';'
+        }
+        orderStr += k
+      })
+    }
+    orderStr += '\n'
+    let lineStr = ''
+    Object.values(obj).forEach((v) => {
+      if (lineStr.length) {
+        lineStr += ';'
+      }
+      lineStr += v
+    })
+    orderStr += lineStr
+  })
+
+  const blob = new Blob([orderStr], { type: 'text/plain;charset=utf-8' })
+  const filename = application.Application.App.Name +
+                  '-Payments-' +
+                   formatTime(new Date().getTime() / 1000) +
+                   '.csv'
+  saveAs(blob, filename)
+}
 
 const searchStr = ref('')
 const displayPayments = computed(() => myPayments.value.filter((el) => {
