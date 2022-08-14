@@ -193,9 +193,10 @@ const getUserInvitees = (userID: string) => {
 const getUserInviters = (userID: string) => {
   const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
   if (!root) { // top level user
-    if (userInviters.value.length > 1) {
-      userInviters.value.push({ UserID: userInviters.value[-1].InviterID, InviterID: '' })
+    if (userInviters.value.length >= 1) {
+      userInviters.value.push({ UserID: userInviters.value[userInviters.value.length - 1].InviterID, InviterID: '' })
     }
+    console.log(userInviters.value)
     getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
     return
   }
@@ -219,7 +220,7 @@ const getUserArchivements = (userIDs: Array<string>, offset: number, limit: numb
       if (error) { // has error
         return
       }
-      if (!count || count <= 1) { // no more data
+      if (count !== undefined && count < limit) { // no more data
         return
       }
       getUserArchivements(userIDs, offset + limit, limit)
