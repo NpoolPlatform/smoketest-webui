@@ -171,6 +171,10 @@ const onApprove = () => {
 }
 
 const onReject = () => {
+  if (target.value.Message.trim().length < 0) { // need value when reject
+    console.log('need message')
+    return
+  }
   target.value.State = ReviewState.Rejected
   updateReview()
 }
