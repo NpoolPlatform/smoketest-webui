@@ -8,6 +8,13 @@
     :rows-per-page-options='[10]'
   >
     <template #top-right>
+      <q-btn
+        dense
+        flat
+        class='btn flat'
+        :label='$t("MSG_EXPORT")'
+        @click='onExport'
+      />
       <q-input
         dense
         class='small'
@@ -46,12 +53,14 @@
 
 <script setup lang='ts'>
 import {
+  formatTime,
   NotificationType,
-  PriceCoinName
+  PriceCoinName,
+  useApplicationStore
 } from 'npool-cli-v2'
 import { OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
 import { onMounted, ref, computed } from 'vue'
-
+import { saveAs } from 'file-saver'
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
@@ -112,5 +121,34 @@ onMounted(() => {
     getAppOrders(0, 100)
   }
 })
+const application = useApplicationStore()
+const onExport = () => {
+  let orderStr = ''
+  displayOrders.value.forEach((el) => {
+    const obj = el as unknown as Record<string, unknown>
+    if (!orderStr.length) {
+      Object.keys(obj).forEach((k) => {
+        if (orderStr.length) {
+          orderStr += ';'
+        }
+        orderStr += k
+      })
+    }
+    orderStr += '\n'
+    let lineStr = ''
+    Object.values(obj).forEach((v) => {
+      if (lineStr.length) {
+        lineStr += ';'
+      }
+      lineStr += v
+    })
+    orderStr += lineStr
+  })
 
+  const blob = new Blob([orderStr], { type: 'text/plain;charset=utf-8' })
+  const filename = application.Application.App.Name + '-Users-' +
+                   formatTime(new Date().getTime() / 1000) +
+                   '.csv'
+  saveAs(blob, filename)
+}
 </script>
