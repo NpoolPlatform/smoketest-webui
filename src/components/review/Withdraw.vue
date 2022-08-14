@@ -171,7 +171,7 @@ const onApprove = () => {
 }
 
 const onReject = () => {
-  if (target.value.Message.trim().length < 0) { // need value when reject
+  if (target.value.Message.trim().length <= 0) { // need value when reject
     console.log('need message')
     return
   }
