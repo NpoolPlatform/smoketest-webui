@@ -16,7 +16,7 @@
     row-key='ID'
     :loading='reviewLoading'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(row as Review)'
+    @row-click='(evt, row, index) => onRowClick(row as WithdrawReview)'
   />
   <q-dialog
     v-model='showing'
@@ -28,24 +28,25 @@
         <span>{{ $t('MSG_REVIEW_WITHDRAW_ADDRESSES') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target.User.User.EmailAddress }}</q-item-label>
-        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target.User.User.PhoneNO }}</q-item-label>
-        <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target.User.Extra?.Username }}</q-item-label>
-        <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target.User.Extra?.FirstName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target.User.Extra?.LastName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_GENDER') }}: {{ target.User.Extra?.Gender }}</q-item-label>
+        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target?.EmailAddress }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target?.PhoneNO }}</q-item-label>
+        <!-- <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target?.Username }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target?.FirstName }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target?.LastName }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_GENDER') }}: {{ target?.Gender }}</q-item-label> -->
       </q-card-section>
       <q-card-section>
         <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin?.Name }}</q-item-label>
-        <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target.Withdraw?.Amount }}</q-item-label>
-        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target.Withdraw?.WithdrawType }}</q-item-label>
+        <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
+        <!-- <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.WithdrawType }}</q-item-label> -->
+        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.State }}</q-item-label>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.Review.Message' :label='$t("MSG_COMMENT")' />
+        <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove(WithdrawReviewState.Approved)' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject(WithdrawReviewState.Approved)' />
+        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove()' />
+        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject()' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -53,30 +54,34 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLoginedUserStore, Review } from 'npool-cli-v2'
-import { useAdminReviewStore, Review as AdminReview } from 'src/teststore/review'
-import { WithdrawReviewState } from 'src/teststore/review/const'
+import { NotificationType, useCoinStore, useLocaleStore, useLoginedUserStore } from 'npool-cli-v2'
+import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
+import { ReviewState } from 'src/teststore/review/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const review = useReviewStore()
+// const review = useReviewStore()
 const coins = useCoinStore()
-// const locale = useLocaleStore()
+const locale = useLocaleStore()
 const logined = useLoginedUserStore()
 
-const reviews = computed(() => review.WithdrawReviews)
-const displayReviews = computed(() => Array.from(review.WithdrawReviews).map((el) => el.Review))
+const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
+const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
 const reviewLoading = ref(true)
 
 const displayCoins = computed(() => coins.Coins)
 const coinLoading = ref(true)
 
-onMounted(() => {
+const review = useWithdrawReviewStore()
+
+const getWithdrawReviews = (offset: number, limit: number) => {
   review.getWithdrawReviews({
-    Message: {
+    offset: offset,
+    limit: limit,
+    NotificationMessage: {
       Error: {
         Title: t('MSG_GET_WITHDRAW_REVIEWS'),
         Message: t('MSG_GET_WITHDRAW_REVIEWS_FAIL'),
@@ -84,10 +89,19 @@ onMounted(() => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    reviewLoading.value = false
+  }, (error: boolean, count?: number) => {
+    if (error) {
+      reviewLoading.value = false
+      return
+    }
+    if (count !== undefined && count < limit) { // one less request
+      reviewLoading.value = false
+      return
+    }
+    getWithdrawReviews(offset + limit, limit)
   })
-
+}
+onMounted(() => {
   coins.getCoins({
     Message: {
       Error: {
@@ -100,46 +114,35 @@ onMounted(() => {
   }, () => {
     coinLoading.value = false
   })
+  if (review.WithdrawReviews.WithdrawReviews.length === 0) {
+    getWithdrawReviews(0, 100)
+  }
 })
 
 const showing = ref(false)
 const target = ref({} as unknown as WithdrawReview)
-const coin = computed(() => coins.getCoinByID(target.value.Withdraw?.CoinTypeID))
+const coin = computed(() => coins.getCoinByID(target?.value.CoinTypeID))
 
 const onMenuHide = () => {
   target.value = {} as unknown as WithdrawReview
 }
 
-const onRowClick = (r: Review) => {
-  const index = reviews.value.findIndex((el) => el.Review.ID === r.ID)
+const onRowClick = (r: WithdrawReview) => {
+  const index = reviews.value.findIndex((el) => el.ReviewID === r.ReviewID)
   if (index >= 0) {
-    target.value = reviews.value[index]
+    target.value = { ...reviews.value[index] }
   }
-  showing.value = true
+  showing.value = true // open dialog
 }
-const lreview = useAdminReviewStore()
-const updateReview = (withdrawReviewState: WithdrawReviewState) => {
-  target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
 
-  // review.updateWithdrawReview({
-  //   TargetLangID: locale.CurLang?.ID as string,
-  //   Info: target.value.Review,
-  //   Message: {
-  //     Error: {
-  //       Title: t('MSG_UPDATE_WITHDRAW_REVIEW'),
-  //       Message: t('MSG_UPDATE_WITHDRAW_REVIEW_FAIL'),
-  //       Popup: true,
-  //       Type: NotificationType.Error
-  //     }
-  //   }
-  // }, () => {
-  //   // TODO
-  // })
-  lreview.updateWithdrawReview({
-    ID: target.value.Review.ID as string,
-    UserID: target.value.Review.ReviewerID as string,
-    Message: target.value.Review.Message as string,
-    State: withdrawReviewState,
+const updateReview = () => {
+  target.value.ReviewID = logined.LoginedUser?.User?.ID as string
+  review.updateWithdrawReview({
+    ReviewID: target.value.ReviewID,
+    LangID: locale.CurLang?.ID as string,
+    UserID: target.value.UserID,
+    Message: target.value.Message,
+    State: target.value.State,
     NotificationMessage: {
       Error: {
         Title: t('MSG_UPDATE_WITHDRAW_REVIEW'),
@@ -148,29 +151,26 @@ const updateReview = (withdrawReviewState: WithdrawReviewState) => {
         Type: NotificationType.Error
       }
     }
-  }, (error: boolean, resp?: AdminReview) => {
-    if (error) {
+  }, (error: boolean) => {
+    if (error) { // fail
       return
     }
-    const existItem = review.WithdrawReviews.find((el) => el.Review.ID === target.value.Review.ID)
-    if (existItem) {
-      existItem.Review.Message = resp?.Message
-      existItem.Review.State = resp?.State
-    }
+    onMenuHide()
+    showing.value = false
   })
 }
 
-const onApprove = (withdrawReviewState: WithdrawReviewState) => {
-  showing.value = false
-  target.value.Review.State = ReviewState.Approved
-  updateReview(withdrawReviewState)
+const onApprove = () => {
+  // showing.value = false
+  target.value.State = ReviewState.Approved
+  updateReview()
   onMenuHide()
 }
 
-const onReject = (withdrawReviewState: WithdrawReviewState) => {
-  showing.value = false
-  target.value.Review.State = ReviewState.Rejected
-  updateReview(withdrawReviewState)
+const onReject = () => {
+  // showing.value = false
+  target.value.State = ReviewState.Rejected
+  updateReview()
   onMenuHide()
 }
 

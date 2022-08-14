@@ -1,11 +1,26 @@
 enum API {
-  UPDATE_WITHDRAW_REVIEW = '/review/v2/update/review',
+  UPDATE_WITHDRAW_REVIEW = '/review/v2/update/withdrawreview',
+  GET_WITHDRAW_REVIEWS = '/review/v2/get/withdrawreviews',
 }
-enum WithdrawReviewState {
+enum WithdrawState {
+  DefaultWithdrawReviewState = 'DefaultWithdrawReviewState',
+  Reviewing = 'Reviewing',
+  Transferring = 'Transferring',
+  Rejected = 'Rejected',
+  TransactionFail = 'TransactionFail',
+  Successful = 'Successful',
+}
+enum KycState {
   DefaultReviewState = 'DefaultReviewState',
   Approved = 'Approved',
   Wait = 'Wait',
-  Rejected = 'Rejected'
+  Rejected ='Rejected'
+}
+enum ReviewState {
+  DefaultReviewState = 'DefaultReviewState',
+  Approved = 'Approved',
+  Wait = 'Wait',
+  Rejected ='Rejected'
 }
 enum WithdrawTrigger {
   DefaultTriggerType = 'DefaultTriggerType',
@@ -17,5 +32,7 @@ enum WithdrawTrigger {
 export {
   API,
   WithdrawTrigger,
-  WithdrawReviewState
+  WithdrawState,
+  KycState,
+  ReviewState
 }

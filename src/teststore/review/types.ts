@@ -1,38 +1,61 @@
 import { ReqMessage } from 'npool-cli-v2'
-import { WithdrawReviewState, WithdrawTrigger } from './const'
+import { ReviewState, WithdrawTrigger } from './const'
 
-interface Review {
+interface WithdrawReview {
+  WithdrawID: string;
+  WithdrawState: string;
+  ReviewID: string;
+  UserID: string;
+  KycState: string;
   EmailAddress: string;
   PhoneNO: string;
   Reviewer: string;
   ObjectType: string;
-  ObjectID: string;
   Domain: string;
   CreatedAt: number;
   UpdatedAt: number;
   Message: string;
-  State: WithdrawReviewState;
+  State: ReviewState;
   Trigger: WithdrawTrigger;
-  ObjectInfo: string;
+  Amount: string;
+  FeeAmount: string;
+  CoinTypeID: string;
+  CoinName: string;
+  CoinLogo: string;
+  CoinUnit: string;
+  Address: string;
+  PlatformTransactionID: string;
+  ChainTransactionID: string;
 }
 
 interface UpdateReviewResponse {
-  Info: Review
+  Info: WithdrawReview
 }
 
 interface BaseRequest {
   NotificationMessage: ReqMessage;
 }
 interface UpdateReviewRequest extends BaseRequest{
-  ID: string;
+  ReviewID: string;
   UserID: string;
+  LangID: string;
   State: string;
   Message: string;
 }
 
+interface GetWithdrawReviewsRequest extends BaseRequest{
+  offset: number;
+  limit: number;
+}
+interface GetWithdrawReviewsResponse {
+  Infos: Array<WithdrawReview>;
+  Total: number;
+}
 export {
-  Review,
+  WithdrawReview,
   UpdateReviewRequest,
   UpdateReviewResponse,
-  BaseRequest
+  BaseRequest,
+  GetWithdrawReviewsRequest,
+  GetWithdrawReviewsResponse
 }
