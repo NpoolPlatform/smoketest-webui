@@ -319,15 +319,6 @@ const MainDrawerMenus = [
     sectionBegin: false,
     children: [{
       menuId: uid(),
-      label: '销售收入',
-      caption: '查看销售收入',
-      icon: 'format_list_numbered',
-      target: '/billing/incoming',
-      level: 1,
-      sectionBegin: false,
-      children: []
-    } as MenuItem, {
-      menuId: uid(),
       label: '订单',
       caption: '查看订单',
       icon: 'format_list_numbered',
@@ -359,15 +350,6 @@ const MainDrawerMenus = [
       caption: '创建离线订单',
       icon: 'format_list_numbered',
       target: '/order/offline',
-      level: 1,
-      sectionBegin: false,
-      children: []
-    } as MenuItem, {
-      menuId: uid(),
-      label: '订单详情',
-      caption: '订单详情列表',
-      icon: 'format_list_numbered',
-      target: '/order/order',
       level: 1,
       sectionBegin: false,
       children: []

@@ -313,18 +313,6 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
-        path: 'billing/incoming',
-        component: () => import('pages/billing/Incoming.vue'),
-        meta: {
-          ShowHeaderAnnouncement: true,
-          ShowMainHeader: false,
-          ShowBigLogo: true,
-          ShowFooterTop: true,
-          ShowSignHelper: true,
-          ShowTopTip: false,
-          NeedLogined: true
-        }
-      }, {
         path: 'billing/order',
         component: () => import('pages/billing/Order.vue'),
         meta: {
@@ -363,18 +351,6 @@ const routes: RouteRecordRaw[] = [
       }, {
         path: 'order/offline',
         component: () => import('pages/order/Offline.vue'),
-        meta: {
-          ShowHeaderAnnouncement: true,
-          ShowMainHeader: false,
-          ShowBigLogo: true,
-          ShowFooterTop: true,
-          ShowSignHelper: true,
-          ShowTopTip: false,
-          NeedLogined: true
-        }
-      }, {
-        path: 'order/order',
-        component: () => import('pages/order/Order.vue'),
         meta: {
           ShowHeaderAnnouncement: true,
           ShowMainHeader: false,
