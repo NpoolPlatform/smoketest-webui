@@ -124,23 +124,31 @@ const displayOrders = computed(() => orders.value.filter((el) => {
 
 const onExport = () => {
   let orderStr = ''
+  let createAtCol = 0
   displayOrders.value.forEach((el) => {
     const obj = el as unknown as Record<string, unknown>
     if (!orderStr.length) {
-      Object.keys(obj).forEach((k) => {
+      Object.keys(obj).forEach((k, col) => {
         if (orderStr.length) {
           orderStr += ';'
         }
         orderStr += k
+        if (k === 'CreateAt') {
+          createAtCol = col
+        }
       })
     }
     orderStr += '\n'
     let lineStr = ''
-    Object.values(obj).forEach((v) => {
+    Object.values(obj).forEach((v, col) => {
       if (lineStr.length) {
         lineStr += ';'
       }
-      lineStr += v
+      if (col === createAtCol) {
+        lineStr += formatTime(Number(v))
+      } else {
+        lineStr += v
+      }
     })
     orderStr += lineStr
   })

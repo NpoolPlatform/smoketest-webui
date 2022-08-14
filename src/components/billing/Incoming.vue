@@ -40,6 +40,7 @@ import {
   formatTime
 } from 'npool-cli-v2'
 import { computed, onMounted, ref } from 'vue'
+import { AppID } from 'src/const/const'
 
 const user = useUsersStore()
 const users = computed(() => user.Users)
@@ -87,23 +88,31 @@ const myPayments = computed(() => Array.from(payments.value).map((el) => {
 
 const onExport = () => {
   let orderStr = ''
+  let createAtCol = 0
   displayPayments.value.forEach((el) => {
     const obj = el as unknown as Record<string, unknown>
     if (!orderStr.length) {
-      Object.keys(obj).forEach((k) => {
+      Object.keys(obj).forEach((k, col) => {
         if (orderStr.length) {
           orderStr += ';'
         }
         orderStr += k
+        if (k === 'CreateAt') {
+          createAtCol = col
+        }
       })
     }
     orderStr += '\n'
     let lineStr = ''
-    Object.values(obj).forEach((v) => {
+    Object.values(obj).forEach((v, col) => {
       if (lineStr.length) {
         lineStr += ';'
       }
-      lineStr += v
+      if (col === createAtCol) {
+        lineStr += formatTime(Number(v))
+      } else {
+        lineStr += v
+      }
     })
     orderStr += lineStr
   })
@@ -198,6 +207,20 @@ const prepare = () => {
       Error: {
         Title: 'MSG_GET_COINS',
         Message: 'MSG_GET_COINS_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+
+  application.getApplication({
+    ID: AppID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP',
+        Message: 'MSG_GET_APP_FAIL',
         Popup: true,
         Type: NotificationType.Error
       }
