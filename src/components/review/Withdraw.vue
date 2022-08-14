@@ -18,6 +18,11 @@
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as WithdrawReview)'
   />
+  <q-card>
+    <q-card-section class='bg-primary text-white'>
+      {{ $t('MSG_ADVERTISEMENT_POSITION') }}
+    </q-card-section>
+  </q-card>
   <q-dialog
     v-model='showing'
     @hide='onMenuHide'
@@ -39,7 +44,7 @@
         <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin?.Name }}</q-item-label>
         <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
         <!-- <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.WithdrawType }}</q-item-label> -->
-        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.State }}</q-item-label>
+        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.Trigger }}</q-item-label>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
@@ -70,7 +75,7 @@ const logined = useLoginedUserStore()
 
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
-const reviewLoading = ref(true)
+const reviewLoading = ref(false)
 
 const displayCoins = computed(() => coins.Coins)
 const coinLoading = ref(true)
@@ -115,6 +120,7 @@ onMounted(() => {
     coinLoading.value = false
   })
   if (review.WithdrawReviews.WithdrawReviews.length === 0) {
+    reviewLoading.value = true
     getWithdrawReviews(0, 100)
   }
 })
@@ -136,11 +142,10 @@ const onRowClick = (r: WithdrawReview) => {
 }
 
 const updateReview = () => {
-  target.value.ReviewID = logined.LoginedUser?.User?.ID as string
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
     LangID: locale.CurLang?.ID as string,
-    UserID: target.value.UserID,
+    UserID: logined.LoginedUser?.User?.ID as string,
     Message: target.value.Message,
     State: target.value.State,
     NotificationMessage: {
@@ -161,17 +166,13 @@ const updateReview = () => {
 }
 
 const onApprove = () => {
-  // showing.value = false
   target.value.State = ReviewState.Approved
   updateReview()
-  onMenuHide()
 }
 
 const onReject = () => {
-  // showing.value = false
   target.value.State = ReviewState.Rejected
   updateReview()
-  onMenuHide()
 }
 
 const onCancel = () => {
