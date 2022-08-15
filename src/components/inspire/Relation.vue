@@ -26,8 +26,10 @@
     flat
     :title='$t("MSG_INVITEES")'
     :rows-per-page-options='[10]'
-    row-key='ID'
-    :rows='invitees'
+    row-key='name'
+    :columns='(columns as never)'
+    :rows='inviteesArchivemnents'
+    :loading='inviteesTableLoading'
   >
     <template #body='props'>
       <q-tr :props='props'>
@@ -40,9 +42,12 @@
         <q-td key='EmailAddress' :props='props'>
           {{ props.row.EmailAddress }}
         </q-td>
-        <q-td key='Profit' :props='props'>
+        <q-td key='PhoneNO' :props='props'>
+          {{ props.row.PhoneNO }}
+        </q-td>
+        <q-td key='Archivements' :props='props'>
           <table>
-            <div v-if='props.row.Profit.length > 0'>
+            <div v-if='props.row.Archivements?.length > 0'>
               <tr>
                 <th>Name</th>
                 <th>ProductID</th>
@@ -51,20 +56,20 @@
                 <th>Total Sales</th>
                 <th>Commission</th>
               </tr>
-              <tr v-for='(product,index) in props.row.Profit' :key='index'>
+              <tr v-for='(_good,index) in props.row.Archivements' :key='index'>
                 <td class='name'>
-                  {{ product.Name }}
+                  {{ _good?.CoinName }}
                 </td>
-                <td>{{ product.ProductID }}</td>
+                <td>{{ _good?.GoodID }}</td>
                 <td>
-                  {{ product.Rate }} <span>%</span>
+                  {{ _good.CommissionPercent }} <span>%</span>
                 </td>
                 <td class='units'>
-                  {{ product.Units }}{{ $t(product.Unit) }}
+                  {{ _good.TotalUnits }}{{ $t(_good.GoodUnit) }}
                 </td>
-                <td>{{ product.TotalSales }} <span class='price-coin-name'>{{ product.SaleUnit }}</span></td>
+                <td>{{ _good.TotalAmount }} <span class='price-coin-name'>{{ PriceCoinName }}</span></td>
                 <td class='commission'>
-                  {{ product.Commission }} <span class='price-coin-name'>{{ product.SaleUnit }}</span>
+                  {{ _good.TotalCommission }} <span class='price-coin-name'>{{ PriceCoinName }}</span>
                 </td>
               </tr>
             </div>
@@ -80,14 +85,15 @@
     dense
     flat
     :title='$t("MSG_INVITERS")'
-    row-key='name'
+    row-key='ID'
     :rows-per-page-options='[10]'
-    :rows='inviters'
-    :loading='loading'
+    :rows='invitersArchivemnents'
+    :columns='(columns as never)'
+    :loading='invitersTableLoading'
   >
     <template #body='props'>
       <q-tr :props='props'>
-        <q-td key='UserID' label='UserID' :props='props'>
+        <q-td key='UserID' :props='props'>
           {{ props.row.UserID }}
         </q-td>
         <q-td key='InviterID' :props='props'>
@@ -96,9 +102,12 @@
         <q-td key='EmailAddress' :props='props'>
           {{ props.row.EmailAddress }}
         </q-td>
-        <q-td key='Profit' :props='props'>
+        <q-td key='PhoneNO' :props='props'>
+          {{ props.row.PhoneNO }}
+        </q-td>
+        <q-td key='Archivements' :props='props'>
           <table>
-            <div v-if='props.row.Profit.length > 0'>
+            <div v-if='props.row.Archivements?.length > 0'>
               <tr>
                 <th>Name</th>
                 <th>ProductID</th>
@@ -107,20 +116,20 @@
                 <th>Total Sales</th>
                 <th>Commission</th>
               </tr>
-              <tr v-for='(product,index) in props.row.Profit' :key='index'>
+              <tr v-for='(_good,index) in props.row.Archivements' :key='index'>
                 <td class='name'>
-                  {{ product.Name }}
+                  {{ _good?.CoinName }}
                 </td>
-                <td>{{ product.ProductID }}</td>
+                <td>{{ _good?.GoodID }}</td>
                 <td>
-                  {{ product.Rate }} <span>%</span>
+                  {{ _good.CommissionPercent }} <span>%</span>
                 </td>
                 <td class='units'>
-                  {{ product.Units }}{{ $t(product.Unit) }}
+                  {{ _good.TotalUnits }}{{ $t(_good.GoodUnit) }}
                 </td>
-                <td>{{ product.TotalSales }} <span class='price-coin-name'>{{ product.SaleUnit }}</span></td>
+                <td>{{ _good.TotalAmount }} <span class='price-coin-name'>{{ PriceCoinName }}</span></td>
                 <td class='commission'>
-                  {{ product.Commission }} <span class='price-coin-name'>{{ product.SaleUnit }}</span>
+                  {{ _good.TotalCommission }} <span class='price-coin-name'>{{ PriceCoinName }}</span>
                 </td>
               </tr>
             </div>
@@ -139,20 +148,15 @@ import {
   useUsersStore,
   AppUser,
   useRegInvitationStore,
-  usePurchaseAmountSettingStore,
-  useAdminInspireStore,
-  useGoodStore,
-  PriceCoinName,
-  Referral
+  PriceCoinName
 } from 'npool-cli-v2'
+import { ProductArchivement, useAdminArchivementStore } from 'src/teststore/archivement'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ProductProfit, UserProfit } from '../../localstore'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
 const user = useUsersStore()
-
 const users = computed(() => Array.from(user.Users.map((el) => el.User)))
 const selectedUser = ref([] as Array<AppUser>)
 const username = ref('')
@@ -162,294 +166,99 @@ const displayUsers = computed(() => users.value.filter((user) => {
         user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
 }))
 
-// relation
-const purchaseAmount = usePurchaseAmountSettingStore()
-
-const getGoodPercent = (userID:string, goodID:string) => {
-  const index = purchaseAmount.PurchaseAmountSettings.findIndex((el) => el.UserID === userID && el.GoodID === goodID && el.End === 0)
-  if (index !== -1) {
-    return purchaseAmount.PurchaseAmountSettings[index].Percent
-  }
-  return 0
-}
+const columns = [
+  { name: 'UserID', label: 'USERID', field: 'UserID', align: 'center' },
+  { name: 'InviterID', label: 'INVITERID', field: 'InviterID', align: 'center' },
+  { name: 'EmailAddress', label: 'EMAILADRESS', field: 'EmailAddress', align: 'center' },
+  { name: 'PhoneNO', label: 'PHONENO', field: 'PhoneNO', align: 'center' },
+  { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
+]
 const regInvitation = useRegInvitationStore()
-const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : '')
 
-const isGoodsVisible = (goodID:string) => {
-  const appGood = good.AppGoods.find((el) => el.GoodID === goodID)
-  if (appGood !== undefined) {
-    return appGood.Visible
-  }
-  return false
+interface InvitationRelation {
+  UserID: string
+  InviterID: string
 }
-const invitees = computed(() => {
-  if (selectedUser.value.length === 0) {
-    return
-  }
-  const result = [] as Array<UserProfit>
-  const refs = inspire.Referrals.get(selectedUser.value[0].ID as string)
-  refs?.forEach((el) => {
-    const obj = {
-      UserID: el.User.ID as string,
-      InviterID: selectedUser.value[0].ID as string,
-      EmailAddress: el.User.EmailAddress as string,
-      Profit: [] as Array<ProductProfit>
-    }
-    for (const goodSummary of el.GoodSummaries) {
-      const appGood = good.AppGoods.find((el) => el.GoodID === goodSummary.GoodID)
-      if (appGood !== undefined) {
-        if (appGood.Visible) {
-          obj.Profit.push({
-            Product: good.getGoodByID(goodSummary.GoodID)?.Good?.Good?.Title,
-            Name: good.getGoodByID(goodSummary.GoodID)?.Main?.Name as string,
-            ProductID: goodSummary.GoodID,
-            Rate: getGoodPercent(el.User.ID as string, goodSummary.GoodID),
-            Units: goodSummary.Units,
-            Unit: goodSummary.Unit,
-            TotalSales: goodSummary.Amount,
-            SaleUnit: PriceCoinName,
-            Commission: goodCommission(goodSummary.GoodID, el.User.ID as string)
-          })
-        }
-      }
-    }
-    const items = goodsOfNoBuy(el.User.ID as string)
-    if (items !== undefined) {
-      for (const item of items) {
-        // del goods have bought
-        const idx = el.GoodSummaries.findIndex((el) => el.GoodID === item.GoodID)
-        if (idx === -1) {
-          if (isGoodsVisible(item.GoodID)) {
-            obj.Profit.push({
-              Product: good.getGoodByID(item.GoodID)?.Good?.Good?.Title,
-              Name: good.getGoodByID(item.GoodID)?.Main?.Name as string,
-              ProductID: item.GoodID,
-              Rate: item.Percent,
-              Units: 0,
-              Unit: '',
-              TotalSales: 0,
-              SaleUnit: PriceCoinName,
-              Commission: 0
-            })
-          }
-        }
-      }
-    }
-    result.push(obj)
-  })
-  return result
-})
 
-// need optimization
-const loading = ref(false)
-const inviters = computed(() => {
-  const profits = [] as Array<UserProfit>
-
-  if (selectedUser.value.length === 0) {
-    return [] as Array<UserProfit>
-  }
-
-  // get user's all parent
-  const lastChild = regInvitation.RegInvitations.find(item => item.InviteeID === selectedUser.value[0].ID)
-  const users = [] as Array<UserProfit>
-  if (lastChild !== undefined) {
-    users.push({
-      UserID: lastChild.InviteeID,
-      InviterID: lastChild.InviterID,
-      EmailAddress: user.getUserByID(lastChild.InviteeID)?.User?.EmailAddress as string
-    })
-  }
-  let len = 1
-  while (users.length >= len) {
-    const parent = regInvitation.RegInvitations.find((item) => item.InviteeID === users[len - 1].InviterID)
-    if (parent === undefined) {
-      users.push({
-        UserID: users[len - 1].InviterID,
-        InviterID: '',
-        EmailAddress: user.getUserByID(users[len - 1].InviterID)?.User?.EmailAddress as string
-      })
-      break
-    }
-    users.push({
-      UserID: parent.InviteeID,
-      InviterID: parent.InviterID,
-      EmailAddress: user.getUserByID(parent.InviteeID)?.User?.EmailAddress as string
-    })
-    len++
-  }
-  if (lastChild === undefined) {
-    users.push({
-      UserID: selectedUser.value[0].ID as string,
-      InviterID: '',
-      EmailAddress: user.getUserByID(selectedUser.value[0].ID as string)?.User?.EmailAddress as string
-    })
-  }
-  for (const user of users) {
-    const referral = getCurrentReferral(user.UserID)
-    const obj = {
-      UserID: user.UserID,
-      InviterID: user.InviterID,
-      EmailAddress: user.EmailAddress,
-      Profit: [] as Array<ProductProfit>
-    }
-    if (!referral) {
-      // TODO
-    } else {
-      for (const goodSummary of referral.GoodSummaries) {
-        // profitStr += `${product} | ${productID} | ${rate}% | ${units} | ${totalSales}${unit} | ${commission}${saleUnit} </br>`
-        const appGood = good.AppGoods.find((el) => el.GoodID === goodSummary.GoodID)
-        if (appGood !== undefined) {
-          if (appGood.Visible) {
-            obj.Profit.push({
-              Product: good.getGoodByID(goodSummary.GoodID)?.Good?.Good?.Title,
-              Name: good.getGoodByID(goodSummary.GoodID)?.Main?.Name as string,
-              ProductID: goodSummary.GoodID,
-              Rate: getGoodPercent(user.UserID, goodSummary.GoodID),
-              Units: goodSummary.Units,
-              Unit: goodSummary.Unit,
-              TotalSales: goodSummary.Amount,
-              SaleUnit: PriceCoinName,
-              Commission: goodCommission(goodSummary.GoodID, user.UserID)
-            })
-          }
-        }
-      }
-      // for goods that user no buy but have kol
-      const items = goodsOfNoBuy(user.UserID)
-      if (items !== undefined) {
-        for (const item of items) {
-          // del goods have bought
-          const idx = referral.GoodSummaries.findIndex((el) => el.GoodID === item.GoodID)
-          if (idx === -1) {
-            const appGood = good.AppGoods.find((el) => el.GoodID === item.GoodID)
-            if (appGood !== undefined) {
-              if (appGood.Visible) {
-                obj.Profit.push({
-                  Product: good.getGoodByID(item.GoodID)?.Good?.Good?.Title,
-                  Name: good.getGoodByID(item.GoodID)?.Main?.Name as string,
-                  ProductID: item.GoodID,
-                  Rate: item.Percent,
-                  Units: 0,
-                  Unit: '',
-                  TotalSales: 0,
-                  SaleUnit: PriceCoinName,
-                  Commission: 0
-                })
-              }
-            }
-          }
-        }
-      }
-    }
-    profits.push(obj)
-  }
-  return profits
-})
+const userInvitees = ref([] as Array<InvitationRelation>)// 用户邀请的人
+const userInviters = ref([] as Array<InvitationRelation>) // 邀请该用户的人
+const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : '')// 当前选择的用户
 
 watch(curUserID, () => {
-  getInviters()
+  userInvitees.value = [] // reset
+  userInviters.value = []
+  getUserInvitees(curUserID.value as string)
+  getUserInviters(curUserID.value as string)
 })
-
-const getInviters = () => {
-  if (selectedUser.value.length === 0) {
-    return []
-  }
-
-  // get user's all parent
-  const lastChild = regInvitation.RegInvitations.find(item => item.InviteeID === selectedUser.value[0].ID)
-  const users = [] as Array<UserProfit>
-  if (lastChild !== undefined) {
-    users.push({
-      UserID: lastChild.InviteeID,
-      InviterID: lastChild.InviterID,
-      EmailAddress: user.getUserByID(lastChild.InviteeID)?.User?.EmailAddress as string
-    })
-  }
-  let len = 1
-  while (users.length >= len) {
-    const parent = regInvitation.RegInvitations.find((item) => item.InviteeID === users[len - 1].InviterID)
-    if (parent === undefined) {
-      users.push({
-        UserID: users[len - 1].InviterID,
-        InviterID: '',
-        EmailAddress: user.getUserByID(users[len - 1].InviterID)?.User?.EmailAddress as string
-      })
-      break
+const getUserInvitees = (userID: string) => {
+  regInvitation.RegInvitations.filter(item => item.InviterID === userID).forEach((el) => {
+    userInvitees.value.push({ UserID: el.InviteeID, InviterID: userID })
+  })
+  getUserArchivements(userInvitees.value.map((el) => el.UserID), 0, 100)
+}
+const getUserInviters = (userID: string) => {
+  const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
+  if (!root) { // top level user
+    if (userInviters.value.length === 0) {
+      userInviters.value.push({ UserID: userID, InviterID: '' })
+    } else {
+      userInviters.value.push({ UserID: userInviters.value[-1].InviterID, InviterID: '' })
     }
-    users.push({
-      UserID: parent.InviteeID,
-      InviterID: parent.InviterID,
-      EmailAddress: user.getUserByID(parent.InviteeID)?.User?.EmailAddress as string
-    })
-    len++
+    getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
+    return
   }
-  if (lastChild === undefined) {
-    users.push({
-      UserID: selectedUser.value[0].ID as string,
-      InviterID: '',
-      EmailAddress: user.getUserByID(selectedUser.value[0].ID as string)?.User?.EmailAddress as string
-    })
-  }
-  loading.value = true
-  for (const user of users) {
-    loading.value = true
-    inspire.getUserReferrals({
-      TargetUserID: user.UserID,
+  userInviters.value.push({ UserID: userID, InviterID: root.InviterID })
+  getUserInviters(root.InviterID)
+}
+const getUserArchivements = (userIDs: Array<string>, offset: number, limit: number) => {
+  if (userIDs.length > 0) {
+    archivement.getGoodArchivements({
+      UserIDs: userIDs,
+      Offset: offset,
+      Limit: limit,
       Message: {
         Error: {
-          Title: t('MSG_GET_REFERRALS_FAIL'),
+          Title: t('MSG_GET_GOOD_ARCHIVEMENT_FAIL'),
           Popup: true,
           Type: NotificationType.Error
         }
       }
-    }, () => {
-      inspire.getUserGoodCommissions({
-        TargetUserID: user.UserID,
-        Message: {
-          Error: {
-            Title: t('MSG_GET_REFERRALS_FAIL'),
-            Popup: true,
-            Type: NotificationType.Error
-          }
-        }
-      }, () => {
-        // TODO
-        loading.value = false
-      })
-    })
-  }
-}
-const goodsOfNoBuy = (userID:string) => {
-  return purchaseAmount.PurchaseAmountSettings.filter((el) => el.UserID === userID && el.End === 0)
-}
-// Profit
-const inspire = useAdminInspireStore()
-
-const getCurrentReferral = (userID:string) => {
-  const referrals = inspire.Referrals.get(userID)
-  if (referrals !== undefined) {
-    const index = referrals.findIndex((el) => el.User.ID === userID)
-    return index < 0 ? undefined as unknown as Referral : referrals[index]
-  }
-  return undefined
-}
-
-const goodCommission = (goodID: string, userID: string) => {
-  const goodsCommissions = inspire.GoodCommissions.get(userID)
-  if (goodsCommissions !== undefined) {
-    const index = goodsCommissions.findIndex((el) => {
-      const referral = getCurrentReferral(userID)
-      if (referral !== undefined) {
-        return el.GoodID === goodID && el.AppID === referral.User.AppID && el.UserID === referral.User.ID
+    }, (error: boolean, count?: number) => {
+      if (error) { // has error
+        return
       }
-      return -1
+      if (count !== undefined && count < limit) { // no more data
+        return
+      }
+      getUserArchivements(userIDs, offset + limit, limit)
     })
-    return index < 0 ? 0 : goodsCommissions[index].Amount
   }
-  return 0
 }
 
-const good = useGoodStore()
+const archivement = useAdminArchivementStore()
+
+interface UserGoodArchivements extends ProductArchivement {
+  InviterID: string
+}
+const invitersArchivemnents = computed(() => {
+  const data = [] as Array<UserGoodArchivements>
+  userInviters.value.forEach((user) => {
+    const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
+    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
+  })
+  return data
+})
+const inviteesArchivemnents = computed(() => {
+  const data = [] as Array<UserGoodArchivements>
+  userInvitees.value.forEach((user) => {
+    const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
+    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
+  })
+  return data
+})
+
+const inviteesTableLoading = ref(false)
+const invitersTableLoading = ref(false)
 
 onMounted(() => {
   user.getUsers({
@@ -470,42 +279,6 @@ onMounted(() => {
       Error: {
         Title: t('MSG_GET_USERS'),
         Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  purchaseAmount.getPurchaseAmountSettings({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_PURCHASE_AMOUNT_SETTING'),
-        Message: t('MSG_GET_PURCHASE_AMOUNT_SETTING_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  good.getGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_APP_GOODS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-  good.getAppGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_APP_GOODS_FAIL'),
         Popup: true,
         Type: NotificationType.Error
       }

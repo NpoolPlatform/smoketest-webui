@@ -16,8 +16,13 @@
     row-key='ID'
     :loading='reviewLoading'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(row as Review)'
+    @row-click='(evt, row, index) => onRowClick(row as WithdrawReview)'
   />
+  <q-card>
+    <q-card-section class='bg-primary text-white'>
+      {{ $t('MSG_ADVERTISEMENT_POSITION') }}
+    </q-card-section>
+  </q-card>
   <q-dialog
     v-model='showing'
     @hide='onMenuHide'
@@ -28,24 +33,25 @@
         <span>{{ $t('MSG_REVIEW_WITHDRAW_ADDRESSES') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target.User.User.EmailAddress }}</q-item-label>
-        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target.User.User.PhoneNO }}</q-item-label>
-        <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target.User.Extra?.Username }}</q-item-label>
-        <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target.User.Extra?.FirstName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target.User.Extra?.LastName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_GENDER') }}: {{ target.User.Extra?.Gender }}</q-item-label>
+        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target?.EmailAddress }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target?.PhoneNO }}</q-item-label>
+        <!-- <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target?.Username }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target?.FirstName }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target?.LastName }}</q-item-label> -->
+        <!-- <q-item-label>{{ $t('MSG_GENDER') }}: {{ target?.Gender }}</q-item-label> -->
       </q-card-section>
       <q-card-section>
         <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin?.Name }}</q-item-label>
-        <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target.Withdraw?.Amount }}</q-item-label>
-        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target.Withdraw?.WithdrawType }}</q-item-label>
+        <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
+        <!-- <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.WithdrawType }}</q-item-label> -->
+        <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.Trigger }}</q-item-label>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.Review.Message' :label='$t("MSG_COMMENT")' />
+        <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject' />
+        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove()' />
+        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject()' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -53,28 +59,34 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useReviewStore, ReviewState, WithdrawReview, useCoinStore, useLocaleStore, useLoginedUserStore, Review } from 'npool-cli-v2'
+import { NotificationType, useCoinStore, useLocaleStore, useLoginedUserStore } from 'npool-cli-v2'
+import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
+import { ReviewState } from 'src/teststore/review/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const review = useReviewStore()
+// const review = useReviewStore()
 const coins = useCoinStore()
 const locale = useLocaleStore()
 const logined = useLoginedUserStore()
 
-const reviews = computed(() => review.WithdrawReviews)
-const displayReviews = computed(() => Array.from(review.WithdrawReviews).map((el) => el.Review))
-const reviewLoading = ref(true)
+const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
+const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
+const reviewLoading = ref(false)
 
 const displayCoins = computed(() => coins.Coins)
 const coinLoading = ref(true)
 
-onMounted(() => {
+const review = useWithdrawReviewStore()
+
+const getWithdrawReviews = (offset: number, limit: number) => {
   review.getWithdrawReviews({
-    Message: {
+    offset: offset,
+    limit: limit,
+    NotificationMessage: {
       Error: {
         Title: t('MSG_GET_WITHDRAW_REVIEWS'),
         Message: t('MSG_GET_WITHDRAW_REVIEWS_FAIL'),
@@ -82,10 +94,19 @@ onMounted(() => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    reviewLoading.value = false
+  }, (error: boolean, count?: number) => {
+    if (error) {
+      reviewLoading.value = false
+      return
+    }
+    if (count !== undefined && count < limit) { // one less request
+      reviewLoading.value = false
+      return
+    }
+    getWithdrawReviews(offset + limit, limit)
   })
-
+}
+onMounted(() => {
   coins.getCoins({
     Message: {
       Error: {
@@ -98,31 +119,36 @@ onMounted(() => {
   }, () => {
     coinLoading.value = false
   })
+  if (review.WithdrawReviews.WithdrawReviews.length === 0) {
+    reviewLoading.value = true
+    getWithdrawReviews(0, 100)
+  }
 })
 
 const showing = ref(false)
 const target = ref({} as unknown as WithdrawReview)
-const coin = computed(() => coins.getCoinByID(target.value.Withdraw?.CoinTypeID))
+const coin = computed(() => coins.getCoinByID(target?.value.CoinTypeID))
 
 const onMenuHide = () => {
   target.value = {} as unknown as WithdrawReview
 }
 
-const onRowClick = (r: Review) => {
-  const index = reviews.value.findIndex((el) => el.Review.ID === r.ID)
+const onRowClick = (r: WithdrawReview) => {
+  const index = reviews.value.findIndex((el) => el.ReviewID === r.ReviewID)
   if (index >= 0) {
-    target.value = reviews.value[index]
+    target.value = { ...reviews.value[index] }
   }
-  showing.value = true
+  showing.value = true // open dialog
 }
 
 const updateReview = () => {
-  target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
-
   review.updateWithdrawReview({
-    TargetLangID: locale.CurLang?.ID as string,
-    Info: target.value.Review,
-    Message: {
+    ReviewID: target.value.ReviewID,
+    LangID: locale.CurLang?.ID as string,
+    UserID: logined.LoginedUser?.User?.ID as string,
+    Message: target.value.Message,
+    State: target.value.State,
+    NotificationMessage: {
       Error: {
         Title: t('MSG_UPDATE_WITHDRAW_REVIEW'),
         Message: t('MSG_UPDATE_WITHDRAW_REVIEW_FAIL'),
@@ -130,23 +156,27 @@ const updateReview = () => {
         Type: NotificationType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean) => {
+    if (error) { // fail
+      return
+    }
+    onMenuHide()
+    showing.value = false
   })
 }
 
 const onApprove = () => {
-  showing.value = false
-  target.value.Review.State = ReviewState.Approved
+  target.value.State = ReviewState.Approved
   updateReview()
-  onMenuHide()
 }
 
 const onReject = () => {
-  showing.value = false
-  target.value.Review.State = ReviewState.Rejected
+  if (target.value.Message.trim().length <= 0) { // need value when reject
+    console.log('need message')
+    return
+  }
+  target.value.State = ReviewState.Rejected
   updateReview()
-  onMenuHide()
 }
 
 const onCancel = () => {

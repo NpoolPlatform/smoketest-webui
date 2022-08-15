@@ -53,11 +53,11 @@ import {
   useStockStore,
   Stock,
   useCoinStore,
-  useOrderStore,
-  useAdminOrderStore,
   useGoodStore,
   useUsersStore
 } from 'npool-cli-v2'
+import { useAdminLocalOrderStore } from 'src/teststore/order'
+import { OrderType } from 'src/teststore/order/const'
 import { defineAsyncComponent, computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -74,8 +74,6 @@ interface MyGood {
 const good = useGoodStore()
 const agood = useAdminGoodStore()
 const stock = useStockStore()
-const order = useAdminOrderStore()
-const forder = useOrderStore()
 const coin = useCoinStore()
 const payCoinID = computed(() => {
   const index = coin.Coins.findIndex((el) => {
@@ -183,6 +181,7 @@ const prepare = () => {
   })
 }
 
+const order = useAdminLocalOrderStore()
 onMounted(() => {
   prepare()
 
@@ -230,11 +229,12 @@ const onSubmit = () => {
     console.log('pay coin is missed')
     return
   }
-
-  order.submitOrder({
+  order.createUserOrder({
     TargetUserID: selectedUser.value.value.User.ID as string,
     GoodID: selectedGood.value.value.Good.Good.ID as string,
     Units: units.value,
+    PaymentCoinID: payCoinID.value,
+    OrderType: OrderType.Offline,
     Message: {
       Error: {
         Title: t('MSG_CREATE_ORDER'),
@@ -243,25 +243,11 @@ const onSubmit = () => {
         Type: NotificationType.Error
       }
     }
-  }, (orderID: string, error: boolean) => {
+  }, (orderId: string, error: boolean) => {
     if (error) {
       return
     }
-
-    forder.createPayment({
-      PaymentCoinTypeID: payCoinID.value as string,
-      OrderID: orderID,
-      Message: {
-        Error: {
-          Title: t('MSG_CREATE_PAYMENT'),
-          Message: t('MSG_CREATE_PAYMENT_FAIL'),
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      showing.value = false
-    })
+    showing.value = false
   })
 }
 
