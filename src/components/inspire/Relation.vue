@@ -42,6 +42,9 @@
         <q-td key='EmailAddress' :props='props'>
           {{ props.row.EmailAddress }}
         </q-td>
+        <q-td key='PhoneNO' :props='props'>
+          {{ props.row.PhoneNO }}
+        </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
             <div v-if='props.row.Archivements?.length > 0'>
@@ -98,6 +101,9 @@
         </q-td>
         <q-td key='EmailAddress' :props='props'>
           {{ props.row.EmailAddress }}
+        </q-td>
+        <q-td key='PhoneNO' :props='props'>
+          {{ props.row.PhoneNO }}
         </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
@@ -161,10 +167,11 @@ const displayUsers = computed(() => users.value.filter((user) => {
 }))
 
 const columns = [
-  { name: 'UserID', label: 'UserID', field: 'UserID', align: 'center' },
-  { name: 'InviterID', label: 'InviterID', field: 'InviterID', align: 'center' },
-  { name: 'EmailAddress', label: 'EmailAddress', field: 'EmailAddress', align: 'center' },
-  { name: 'Archivements', label: 'Profit', field: 'Archivements', align: 'center' }
+  { name: 'UserID', label: 'USERID', field: 'UserID', align: 'center' },
+  { name: 'InviterID', label: 'INVITERID', field: 'InviterID', align: 'center' },
+  { name: 'EmailAddress', label: 'EMAILADRESS', field: 'EmailAddress', align: 'center' },
+  { name: 'PhoneNO', label: 'PHONENO', field: 'PhoneNO', align: 'center' },
+  { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
 ]
 const regInvitation = useRegInvitationStore()
 
@@ -192,10 +199,11 @@ const getUserInvitees = (userID: string) => {
 const getUserInviters = (userID: string) => {
   const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
   if (!root) { // top level user
-    if (userInviters.value.length >= 1) {
-      userInviters.value.push({ UserID: userInviters.value[userInviters.value.length - 1].InviterID, InviterID: '' })
+    if (userInviters.value.length === 0) {
+      userInviters.value.push({ UserID: userID, InviterID: '' })
+    } else {
+      userInviters.value.push({ UserID: userInviters.value[-1].InviterID, InviterID: '' })
     }
-    console.log(userInviters.value)
     getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
     return
   }
