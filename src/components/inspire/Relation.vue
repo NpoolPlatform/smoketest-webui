@@ -142,7 +142,6 @@ import {
   useUsersStore,
   AppUser,
   useRegInvitationStore,
-  useGoodStore,
   PriceCoinName
 } from 'npool-cli-v2'
 import { ProductArchivement, useAdminArchivementStore } from 'src/teststore/archivement'
@@ -237,8 +236,7 @@ const invitersArchivemnents = computed(() => {
   const data = [] as Array<UserGoodArchivements>
   userInviters.value.forEach((user) => {
     const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
-    const onlineGoods = userArchivements?.Archivements?.filter((el) => goodOnline(el.GoodID))
-    data.push({ ...userArchivements, ...{ InviterID: user.InviterID, Archivements: onlineGoods } } as UserGoodArchivements)
+    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
   })
   return data
 })
@@ -246,21 +244,13 @@ const inviteesArchivemnents = computed(() => {
   const data = [] as Array<UserGoodArchivements>
   userInvitees.value.forEach((user) => {
     const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
-    const onlineGoods = userArchivements?.Archivements?.filter((el) => goodOnline(el.GoodID))
-    data.push({ ...userArchivements, ...{ InviterID: user.InviterID, Archivements: onlineGoods } } as UserGoodArchivements)
+    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
   })
   return data
 })
 
 const inviteesTableLoading = ref(false)
 const invitersTableLoading = ref(false)
-
-const good = useGoodStore()
-
-const goodOnline = (goodID: string) => {
-  const index = good.AppGoods.findIndex((el) => el.GoodID === goodID)
-  return index < 0 ? false : good.AppGoods[index].Online
-}
 
 onMounted(() => {
   user.getUsers({
@@ -281,18 +271,6 @@ onMounted(() => {
       Error: {
         Title: t('MSG_GET_USERS'),
         Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  good.getAppGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_APP_GOODS_FAIL'),
         Popup: true,
         Type: NotificationType.Error
       }
