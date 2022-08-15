@@ -19,6 +19,9 @@ export const useAdminLocalOrderStore = defineStore('adminlocalorder', {
     Total: 0
   }),
   getters: {
+    orders () : Array<Order> {
+      return this.Orders.sort((a, b) => a.CreatedAt > b.CreatedAt ? -1 : 1)
+    },
     getOrderByID () {
       return (id:string) => {
         return this.Orders.find((order) => order.ID === id)
@@ -87,7 +90,7 @@ export const useAdminLocalOrderStore = defineStore('adminlocalorder', {
         req,
         req.Message,
         (resp: GetOrdersResponse): void => {
-          resp.Infos.sort((a, b) => a.CreatedAt > b.CreatedAt ? -1 : 1).forEach((el) => {
+          resp.Infos.forEach((el) => {
             const index = this.Orders.findIndex((oel) => oel.ID === el.ID)
             this.Orders.splice(index < 0 ? 0 : index, index < 0 ? 0 : 1, el)
           })
