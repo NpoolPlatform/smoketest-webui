@@ -80,7 +80,10 @@ const displayOrders = computed(() => order.Orders.filter((el) => {
 
 const soldUnits = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAID).reduce((sum, b) => sum + b.Units, 0))
 const paymentTimeouts = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAYMENT_TIMEOUT).length)
-const paymentAmount = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAID).reduce((sum, b) => sum + Number(b.GoodValue) * Number(b.PaymentCoinUSDCurrency), 0))
+const paymentAmount = computed(() => displayOrders.value.filter((el) => el.State === OrderState.PAID).reduce((sum, b) => {
+  const currency = Number(b.PaymentCoinUSDCurrency) > 0 ? Number(b.PaymentCoinUSDCurrency) : 1
+  return sum + Number(b.PaymentAmount) * currency + Number(b.PayWithBalanceAmount) * currency
+}, 0))
 const orderUsers = computed(() => {
   const users = new Map<string, number>()
   displayOrders.value.filter((el) => el.State === OrderState.PAID).forEach((el) => {
