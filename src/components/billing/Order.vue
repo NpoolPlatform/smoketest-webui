@@ -61,6 +61,7 @@ import {
 import { OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
+import { AppID } from 'src/const/const'
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
@@ -123,6 +124,19 @@ onMounted(() => {
   if (order.Orders.length === 0) {
     getAppOrders(0, 100)
   }
+  application.getApplication({
+    ID: AppID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP',
+        Message: 'MSG_GET_APP_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 })
 const application = useApplicationStore()
 const onExport = () => {
