@@ -187,9 +187,9 @@ const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[
 watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
-  if (curUserID.value !== '') {
-    getUserInvitees(curUserID.value as string)
-    getUserInviters(curUserID.value as string)
+  if (curUserID.value !== '' && curUserID.value !== undefined) {
+    getUserInvitees(curUserID.value)
+    getUserInviters(curUserID.value)
   }
 })
 const getUserInvitees = (userID: string) => {
