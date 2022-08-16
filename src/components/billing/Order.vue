@@ -124,19 +124,21 @@ onMounted(() => {
   if (order.Orders.length === 0) {
     getAppOrders(0, 100)
   }
-  application.getApplication({
-    ID: AppID,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_APP',
-        Message: 'MSG_GET_APP_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
+  if (application.Application === undefined) {
+    application.getApplication({
+      ID: AppID,
+      Message: {
+        Error: {
+          Title: 'MSG_GET_APP',
+          Message: 'MSG_GET_APP_FAIL',
+          Popup: true,
+          Type: NotificationType.Error
+        }
       }
-    }
-  }, () => {
+    }, () => {
     // TODO
-  })
+    })
+  }
 })
 const application = useApplicationStore()
 const onExport = () => {
