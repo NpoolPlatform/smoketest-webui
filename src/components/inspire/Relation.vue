@@ -187,8 +187,10 @@ const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[
 watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
-  getUserInvitees(curUserID.value as string)
-  getUserInviters(curUserID.value as string)
+  if (curUserID.value !== '') {
+    getUserInvitees(curUserID.value as string)
+    getUserInviters(curUserID.value as string)
+  }
 })
 const getUserInvitees = (userID: string) => {
   regInvitation.RegInvitations.filter(item => item.InviterID === userID).forEach((el) => {
