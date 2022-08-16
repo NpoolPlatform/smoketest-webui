@@ -202,7 +202,7 @@ const getUserInviters = (userID: string) => {
     if (userInviters.value.length === 0) {
       userInviters.value.push({ UserID: userID, InviterID: '' })
     } else {
-      userInviters.value.push({ UserID: userInviters.value[-1].InviterID, InviterID: '' })
+      userInviters.value.push({ UserID: userInviters.value[userInviters.value.length - 1].InviterID, InviterID: '' })
     }
     getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
     return
