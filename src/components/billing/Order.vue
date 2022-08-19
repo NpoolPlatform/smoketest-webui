@@ -127,21 +127,33 @@ onMounted(() => {
 const application = useApplicationStore()
 const onExport = () => {
   let orderStr = ''
+  let createdAtCol = 0
+  let paidAtCol = 0
   displayOrders.value.forEach((el) => {
     const obj = el as unknown as Record<string, unknown>
     if (!orderStr.length) {
-      Object.keys(obj).forEach((k) => {
+      Object.keys(obj).forEach((k, col) => {
         if (orderStr.length) {
           orderStr += ';'
+        }
+        if (k === 'CreatedAt') {
+          createdAtCol = col
+        }
+        if (k === 'PaiddAt') {
+          paidAtCol = col
         }
         orderStr += k
       })
     }
     orderStr += '\n'
     let lineStr = ''
-    Object.values(obj).forEach((v) => {
+    Object.values(obj).forEach((v, col) => {
       if (lineStr.length) {
         lineStr += ';'
+      }
+      if (col === createdAtCol || col === paidAtCol) {
+        lineStr += formatTime(Number(v), false)
+        return
       }
       lineStr += v
     })
