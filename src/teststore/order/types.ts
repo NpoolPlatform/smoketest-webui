@@ -30,6 +30,8 @@ interface Order {
   PaymentLocalUSDCurrency: string;
   PaymentAddress: string;
   PaymentAmount: string;
+  PaymentStartAmount: string;
+  PaymentFinishAmount: string;
   PayWithBalanceAmount: string;
   PayWithParent: boolean;
   FixAmountID: string;
