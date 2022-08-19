@@ -187,8 +187,10 @@ const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[
 watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
-  getUserInvitees(curUserID.value as string)
-  getUserInviters(curUserID.value as string)
+  if (curUserID.value !== '' && curUserID.value !== undefined) {
+    getUserInvitees(curUserID.value)
+    getUserInviters(curUserID.value)
+  }
 })
 const getUserInvitees = (userID: string) => {
   regInvitation.RegInvitations.filter(item => item.InviterID === userID).forEach((el) => {
@@ -202,7 +204,7 @@ const getUserInviters = (userID: string) => {
     if (userInviters.value.length === 0) {
       userInviters.value.push({ UserID: userID, InviterID: '' })
     } else {
-      userInviters.value.push({ UserID: userInviters.value[-1].InviterID, InviterID: '' })
+      userInviters.value.push({ UserID: userInviters.value[userInviters.value.length - 1].InviterID, InviterID: '' })
     }
     getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
     return
