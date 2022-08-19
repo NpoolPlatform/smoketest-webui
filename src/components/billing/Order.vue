@@ -155,7 +155,7 @@ const onExport = () => {
         if (k === 'CreatedAt') {
           createdAtCol = col
         }
-        if (k === 'PaiddAt') {
+        if (k === 'PaidAt') {
           paidAtCol = col
         }
         orderStr += k
