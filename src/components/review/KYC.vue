@@ -25,11 +25,11 @@
       </q-card-section>
       <q-card-section>
         <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target?.EmailAddress }}</q-item-label>
-        <q-item-label>{{ $t('MSG_PHONE_NO') }} : {{ target?.PhoneNO }}</q-item-label>
-        <q-item-label>{{ $t('MSG_USERNAME') }} : {{ targetUser?.Username }}</q-item-label>
-        <q-item-label>{{ $t('MSG_FIRST_NAME') }} : {{ targetUser?.FirstName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_LAST_NAME') }} : {{ targetUser?.LastName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_GENDER') }} : {{ $t(targetUser?.Gender) }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target?.PhoneNO }}</q-item-label>
+        <q-item-label>{{ $t('MSG_USERNAME') }}: {{ targetUser?.Username }}</q-item-label>
+        <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ targetUser?.FirstName }}</q-item-label>
+        <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ targetUser?.LastName }}</q-item-label>
+        <q-item-label>{{ $t('MSG_GENDER') }}: {{ $t(targetUser?.Gender) }}</q-item-label>
       </q-card-section>
       <q-item class='row'>
         <q-item-label>{{ $t('MSG_CARD_TYPE') }} : {{ target.DocumentType }}</q-item-label>
