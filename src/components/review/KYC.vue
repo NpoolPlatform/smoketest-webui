@@ -67,9 +67,9 @@ import {
   DocumentType,
   useLocaleStore,
   ReviewState,
-  useLoginedUserStore,
   Review
 } from 'npool-cli-v2'
+import { useLocalUserStore } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -78,7 +78,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const review = useReviewStore()
 const locale = useLocaleStore()
-const logined = useLoginedUserStore()
+const logined = useLocalUserStore()
 
 const reviews = computed(() => review.KYCReviews)
 const displayReviews = computed(() => Array.from(review.KYCReviews).map((el) => el.Review))
@@ -162,7 +162,7 @@ const onRowClick = (r: Review) => {
 }
 
 const updateReview = () => {
-  target.value.Review.ReviewerID = logined.LoginedUser?.User?.ID
+  target.value.Review.ReviewerID = logined.User?.ID
 
   review.updateKYCReview({
     TargetLangID: locale.CurLang?.ID as string,

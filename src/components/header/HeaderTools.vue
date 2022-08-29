@@ -7,7 +7,8 @@
 </template>
 
 <script setup lang='ts'>
-import { useLoginedUserStore, useMailboxStore } from 'npool-cli-v2'
+import { useMailboxStore } from 'npool-cli-v2'
+import { useLocalUserStore } from 'npool-cli-v4'
 import { defineAsyncComponent, computed } from 'vue'
 
 import bellNoMsg from '../../assets/bell-no-msg.svg'
@@ -17,8 +18,8 @@ const AvatarDropdown = defineAsyncComponent(() => import('src/components/avatar/
 const HeaderToolBtn = defineAsyncComponent(() => import('src/components/header/HeaderToolBtn.vue'))
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 
-const loginedUser = useLoginedUserStore()
-const logined = loginedUser.getLogined
+const loginedUser = useLocalUserStore()
+const logined = loginedUser.logined
 
 const mailbox = useMailboxStore()
 const bellIcon = computed(() => mailbox.Notifications.length > 0 ? bellMsg : bellNoMsg)

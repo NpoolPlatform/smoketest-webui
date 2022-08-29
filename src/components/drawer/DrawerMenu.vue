@@ -4,7 +4,7 @@
     :key='menu.label'
     :content-inset-level='insetLevel'
     class='item'
-    :clickable='logined.getLogined'
+    :clickable='logined.logined'
     @click='onItemClick'
   >
     <template #header>
@@ -28,7 +28,7 @@
   </q-expansion-item>
   <q-item
     v-else
-    :clickable='logined.getLogined'
+    :clickable='logined.logined'
     :target='menu.target'
     class='item'
     active-class='active'
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang='ts'>
-import { useLoginedUserStore } from 'npool-cli-v2'
+import { useLocalUserStore } from 'npool-cli-v4'
 import { MenuItem, useMenuStore } from 'src/localstore'
 import { defineProps, toRef, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -71,7 +71,7 @@ const children = computed(() => {
 const router = useRouter()
 const menus = useMenuStore()
 const active = computed(() => menus.ActiveMainBreadcrumb?.menuId === menu.value.menuId)
-const logined = useLoginedUserStore()
+const logined = useLocalUserStore()
 
 const onItemClick = () => {
   menus.ActiveMainBreadcrumb = menu.value
