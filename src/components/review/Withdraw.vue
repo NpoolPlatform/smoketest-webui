@@ -59,19 +59,19 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useCoinStore, useLocaleStore, useLoginedUserStore } from 'npool-cli-v2'
+import { NotificationType, useCoinStore, useLocaleStore } from 'npool-cli-v2'
 import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
+import { useLocalUserStore } from 'npool-cli-v4'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
 // const review = useReviewStore()
 const coins = useCoinStore()
 const locale = useLocaleStore()
-const logined = useLoginedUserStore()
+const logined = useLocalUserStore()
 
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
@@ -145,7 +145,7 @@ const updateReview = () => {
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
     LangID: locale.CurLang?.ID as string,
-    UserID: logined.LoginedUser?.User?.ID as string,
+    UserID: logined.User?.ID,
     Message: target.value.Message,
     State: target.value.State,
     NotificationMessage: {

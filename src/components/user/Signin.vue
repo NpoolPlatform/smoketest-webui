@@ -35,37 +35,41 @@
 <script setup lang='ts'>
 import { ref } from 'vue'
 import {
-  AccountType,
   encryptPassword,
   GoogleTokenType,
-  NotificationType,
   useCodeRepoStore,
-  useUserStore
+  NotificationType
 } from 'npool-cli-v2'
+import {
+  useFrontendUserStore,
+  AccountType,
+  NotifyType
+} from 'npool-cli-v4'
 import { useRouter } from 'vue-router'
 import { useReCaptcha } from 'vue-recaptcha-v3'
 
 const account = ref('')
 const password = ref('')
 
-const user = useUserStore()
+const user = useFrontendUserStore()
 const coderepo = useCodeRepoStore()
 const recaptcha = useReCaptcha()
 
 const router = useRouter()
 
 const signin = (token: string) => {
-  user.signin({
+  user.login({
     Account: account.value,
     PasswordHash: encryptPassword(password.value),
     AccountType: AccountType.Email,
     ManMachineSpec: token,
+    EnvironmentSpec: 'NOT-USED',
     Message: {
       Error: {
         Title: 'MSG_SINGIN',
         Message: 'MSG_SIGNIN_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {

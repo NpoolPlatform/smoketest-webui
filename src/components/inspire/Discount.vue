@@ -48,11 +48,11 @@
 <script setup lang='ts'>
 import {
   NotificationType,
-  useLoginedUserStore,
   formatTime,
   DiscountCoupon,
   useDiscountStore
 } from 'npool-cli-v2'
+import { useLocalUserStore } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -63,7 +63,7 @@ const coupon = useDiscountStore()
 const coupons = computed(() => coupon.Discounts)
 const loading = ref(true)
 
-const logined = useLoginedUserStore()
+const logined = useLocalUserStore()
 
 const prepare = () => {
   loading.value = true
@@ -88,7 +88,7 @@ onMounted(() => {
 const showing = ref(false)
 const updating = ref(false)
 const target = ref({
-  ReleaseByUserID: logined.LoginedUser?.User.ID
+  ReleaseByUserID: logined.User?.ID
 } as unknown as DiscountCoupon)
 const start = computed({
   get: () => formatTime(target.value.Start, true)?.replace(/\//g, '-'),
@@ -111,7 +111,7 @@ const onRowClick = (coupon: DiscountCoupon) => {
 const onMenuHide = () => {
   showing.value = false
   target.value = {
-    ReleaseByUserID: logined.LoginedUser?.User.ID
+    ReleaseByUserID: logined.User?.ID
   } as unknown as DiscountCoupon
 }
 
