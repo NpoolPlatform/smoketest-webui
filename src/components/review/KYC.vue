@@ -130,7 +130,7 @@ const getKycReviews = (offset: number, limit: number) => {
 onMounted(() => {
   if (kyc.KycReviews.KycReviews.length === 0) {
     reviewLoading.value = true
-    getKycReviews(0, 3)
+    getKycReviews(0, 500)
   }
   if (user.Users.Users.length === 0) {
     getUsers(0, 500)
