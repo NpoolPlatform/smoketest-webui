@@ -145,20 +145,19 @@
 <script setup lang='ts'>
 import {
   NotificationType,
-  useUsersStore,
-  AppUser,
   useRegInvitationStore,
   PriceCoinName
 } from 'npool-cli-v2'
+import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { ProductArchivement, useAdminArchivementStore } from 'src/teststore/archivement'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const user = useUsersStore()
-const users = computed(() => Array.from(user.Users.map((el) => el.User)))
-const selectedUser = ref([] as Array<AppUser>)
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users)
+const selectedUser = ref([] as Array<User>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => {
   return user.ID?.toLowerCase().includes(username.value.toLowerCase()) ||
@@ -262,20 +261,29 @@ const inviteesArchivemnents = computed(() => {
 const inviteesTableLoading = ref(false)
 const invitersTableLoading = ref(false)
 
-onMounted(() => {
+const getUsers = (offset: number, limit: number) => {
   user.getUsers({
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
   })
-
+}
+onMounted(() => {
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
   regInvitation.getRegInvitations({
     Message: {
       Error: {
