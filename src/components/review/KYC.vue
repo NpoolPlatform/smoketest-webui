@@ -35,7 +35,7 @@
         <q-item-label>{{ $t('MSG_CARD_TYPE') }}: {{ target.DocumentType }}</q-item-label>
       </q-item>
       <q-item class='row'>
-        <q-item-label>{{ $t('MSG_CARD_TYPE') }}: {{ target?.State }}</q-item-label>
+        <q-item-label>{{ $t('MSG_KYC_REVIEW_STATE') }}: {{ target?.State }}</q-item-label>
       </q-item>
       <q-item class='row'>
         <q-item-section>
