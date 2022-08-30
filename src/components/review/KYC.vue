@@ -84,39 +84,53 @@ const reviewLoading = ref(false)
 
 const kyc = useAdminKycStore()
 
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
+
+const getKycReviews = (offset: number, limit: number) => {
+  kyc.getKycReviews({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_KYC_REVIEWS'),
+        Message: t('MSG_GET_KYC_REVIEWS_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<KYC>, error: boolean) => {
+    if (error || resp.length < limit) {
+      reviewLoading.value = false
+      return
+    }
+    getKycReviews(offset + limit, limit)
+  })
+}
 onMounted(() => {
   if (kyc.KycReviews.KycReviews.length === 0) {
     reviewLoading.value = true
-    kyc.getKycReviews({
-      Offset: 0,
-      Limit: 100,
-      Message: {
-        Error: {
-          Title: t('MSG_GET_KYC_REVIEWS'),
-          Message: t('MSG_GET_KYC_REVIEWS_FAIL'),
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      reviewLoading.value = false
-    })
+    getKycReviews(0, 3)
   }
   if (user.Users.Users.length === 0) {
-    user.getUsers({
-      Offset: 0,
-      Limit: 100,
-      Message: {
-        Error: {
-          Title: 'MSG_GET_USERS',
-          Message: 'MSG_GET_USERS_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
+    getUsers(0, 500)
   }
 })
 
