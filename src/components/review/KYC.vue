@@ -52,8 +52,8 @@
         <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='updateReview(KYCState.Approved)' :disable='target.State !== KYCState.DefaultState' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='updateReview(KYCState.Rejected)' :disable='target.State !== KYCState.DefaultState' />
+        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='updateReview(KYCState.Approved)' :disable='target.State === KYCState.Approved || target.State === KYCState.Rejected' />
+        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='updateReview(KYCState.Rejected)' :disable='target.State === KYCState.Approved || target.State === KYCState.Rejected' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
