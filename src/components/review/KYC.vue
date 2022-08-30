@@ -8,7 +8,19 @@
     :loading='reviewLoading'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as KYC)'
-  />
+  >
+    <template #top-right>
+      <div class='row indent flat'>
+        <q-input
+          dense
+          flat
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
+      </div>
+    </template>
+  </q-table>>
   <q-card>
     <q-card-section class='bg-primary text-white'>
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
@@ -82,7 +94,10 @@ const { t } = useI18n({ useScope: 'global' })
 
 const locale = useLocaleStore()
 
-const displayReviews = computed(() => kyc.KycReviews.KycReviews)
+const username = ref('')
+const displayReviews = computed(() => kyc.KycReviews.KycReviews.filter((el) => {
+  return el.EmailAddress.toLowerCase().includes(username.value) || el.PhoneNO.toLowerCase().includes(username.value)
+}))
 const reviewLoading = ref(false)
 
 const kyc = useAdminKycStore()
