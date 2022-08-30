@@ -62,12 +62,11 @@ import {
   EventCouponTypes,
   CouponType,
   DiscountCoupon,
-  AppUser,
-  useUsersStore,
   useFixAmountStore,
   useDiscountStore,
   useUserCouponStore
 } from 'npool-cli-v2'
+import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -76,13 +75,13 @@ const { t } = useI18n({ useScope: 'global' })
 
 const coupon = useUserCouponStore()
 
-const user = useUsersStore()
-const users = computed(() => Array.from(user.Users).map((el) => el.User))
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((el) => {
   return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
 }))
-const selectedUsers = ref([] as Array<AppUser>)
+const selectedUsers = ref([] as Array<User>)
 
 interface MyFixAmount {
   label: string
@@ -114,7 +113,7 @@ const discounts = computed(() => Array.from(appDiscounts.value).map((el) => {
 }))
 const selectedDiscount = ref(undefined as unknown as MyDiscount)
 
-const loading = ref(true)
+const loading = ref(false)
 const couponType = ref(undefined as unknown as CouponType)
 const airdropCount = ref(1)
 const couponID = ref(undefined as unknown as string)
@@ -125,8 +124,27 @@ watch(selectedFixAmount, () => {
   couponID.value = selectedFixAmount.value.value.ID as string
 })
 
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      loading.value = false
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
 const prepare = () => {
-  loading.value = true
   fixAmount.getFixAmounts({
     Message: {
       Error: {
@@ -153,18 +171,10 @@ const prepare = () => {
     // TODO
   })
 
-  user.getUsers({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    loading.value = false
-  })
+  if (user.Users.Users.length === 0) {
+    loading.value = true
+    getUsers(0, 500)
+  }
 }
 
 onMounted(() => {
@@ -184,7 +194,7 @@ const onSubmit = () => {
   showing.value = false
   selectedUsers.value.forEach((user) => {
     coupon.createUserCoupon({
-      TargetUserID: user.ID as string,
+      TargetUserID: user.ID,
       Info: {
         Type: couponType.value,
         CouponID: couponID.value

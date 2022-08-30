@@ -73,7 +73,8 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, InvitationCode, useUsersStore, AppUser, useInvitationStore } from 'npool-cli-v2'
+import { NotificationType, InvitationCode, useInvitationStore } from 'npool-cli-v2'
+import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -89,8 +90,8 @@ const columns = [
 ]
 const inspire = useInvitationStore()
 const codes = computed(() => inspire.InvitationCodes)
-const codeLoading = ref(true)
-const userLoading = ref(true)
+const codeLoading = ref(false)
+const userLoading = ref(false)
 
 const start = ref('')
 const end = ref('')
@@ -99,11 +100,11 @@ interface Code extends InvitationCode {
   PhoneNO: string
 }
 
-const user = useUsersStore()
+const user = useAdminUserStore()
 const ecodes = computed(() => Array.from(codes.value).map((code: InvitationCode) => {
   const myCode = code as unknown as Code
-  myCode.EmailAddress = user.getUserByID(code.UserID as string)?.User.EmailAddress as string
-  myCode.PhoneNO = user.getUserByID(code.UserID as string)?.User.PhoneNO as string
+  myCode.EmailAddress = user.getUserByID(code.UserID as string)?.EmailAddress
+  myCode.PhoneNO = user.getUserByID(code.UserID as string)?.PhoneNO
   return myCode
 }))
 
@@ -112,23 +113,44 @@ const displayCodes = computed(() => ecodes.value.filter((el) => {
   return el.EmailAddress?.includes(searchStr.value) || el.InvitationCode?.includes(searchStr.value) || el.PhoneNO?.includes(searchStr.value)
 }))
 
-const users = computed(() => Array.from(user.Users.filter((el) => {
-  return codes.value.findIndex((code) => el.User.ID === code.UserID) < 0
-}).map((el) => el.User)))
-const selectedUser = ref([] as Array<AppUser>)
+const users = computed(() => Array.from(user.Users.Users.filter((el) => {
+  return codes.value.findIndex((code) => el.ID === code.UserID) < 0
+}).map((el) => el)))
+
+const selectedUser = ref([] as Array<User>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => {
   let display = user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
         user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
   if (start.value.length) {
-    display = display && (user.CreateAt as number >= new Date(start.value).getTime() / 1000)
+    display = display && (user.CreatedAt >= new Date(start.value).getTime() / 1000)
   }
   if (end.value.length) {
-    display = display && (user.CreateAt as number <= new Date(end.value).getTime() / 1000)
+    display = display && (user.CreatedAt <= new Date(end.value).getTime() / 1000)
   }
   return display
 }))
 
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      userLoading.value = false
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
 onMounted(() => {
   inspire.getInvitationCodes({
     Message: {
@@ -142,19 +164,10 @@ onMounted(() => {
   }, () => {
     codeLoading.value = false
   })
-  user.getUsers({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-    userLoading.value = false
-  })
+  if (user.Users.Users.length === 0) {
+    userLoading.value = true
+    getUsers(0, 500)
+  }
 })
 const counter = ref(0)
 const addInvitationCode = (idx = 0) => {
@@ -162,9 +175,9 @@ const addInvitationCode = (idx = 0) => {
     return
   }
   inspire.createInvitationCode({
-    TargetUserID: selectedUser.value[idx].ID as string,
+    TargetUserID: selectedUser.value[idx].ID,
     Info: {
-      UserID: selectedUser.value[idx].ID as string
+      UserID: selectedUser.value[idx].ID
     },
     Message: {
       Error: {
@@ -175,7 +188,6 @@ const addInvitationCode = (idx = 0) => {
       }
     }
   }, () => {
-    // TODO
     counter.value++
     if (counter.value >= selectedUser.value.length) {
       counter.value = 0

@@ -48,14 +48,13 @@
 import {
   useAdminGoodStore,
   Good,
-  UserInfo,
   NotificationType,
   useStockStore,
   Stock,
   useCoinStore,
-  useGoodStore,
-  useUsersStore
+  useGoodStore
 } from 'npool-cli-v2'
+import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { useAdminLocalOrderStore } from 'src/teststore/order'
 import { OrderType } from 'src/teststore/order/const'
 import { defineAsyncComponent, computed, ref, onMounted } from 'vue'
@@ -105,13 +104,13 @@ const goods = computed(() => Array.from(agood.Goods.filter((el) => {
 
 interface MyUser {
   label: string
-  value: UserInfo
+  value: User
 }
 
-const user = useUsersStore()
-const users = computed(() => Array.from(user.Users).map((el) => {
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users.map((el) => {
   return {
-    label: el.User.EmailAddress?.length ? el.User.EmailAddress : el.User.PhoneNO,
+    label: el.EmailAddress?.length ? el.EmailAddress : el.PhoneNO,
     value: el
   } as MyUser
 }))
@@ -140,19 +139,29 @@ const onMenuHide = () => {
   selectedUser.value = undefined as unknown as MyUser
 }
 
-const prepare = () => {
+const getUsers = (offset: number, limit: number) => {
   user.getUsers({
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
         Title: 'MSG_GET_USERS',
         Message: 'MSG_GET_USERS_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
   })
+}
+const prepare = () => {
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
 
   agood.getAllGoods({
     Message: {
@@ -230,7 +239,7 @@ const onSubmit = () => {
     return
   }
   order.createUserOrder({
-    TargetUserID: selectedUser.value.value.User.ID as string,
+    TargetUserID: selectedUser.value.value.ID,
     GoodID: selectedGood.value.value.Good.Good.ID as string,
     Units: units.value,
     PaymentCoinID: payCoinID.value,

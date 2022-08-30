@@ -16,30 +16,37 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, useAdminRoleStore } from 'npool-cli-v4'
+import { NotifyType, Role, useAdminRoleStore } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 
 const role = useAdminRoleStore()
 const roles = computed(() => role.Roles.Roles)
 const roleLoading = ref(false)
 
+const getRoles = (offset: number, limit: number) => {
+  role.getRoles({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<Role>, error: boolean) => {
+    if (error || resp.length < limit) {
+      roleLoading.value = false
+      return
+    }
+    getRoles(offset + limit, limit)
+  })
+}
 onMounted(() => {
   if (role.Roles.Roles.length === 0) {
     roleLoading.value = true
-    role.getRoles({
-      Offset: 0,
-      Limit: 100,
-      Message: {
-        Error: {
-          Title: 'MSG_GET_ROLES',
-          Message: 'MSG_GET_ROLES_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      roleLoading.value = false
-    })
+    getRoles(0, 100)
   }
 })
 

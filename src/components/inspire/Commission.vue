@@ -104,14 +104,13 @@ import {
   useCoinStore,
   CommissionCoinSetting,
   PurchaseAmountSetting,
-  useUsersStore,
-  AppUser,
   InvalidID,
   useCommissionStore,
   usePurchaseAmountSettingStore,
   useAdminGoodStore,
   Good
 } from 'npool-cli-v2'
+import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -119,7 +118,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n({ useScope: 'global' })
 
 const coin = useCoinStore()
-const user = useUsersStore()
+const user = useAdminUserStore()
 
 interface CoinSetting extends CommissionCoinSetting {
   CoinName: string
@@ -171,8 +170,8 @@ const selectedGood = computed({
 const purchaseAmount = usePurchaseAmountSettingStore()
 const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
 
-const users = computed(() => Array.from(user.Users).map((el) => el.User))
-const selectedUser = ref([] as Array<AppUser>)
+const users = computed(() => user.Users.Users)
+const selectedUser = ref([] as Array<User>)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((user) => {
   return user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
@@ -181,8 +180,8 @@ const displayUsers = computed(() => users.value.filter((user) => {
 
 const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).map((el) => {
   const s = el as unknown as AmountSetting
-  s.EmailAddress = user.getUserByID(s.UserID as string)?.User?.EmailAddress as string
-  s.PhoneNO = user.getUserByID(s.UserID as string)?.User?.PhoneNO as string
+  s.EmailAddress = user.getUserByID(s.UserID as string)?.EmailAddress
+  s.PhoneNO = user.getUserByID(s.UserID as string)?.PhoneNO
   s.GoodName = ''
   const index = goods.value.findIndex((gel) => gel.Good.Good.ID === el.GoodID)
   if (index >= 0) {
@@ -191,6 +190,25 @@ const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).m
   return s
 }))
 
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
 onMounted(() => {
   commission.getCommissionSetting({
     Message: {
@@ -244,18 +262,9 @@ onMounted(() => {
     // TODO
   })
 
-  user.getUsers({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
 
   good.getAllGoods({
     Message: {
@@ -294,7 +303,7 @@ const onSubmit = () => {
   }
 
   if (selectedUser.value.length > 0) {
-    target.value.UserID = selectedUser.value[0].ID as string
+    target.value.UserID = selectedUser.value[0].ID
   }
 
   purchaseAmount.createUserPurchaseAmountSetting({

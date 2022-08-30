@@ -10,6 +10,7 @@
     </q-input>
     <q-input
       v-model='password'
+      type='password'
       :label='$t("MSG_PASSWORD")'
     >
       <template #prepend>
@@ -29,24 +30,67 @@
         class='btn alt round'
       />
     </div>
+    <q-dialog v-model='showVerifyDialog' persistent>
+      <q-card style='min-width: 350px'>
+        <q-card-section>
+          <div class='text-h6'>
+            <p
+              class='tip'
+              v-html='$t("MSG_VERIFICATION_CODE_SENT_TO", { ACCOUNT: account })'
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-section class='q-pt-none'>
+          <q-input
+            dense v-model='verifyCode' autofocus
+            @keyup.enter='onVerifyClick'
+          />
+        </q-card-section>
+        <q-card-actions align='right' class='text-primary'>
+          <TimeoutSendBtn
+            :initial-clicked='true'
+            @click='onSendCodeClick'
+            class='margin-top-0'
+            :target-error='false'
+          />
+          <button @click='onVerifyClick' style='margin-left: 10px;' :disabled='!validVerifyCode'>
+            {{ $t("MSG_VERIFY") }}
+          </button>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import {
   encryptPassword,
   GoogleTokenType,
   useCodeRepoStore,
-  NotificationType
+  NotificationType,
+  MessageUsedFor,
+  AccountType as OldAccountType,
+  validateVerificationCode
 } from 'npool-cli-v2'
 import {
   useFrontendUserStore,
   AccountType,
-  NotifyType
+  NotifyType,
+  useFrontendAppStore,
+  useLocalUserStore,
+  User
 } from 'npool-cli-v4'
 import { useRouter } from 'vue-router'
 import { useReCaptcha } from 'vue-recaptcha-v3'
+import { AppID } from 'src/const/const'
+import { useI18n } from 'vue-i18n'
+import { computed } from '@vue/reactivity'
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
+
+const TimeoutSendBtn = defineAsyncComponent(() => import('src/components/button/TimeoutSendBtn.vue'))
 
 const account = ref('')
 const password = ref('')
@@ -56,7 +100,9 @@ const coderepo = useCodeRepoStore()
 const recaptcha = useReCaptcha()
 
 const router = useRouter()
+const app = useFrontendAppStore()
 
+const validVerifyCode = computed(() => validateVerificationCode(verifyCode.value))
 const signin = (token: string) => {
   user.login({
     Account: account.value,
@@ -73,10 +119,31 @@ const signin = (token: string) => {
       }
     }
   }, () => {
-    void router.push({ path: '/' })
+    verify()
   })
 }
-
+const verify = () => {
+  app.getApp({
+    AppID: AppID,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_APP_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    _verify()
+  })
+}
+const _verify = () => {
+  if (!app.App.SigninVerifyEnable) {
+    void router.push({ path: '/' })
+    return
+  }
+  showVerifyDialog.value = true
+  onSendCodeClick()
+}
 const getRecaptcha = () => {
   coderepo.getGoogleToken({
     Recaptcha: recaptcha,
@@ -98,6 +165,40 @@ const onLoginClick = () => {
   getRecaptcha()
 }
 
+const showVerifyDialog = ref(false)
+const verifyCode = ref('')
+
+const onSendCodeClick = () => {
+  coderepo.sendVerificationCode(account.value, AccountType.Email.toLowerCase() as OldAccountType, MessageUsedFor.Signin, account.value)
+}
+
+const fuser = useFrontendUserStore()
+const logined = useLocalUserStore()
+
+const onVerifyClick = () => {
+  fuser.loginVerify({
+    Account: account.value,
+    AccountType: AccountType.Email,
+    UserID: logined.User?.ID,
+    Token: logined.User?.LoginToken,
+    VerificationCode: verifyCode.value,
+    Message: {
+      Error: {
+        Title: t('MSG_LOGIN_VERIFY'),
+        Message: t('MSG_LOGIN_VERIFY_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (u: User, error: boolean) => {
+    if (error) {
+      console.log('error: ')
+      return
+    }
+    showVerifyDialog.value = false
+    void router.push({ path: '/' })
+  })
+}
 </script>
 
 <style lang='sass' scoped>
