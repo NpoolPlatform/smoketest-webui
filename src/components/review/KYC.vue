@@ -32,7 +32,10 @@
         <q-item-label>{{ $t('MSG_GENDER') }}: {{ $t(targetUser?.Gender) }}</q-item-label>
       </q-card-section>
       <q-item class='row'>
-        <q-item-label>{{ $t('MSG_CARD_TYPE') }} : {{ target.DocumentType }}</q-item-label>
+        <q-item-label>{{ $t('MSG_CARD_TYPE') }}: {{ target.DocumentType }}</q-item-label>
+      </q-item>
+      <q-item class='row'>
+        <q-item-label>{{ $t('MSG_CARD_TYPE') }}: {{ target?.State }}</q-item-label>
       </q-item>
       <q-item class='row'>
         <q-item-section>
@@ -49,8 +52,8 @@
         <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='updateReview(KYCState.Approved)' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='updateReview(KYCState.Rejected)' />
+        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='updateReview(KYCState.Approved)' :disable='target.State !== KYCState.DefaultState' />
+        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='updateReview(KYCState.Rejected)' :disable='target.State !== KYCState.DefaultState' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -200,11 +203,6 @@ const updateReview = (state: KYCState) => {
     console.log('message is required')
     return
   }
-  if (state === target.value.State) {
-    console.log('NO NEED TO UPDATE')
-    return
-  }
-  target.value.State = state
   kyc.updateKycReview({
     ReviewID: target.value?.ReviewID,
     LangID: locale.CurLang?.ID,
@@ -223,6 +221,7 @@ const updateReview = (state: KYCState) => {
     if (error) {
       return
     }
+    target.value.State = state
     onMenuHide()
   })
 }
