@@ -92,24 +92,22 @@ import {
   formatTime,
   UserSpecialOffer,
   useSpecialOfferStore,
-  PriceCoinName,
-  AppUser,
-  useUsersStore
+  PriceCoinName
 } from 'npool-cli-v2'
-import { useLocalUserStore } from 'npool-cli-v4'
+import { NotifyType, useAdminUserStore, useLocalUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const user = useUsersStore()
-const users = computed(() => Array.from(user.Users).map((el) => el.User))
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users)
 const username = ref('')
 const displayUsers = computed(() => users.value.filter((el) => {
   return el.EmailAddress?.includes(username.value) || el.PhoneNO?.includes(username.value)
 }))
-const selectedUser = ref([] as Array<AppUser>)
+const selectedUser = ref([] as Array<User>)
 const userID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : undefined as unknown as string)
 
 interface MyCoupon extends UserSpecialOffer {
@@ -121,8 +119,8 @@ const coupon = useSpecialOfferStore()
 const appCoupons = computed(() => coupon.SpecialOffers)
 const coupons = computed(() => Array.from(appCoupons.value as Array<UserSpecialOffer>).map((el) => {
   const c = el as MyCoupon
-  c.EmailAddress = user.getUserByID(c.UserID as string)?.User.EmailAddress as string
-  c.PhoneNO = user.getUserByID(c.UserID as string)?.User.PhoneNO as string
+  c.EmailAddress = user.getUserByID(c.UserID as string)?.EmailAddress
+  c.PhoneNO = user.getUserByID(c.UserID as string)?.PhoneNO
   return c
 }))
 const displayCoupons = computed(() => coupons.value.filter((el) => {
@@ -131,6 +129,25 @@ const displayCoupons = computed(() => coupons.value.filter((el) => {
 const loading = ref(true)
 
 const logined = useLocalUserStore()
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
 
 const prepare = () => {
   loading.value = true
@@ -146,19 +163,9 @@ const prepare = () => {
   }, () => {
     loading.value = false
   })
-
-  user.getUsers({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
 }
 
 onMounted(() => {
@@ -219,7 +226,7 @@ const onSubmit = () => {
   }
 
   coupon.createSpecialOffer({
-    TargetUserID: userID.value as string,
+    TargetUserID: userID.value,
     Info: target.value,
     Message: {
       Error: {
