@@ -74,20 +74,49 @@
 
 <script setup lang='ts'>
 import { NotificationType, InvitationCode, useInvitationStore } from 'npool-cli-v2'
-import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
-const columns = [
-  { name: 'ID', label: 'ID', field: 'ID' },
-  { name: 'APPID', label: 'APPID', field: 'AppID' },
-  { name: 'EMAILADDRESS', label: 'EMAILADDRESS', field: 'EmailAddress' },
-  { name: 'PHONENO', label: 'PHONENO', field: 'PhoneNO' },
-  { name: 'IMPORTFROMAPP', label: 'IMPORTFROMAPP', field: 'ImportFromApp' },
-  { name: 'CREATEAT', label: 'CREATEAT', field: 'CreateAt' }
-]
+const columns = computed(() => [
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: User) => row.AppID
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: User) => row.ID
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: User) => row.EmailAddress
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: User) => row.PhoneNO
+  },
+  {
+    name: 'Roles',
+    label: t('MSG_ROLES'),
+    field: (row: User) => row.Roles?.join(',')
+  },
+  {
+    name: 'IDNUMBER',
+    label: t('MSG_IDNUMBER'),
+    field: (row: User) => row.IDNumber
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATEDAT'),
+    field: (row: User) => formatTime(row.CreatedAt)
+  }
+])
 const inspire = useInvitationStore()
 const codes = computed(() => inspire.InvitationCodes)
 const codeLoading = ref(false)
