@@ -46,7 +46,7 @@ const columns = computed(() => [
   {
     name: 'Roles',
     label: t('MSG_ROLES'),
-    field: (row: User) => row.Roles.join(',')
+    field: (row: User) => row.Roles?.join(',')
   },
   {
     name: 'IDNUMBER',
