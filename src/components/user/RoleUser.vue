@@ -8,6 +8,8 @@
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedRoleUser'
+    :loading='roleUserLoading'
+    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -84,9 +86,50 @@ import {
   AppRoleUser,
   Role,
   useAdminRoleStore,
-  useAdminUserStore
+  useAdminUserStore,
+  formatTime
 } from 'npool-cli-v4'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
+const columns = computed(() => [
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: User) => row.AppID
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: User) => row.ID
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: User) => row.EmailAddress
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: User) => row.PhoneNO
+  },
+  {
+    name: 'Roles',
+    label: t('MSG_ROLES'),
+    field: (row: User) => row.Roles?.join(',')
+  },
+  {
+    name: 'IDNUMBER',
+    label: t('MSG_IDNUMBER'),
+    field: (row: User) => row.IDNumber
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATEDAT'),
+    field: (row: User) => formatTime(row.CreatedAt)
+  }
+])
 
 const role = useAdminRoleStore()
 const roles = computed(() => role.Roles.Roles)
@@ -106,24 +149,33 @@ const roleUsers = computed(() => {
   return role.RoleUsers.RoleUsers.filter((el) => el.EmailAddress?.includes(roleUsername.value) || el.PhoneNO?.includes(roleUsername.value))
 })
 
+const roleUserLoading = ref(false)
+const getRoleUsers = (offset: number, limit: number) => {
+  role.getRoleUsers({
+    Offset: offset,
+    Limit: limit,
+    RoleID: selectedRole.value[0]?.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_ROLE_USERS',
+        Message: 'MSG_GET_ROLE_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (roleUsers: Array<AppRoleUser>, error: boolean) => {
+    if (error || roleUsers.length < limit) {
+      roleUserLoading.value = false
+      return
+    }
+    getRoleUsers(offset + limit, limit)
+  })
+}
 watch(selectedRole, () => {
   role.RoleUsers.RoleUsers = [] as Array<AppRoleUser>
   if (selectedRole.value.length > 0) {
-    role.getRoleUsers({
-      Offset: 0,
-      Limit: 100,
-      RoleID: selectedRole.value[0]?.ID,
-      Message: {
-        Error: {
-          Title: 'MSG_GET_ROLE_USERS',
-          Message: 'MSG_GET_ROLE_USERS_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-    // TODO
-    })
+    roleUserLoading.value = true
+    getRoleUsers(0, 500)
   }
 })
 
