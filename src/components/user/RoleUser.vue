@@ -8,6 +8,7 @@
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedRoleUser'
+    :loading='roleUserLoading'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -106,6 +107,7 @@ const roleUsers = computed(() => {
   return role.RoleUsers.RoleUsers.filter((el) => el.EmailAddress?.includes(roleUsername.value) || el.PhoneNO?.includes(roleUsername.value))
 })
 
+const roleUserLoading = ref(false)
 const getRoleUsers = (offset: number, limit: number) => {
   role.getRoleUsers({
     Offset: offset,
@@ -121,6 +123,7 @@ const getRoleUsers = (offset: number, limit: number) => {
     }
   }, (roleUsers: Array<AppRoleUser>, error: boolean) => {
     if (error || roleUsers.length < limit) {
+      roleUserLoading.value = false
       return
     }
     getRoleUsers(offset + limit, limit)
@@ -129,6 +132,7 @@ const getRoleUsers = (offset: number, limit: number) => {
 watch(selectedRole, () => {
   role.RoleUsers.RoleUsers = [] as Array<AppRoleUser>
   if (selectedRole.value.length > 0) {
+    roleUserLoading.value = true
     getRoleUsers(0, 500)
   }
 })
