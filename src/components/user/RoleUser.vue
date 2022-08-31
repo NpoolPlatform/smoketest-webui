@@ -106,24 +106,30 @@ const roleUsers = computed(() => {
   return role.RoleUsers.RoleUsers.filter((el) => el.EmailAddress?.includes(roleUsername.value) || el.PhoneNO?.includes(roleUsername.value))
 })
 
+const getRoleUsers = (offset: number, limit: number) => {
+  role.getRoleUsers({
+    Offset: offset,
+    Limit: limit,
+    RoleID: selectedRole.value[0]?.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_ROLE_USERS',
+        Message: 'MSG_GET_ROLE_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (roleUsers: Array<AppRoleUser>, error: boolean) => {
+    if (error || roleUsers.length < limit) {
+      return
+    }
+    getRoleUsers(offset + limit, limit)
+  })
+}
 watch(selectedRole, () => {
   role.RoleUsers.RoleUsers = [] as Array<AppRoleUser>
   if (selectedRole.value.length > 0) {
-    role.getRoleUsers({
-      Offset: 0,
-      Limit: 100,
-      RoleID: selectedRole.value[0]?.ID,
-      Message: {
-        Error: {
-          Title: 'MSG_GET_ROLE_USERS',
-          Message: 'MSG_GET_ROLE_USERS_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-    // TODO
-    })
+    getRoleUsers(0, 500)
   }
 })
 
@@ -207,6 +213,7 @@ const onDeleteRoleUser = () => {
 
   role.deleteRoleUser({
     RoleUserID: selectedRoleUser.value[0].ID,
+    // RoleID: selectedRoleUser.value[0].
     Message: {
       Error: {
         Title: 'MSG_DELETE_ROLE_USER',
