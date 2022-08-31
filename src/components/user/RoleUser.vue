@@ -52,6 +52,7 @@
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedUser'
+    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>

@@ -49,6 +49,11 @@ const columns = computed(() => [
     field: (row: User) => row.Roles?.join(',')
   },
   {
+    name: 'KOL',
+    label: t('MSG_KOL'),
+    field: (row: User) => row.InvitationCode?.length > 0
+  },
+  {
     name: 'IDNUMBER',
     label: t('MSG_IDNUMBER'),
     field: (row: User) => row.IDNumber
