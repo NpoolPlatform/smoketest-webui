@@ -118,7 +118,10 @@ const signin = (token: string) => {
         Type: NotifyType.Error
       }
     }
-  }, () => {
+  }, (u: User, error: boolean) => {
+    if (error) {
+      return
+    }
     verify()
   })
 }
