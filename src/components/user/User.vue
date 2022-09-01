@@ -49,9 +49,10 @@ const columns = computed(() => [
     field: (row: User) => row.Roles?.join(',')
   },
   {
-    name: 'KOL',
-    label: t('MSG_KOL'),
-    field: (row: User) => row.InvitationCode?.length > 0
+    name: 'KYC_STATE',
+    label: t('MSG_KYC_STATE'),
+    sortable: true,
+    field: (row: User) => row.State
   },
   {
     name: 'IDNUMBER',
@@ -61,6 +62,7 @@ const columns = computed(() => [
   {
     name: 'CreatedAt',
     label: t('MSG_CREATEDAT'),
+    sortable: true,
     field: (row: User) => formatTime(row.CreatedAt)
   }
 ])
