@@ -9,7 +9,6 @@
     selection='single'
     v-model:selected='selectedRoleUser'
     :loading='roleUserLoading'
-    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -52,6 +51,7 @@
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedUser'
+    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -68,6 +68,7 @@
           class='btn flat'
           :label='$t("MSG_ADD")'
           @click='onAddRoleUser'
+          :disable='selectedRole.length === 0 || selectedUser.length === 0'
         />
       </div>
     </template>
@@ -120,6 +121,12 @@ const columns = computed(() => [
     field: (row: User) => row.Roles?.join(',')
   },
   {
+    name: 'KYC_STATE',
+    label: t('MSG_KYC_STATE'),
+    sortable: true,
+    field: (row: User) => row.State
+  },
+  {
     name: 'IDNUMBER',
     label: t('MSG_IDNUMBER'),
     field: (row: User) => row.IDNumber
@@ -127,6 +134,7 @@ const columns = computed(() => [
   {
     name: 'CreatedAt',
     label: t('MSG_CREATEDAT'),
+    sortable: true,
     field: (row: User) => formatTime(row.CreatedAt)
   }
 ])
@@ -145,9 +153,8 @@ const displayUsers = computed(() => users.value.filter((user) => user.EmailAddre
 
 const roleUsername = ref('')
 const selectedRoleUser = ref([] as Array<AppRoleUser>)
-const roleUsers = computed(() => {
-  return role.RoleUsers.RoleUsers.filter((el) => el.EmailAddress?.includes(roleUsername.value) || el.PhoneNO?.includes(roleUsername.value))
-})
+const currentRoleUsers = computed(() => selectedRole.value.length > 0 ? role.roleUsers(selectedRole.value[0].ID) : [])
+const roleUsers = computed(() => currentRoleUsers.value.filter((el) => el.EmailAddress?.includes(roleUsername.value) || el.PhoneNO?.includes(roleUsername.value)))
 
 const roleUserLoading = ref(false)
 const getRoleUsers = (offset: number, limit: number) => {
@@ -171,9 +178,9 @@ const getRoleUsers = (offset: number, limit: number) => {
     getRoleUsers(offset + limit, limit)
   })
 }
+
 watch(selectedRole, () => {
-  role.RoleUsers.RoleUsers = [] as Array<AppRoleUser>
-  if (selectedRole.value.length > 0) {
+  if (selectedRole.value.length > 0 && currentRoleUsers.value.length === 0) {
     roleUserLoading.value = true
     getRoleUsers(0, 500)
   }
