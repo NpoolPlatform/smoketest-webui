@@ -10,8 +10,16 @@ enum OrderType {
   DefaultOrderType = 'DefaultOrderType',
   Normal = 'Normal',
   Offline = 'Offline',
-  Airdrop = 'Airdrop'
+  Airdrop = 'Airdrop',
 }
+
+const OrderTypes = [
+  'ALL',
+  OrderType.Normal,
+  OrderType.Offline,
+  OrderType.Airdrop
+]
+
 enum OrderState {
   DEFAULT_STATE = 'DefaultState',
   WAIT_PAYMENT = 'WaitPayment',
@@ -22,5 +30,4 @@ enum OrderState {
   IN_SERVICE = 'InService',
   EXPIRED = 'Expired',
 }
-
-export { API, OrderTimeoutSeconds, OrderState, OrderType }
+export { API, OrderTimeoutSeconds, OrderState, OrderType, OrderTypes }

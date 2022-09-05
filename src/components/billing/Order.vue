@@ -6,8 +6,10 @@
     :rows='displayOrders'
     row-key='ID'
     :rows-per-page-options='[10]'
+    @row-click='(evt, row, index) => onRowClick(row as Order)'
   >
     <template #top-right>
+      <q-select v-model='selectedOrderType' :options='OrderTypes' />
       <q-btn
         dense
         flat
@@ -49,6 +51,44 @@
   <q-item>
     <span>{{ $t('MSG_ORDER_USER_COUNT') }}: {{ orderUsers }}</span>
   </q-item>
+
+  <q-dialog
+    v-model='orderInfoDialog'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_ORDER_INFO') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <q-item-label>{{ $t('MSG_ORDER_ID') }}: {{ currentOrder?.ID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_USER_ID') }}: {{ currentOrder?.UserID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ currentOrder?.EmailAddress }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ currentOrder?.PhoneNO }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COINTYPE_ID') }}: {{ currentOrder?.CoinTypeID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COINNAME') }}: {{ currentOrder?.CoinName }} {{ currentOrder?.Units }}</q-item-label>
+        <q-item-label>{{ $t('MSG_UNTITS') }}: {{ currentOrder?.Units }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PAYMENT_AMOUNT') }}: {{ currentOrder?.PaymentAmount }}</q-item-label>
+        <q-item-label>{{ $t('MSG_CREATED_AT') }}: {{ formatTime(currentOrder?.CreatedAt) }}</q-item-label>
+      </q-card-section>
+      <q-card-section>
+        <q-item-label>{{ $t('MSG_GOOD_NAME') }}: {{ currentOrder?.GoodName }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PERIOD_DAYS') }}: {{ currentOrder?.GoodServicePeriodDays }}</q-item-label>
+        <q-item-label>{{ $t('MSG_ORDER_TYPE') }}: {{ currentOrder?.OrderType }}</q-item-label>
+      </q-card-section>
+      <q-item class='row'>
+        <q-item-label>{{ $t('MSG_ORDER_STATE') }}: {{ currentOrder?.State }}</q-item-label>
+      </q-item>
+      <q-item class='row'>
+        <q-item-label> <span>Only offline orders can be Canceled!</span></q-item-label>
+      </q-item>
+      <q-item class='row'>
+        <q-btn class='btn round alt' :label='$t("MSG_CANCEL_ORDER")' @click='cancelOrder' :disable='currentOrder.OrderType !== OrderType.Offline' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
@@ -58,16 +98,17 @@ import {
   PriceCoinName,
   useApplicationStore
 } from 'npool-cli-v2'
-import { OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
+import { Order, OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
+import { OrderType, OrderTypes } from 'src/teststore/order/const'
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
 
 const order = useAdminLocalOrderStore()
-
+const selectedOrderType = ref('ALL')
 const displayOrders = computed(() => order.Orders.filter((el) => {
   let display = el.GoodID.includes(goodId.value)
   if (start.value.length) {
@@ -75,6 +116,9 @@ const displayOrders = computed(() => order.Orders.filter((el) => {
   }
   if (end.value.length) {
     display = display && (el.CreatedAt <= new Date(end.value).getTime() / 1000)
+  }
+  if (selectedOrderType.value !== 'ALL') {
+    display = display && (el.OrderType === selectedOrderType.value)
   }
   return display
 }))
@@ -122,7 +166,7 @@ const getAppOrders = (offset: number, limit: number) => {
 
 onMounted(() => {
   if (order.Orders.length === 0) {
-    getAppOrders(0, 100)
+    getAppOrders(0, 500)
   }
   if (application.Application === undefined) {
     application.getApplication({
@@ -181,5 +225,22 @@ const onExport = () => {
                    formatTime(new Date().getTime() / 1000) +
                    '.csv'
   saveAs(blob, filename)
+}
+
+const orderInfoDialog = ref(false)
+const currentOrder = ref({} as Order)
+const onRowClick = (row: Order) => {
+  orderInfoDialog.value = true
+  currentOrder.value = { ...row }
+}
+const onMenuHide = () => {
+  currentOrder.value = {} as Order
+  orderInfoDialog.value = false
+}
+const cancelOrder = () => {
+  // NEED TO IMPLEMENTED
+}
+const onCancel = () => {
+  onMenuHide()
 }
 </script>
