@@ -239,7 +239,18 @@ const onMenuHide = () => {
   orderInfoDialog.value = false
 }
 const cancelOrder = () => {
-  // NEED TO IMPLEMENTED
+  order.updateUserOrder({
+    ID: currentOrder.value.ID,
+    TargetUserID: currentOrder.value.UserID,
+    PaymentID: currentOrder.value.PaymentID,
+    Canceled: true,
+    Message: {}
+  }, (order: Order, error: boolean) => {
+    if (error) {
+      return
+    }
+    orderInfoDialog.value = false
+  })
 }
 const onCancel = () => {
   onMenuHide()
