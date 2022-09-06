@@ -6,6 +6,7 @@
     :rows='displayOrders'
     row-key='ID'
     :rows-per-page-options='[10]'
+    :loading='orderLoading'
     @row-click='(evt, row, index) => onRowClick(row as Order)'
   >
     <template #top-right>
@@ -98,16 +99,15 @@ import {
   PriceCoinName,
   useApplicationStore
 } from 'npool-cli-v2'
-import { Order, OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
+import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderTypes } from 'npool-cli-v4'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
-import { OrderType, OrderTypes } from 'src/teststore/order/const'
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
 
-const order = useAdminLocalOrderStore()
+const order = useAdminOrderStore()
 const selectedOrderType = ref('ALL')
 const displayOrders = computed(() => order.Orders.filter((el) => {
   let display = el.GoodID.includes(goodId.value)
@@ -141,6 +141,8 @@ const orderUsers = computed(() => {
   })
   return users.size
 })
+
+const orderLoading = ref(false)
 const getAppOrders = (offset: number, limit: number) => {
   order.getAppOrders({
     Offset: offset,
@@ -150,14 +152,12 @@ const getAppOrders = (offset: number, limit: number) => {
         Title: 'MSG_GET_ORDERS',
         Message: 'MSG_GET_ORDERS_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, (error: boolean, count?: number) => {
-    if (error) {
-      return
-    }
-    if (count !== undefined && count < limit) { // one less request
+  }, (orders: Array<Order>, error: boolean) => {
+    if (error || orders.length < limit) {
+      orderLoading.value = false
       return
     }
     getAppOrders(offset + limit, limit)
@@ -166,6 +166,7 @@ const getAppOrders = (offset: number, limit: number) => {
 
 onMounted(() => {
   if (order.Orders.length === 0) {
+    orderLoading.value = true
     getAppOrders(0, 500)
   }
   if (application.Application === undefined) {
