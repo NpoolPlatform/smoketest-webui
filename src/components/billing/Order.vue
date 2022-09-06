@@ -10,7 +10,11 @@
     @row-click='(evt, row, index) => onRowClick(row as Order)'
   >
     <template #top-right>
-      <q-select v-model='selectedOrderType' :options='OrderTypes' />
+      <select class='order-type' name='order-type' v-model='selectedOrderType'>
+        <option v-for='value in OrderTypes' :key='value'>
+          {{ value }}
+        </option>
+      </select>
       <q-btn
         dense
         flat
@@ -82,7 +86,7 @@
         <q-item-label>{{ $t('MSG_ORDER_STATE') }}: {{ currentOrder?.State }}</q-item-label>
       </q-item>
       <q-item class='row'>
-        <q-item-label> <span>Only offline orders can be Canceled!</span></q-item-label>
+        <q-item-label> <span class='cancel-order-tip' v-if='currentOrder.OrderType !== OrderType.Offline'>Only offline orders can be Canceled!</span></q-item-label>
       </q-item>
       <q-item class='row'>
         <q-btn class='btn round alt' :label='$t("MSG_CANCEL_ORDER")' @click='cancelOrder' :disable='currentOrder.OrderType !== OrderType.Offline' />
@@ -256,3 +260,12 @@ const onCancel = () => {
   onMenuHide()
 }
 </script>
+<style scoped>
+select {
+  border: none;
+  outline: none
+}
+.cancel-order-tip {
+  color: #34b6e0
+}
+</style>
