@@ -9,7 +9,7 @@
       @click='onCreate'
     />
   </div>
-  <Order />
+  <OrderPage />
   <q-dialog
     v-model='showing'
     @hide='onMenuHide'
@@ -54,16 +54,14 @@ import {
   useCoinStore,
   useGoodStore
 } from 'npool-cli-v2'
-import { NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
-import { useAdminLocalOrderStore } from 'src/teststore/order'
-import { OrderType } from 'src/teststore/order/const'
+import { NotifyType, useAdminUserStore, User, useAdminOrderStore, Order, OrderType } from 'npool-cli-v4'
 import { defineAsyncComponent, computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const Order = defineAsyncComponent(() => import('src/components/billing/Order.vue'))
+const OrderPage = defineAsyncComponent(() => import('src/components/billing/Order.vue'))
 
 interface MyGood {
   label: string
@@ -190,7 +188,7 @@ const prepare = () => {
   })
 }
 
-const order = useAdminLocalOrderStore()
+const order = useAdminOrderStore()
 onMounted(() => {
   prepare()
 
@@ -249,10 +247,10 @@ const onSubmit = () => {
         Title: t('MSG_CREATE_ORDER'),
         Message: t('MSG_CREATE_ORDER_FAIL'),
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, (orderId: string, error: boolean) => {
+  }, (order: Order, error: boolean) => {
     if (error) {
       return
     }
