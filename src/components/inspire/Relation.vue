@@ -238,6 +238,8 @@ watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
   if (curUserID.value !== '' && curUserID.value !== undefined) {
+    invitersTableLoading.value = true
+    inviteesTableLoading.value = true
     getUserInvitees(curUserID.value)
     getUserInviters(curUserID.value)
   }
@@ -250,7 +252,7 @@ const getUserInvitees = (userID: string) => {
 }
 const getUserInviters = (userID: string) => {
   const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
-  if (!root) { // top level user
+  if (!root) {
     if (userInviters.value.length === 0) {
       userInviters.value.push({ UserID: userID, InviterID: '' })
     } else {
@@ -277,9 +279,13 @@ const getUserArchivements = (userIDs: Array<string>, offset: number, limit: numb
       }
     }, (error: boolean, count?: number) => {
       if (error) { // has error
+        invitersTableLoading.value = false
+        inviteesTableLoading.value = false
         return
       }
       if (count !== undefined && count < limit) { // no more data
+        invitersTableLoading.value = false
+        inviteesTableLoading.value = false
         return
       }
       getUserArchivements(userIDs, offset + limit, limit)
