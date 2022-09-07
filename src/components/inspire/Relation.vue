@@ -30,7 +30,7 @@
     row-key='name'
     :columns='(columns as never)'
     :rows='inviteesArchivemnents'
-    :loading='inviteesTableLoading'
+    :loading='loading'
   >
     <template #body='props'>
       <q-tr :props='props'>
@@ -96,7 +96,7 @@
     :rows-per-page-options='[10]'
     :rows='invitersArchivemnents'
     :columns='(columns as never)'
-    :loading='invitersTableLoading'
+    :loading='loading'
   >
     <template #body='props'>
       <q-tr :props='props'>
@@ -238,8 +238,7 @@ watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
   if (curUserID.value !== '' && curUserID.value !== undefined) {
-    invitersTableLoading.value = true
-    inviteesTableLoading.value = true
+    loading.value = true
     getUserInvitees(curUserID.value)
     getUserInviters(curUserID.value)
   }
@@ -279,13 +278,11 @@ const getUserArchivements = (userIDs: Array<string>, offset: number, limit: numb
       }
     }, (error: boolean, count?: number) => {
       if (error) { // has error
-        invitersTableLoading.value = false
-        inviteesTableLoading.value = false
+        loading.value = false
         return
       }
       if (count !== undefined && count < limit) { // no more data
-        invitersTableLoading.value = false
-        inviteesTableLoading.value = false
+        loading.value = false
         return
       }
       getUserArchivements(userIDs, offset + limit, limit)
@@ -315,8 +312,7 @@ const inviteesArchivemnents = computed(() => {
   return data
 })
 
-const inviteesTableLoading = ref(false)
-const invitersTableLoading = ref(false)
+const loading = ref(false)
 
 const getUsers = (offset: number, limit: number) => {
   user.getUsers({
