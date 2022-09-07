@@ -243,17 +243,22 @@ const onMenuHide = () => {
   orderInfoDialog.value = false
 }
 const cancelOrder = () => {
+  orderInfoDialog.value = false
   order.updateUserOrder({
     ID: currentOrder.value.ID,
     TargetUserID: currentOrder.value.UserID,
     PaymentID: currentOrder.value.PaymentID,
     Canceled: true,
-    Message: {}
-  }, (order: Order, error: boolean) => {
-    if (error) {
-      return
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_ORDER',
+        Message: 'MSG_UPDATE_ORDER_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
     }
-    orderInfoDialog.value = false
+  }, () => {
+    // TODO
   })
 }
 const onCancel = () => {
