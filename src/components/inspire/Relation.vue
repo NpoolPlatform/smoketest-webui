@@ -46,6 +46,12 @@
         <q-td key='PhoneNO' :props='props'>
           {{ props.row.PhoneNO }}
         </q-td>
+        <q-td key='Kol' :props='props'>
+          {{ props.row.Kol }}
+        </q-td>
+        <q-td key='TotalInvitees' :props='props'>
+          {{ props.row.TotalInvitees }}
+        </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
             <div v-if='props.row.Archivements?.length > 0'>
@@ -105,6 +111,12 @@
         </q-td>
         <q-td key='PhoneNO' :props='props'>
           {{ props.row.PhoneNO }}
+        </q-td>
+        <q-td key='Kol' :props='props'>
+          {{ props.row.Kol }}
+        </q-td>
+        <q-td key='TotalInvitees' :props='props'>
+          {{ props.row.TotalInvitees }}
         </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
@@ -207,6 +219,8 @@ const columns = [
   { name: 'InviterID', label: 'INVITERID', field: 'InviterID', align: 'center' },
   { name: 'EmailAddress', label: 'EMAILADRESS', field: 'EmailAddress', align: 'center' },
   { name: 'PhoneNO', label: 'PHONENO', field: 'PhoneNO', align: 'center' },
+  { name: 'Kol', label: 'KOL', field: 'Kol', align: 'center' },
+  { name: 'TotalInvitees', label: 'TOTALINVITEES', field: 'TotalInvitees', align: 'center' },
   { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
 ]
 const regInvitation = useRegInvitationStore()
@@ -290,6 +304,7 @@ const inviteesArchivemnents = computed(() => {
   const data = [] as Array<UserGoodArchivements>
   userInvitees.value.forEach((user) => {
     const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
+    console.log({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
     data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
   })
   return data
