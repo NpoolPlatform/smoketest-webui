@@ -14,8 +14,8 @@
           dense
           flat
           class='small'
-          v-model='targetUserID'
-          :label='$t("MSG_USERID")'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
         />
       </div>
     </template>
@@ -28,13 +28,27 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, TransferAccount, useAdminTransferAccountStore } from 'npool-cli-v4'
+import { NotifyType, TransferAccount, useAdminTransferAccountStore, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 
 const transferAccounts = useAdminTransferAccountStore()
-const displayAccounts = computed(() => transferAccounts.TransferAccounts.TransferAccounts.filter((el) => el.UserID.includes(targetUserID.value)))
+
+interface TFAccount extends TransferAccount {
+  PhoneNO: string;
+  EmailAddress: string;
+}
+
+const displayAccounts = computed(() => {
+  const data = [] as Array<TFAccount>
+  transferAccounts.TransferAccounts.TransferAccounts.forEach((el) => {
+    const targetUser = user.getUserByID(el.UserID)
+    data.push({ ...el, ...{ PhoneNO: targetUser.PhoneNO, EmailAddress: targetUser.EmailAddress } })
+  })
+  return data.filter((el) => el.EmailAddress.includes(username.value) || el.PhoneNO.includes(username.value))
+})
 const accountsLoading = ref(false)
-const targetUserID = ref('')
+const username = ref('')
+
 const getAppTransfers = (offset: number, limit: number) => {
   transferAccounts.getAppTransfers({
     Offset: offset,
@@ -56,10 +70,33 @@ const getAppTransfers = (offset: number, limit: number) => {
   })
 }
 
+const user = useAdminUserStore()
+const getUsers = (offset: number, limit: number) => {
+  user.getUsers({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_USERS',
+        Message: 'MSG_GET_USERS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (resp: Array<User>, error: boolean) => {
+    if (error || resp.length < limit) {
+      return
+    }
+    getUsers(offset + limit, limit)
+  })
+}
 onMounted(() => {
   if (transferAccounts.TransferAccounts.TransferAccounts.length === 0) {
     accountsLoading.value = true
     getAppTransfers(0, 500)
+  }
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
   }
 })
 
