@@ -8,7 +8,31 @@
     :loading='userLoading'
     :rows-per-page-options='[20]'
     :columns='columns'
-  />
+  >
+    <template #top-right>
+      <q-btn
+        dense
+        flat
+        class='btn flat'
+        :label='$t("MSG_EXPORT")'
+        @click='onExport'
+      />
+      <q-input
+        dense
+        class='small'
+        type='date'
+        v-model='start'
+        :label='$t("MSG_START")'
+      />
+      <q-input
+        dense
+        class='small'
+        type='date'
+        v-model='end'
+        :label='$t("MSG_END")'
+      />
+    </template>
+  </q-table>
   <q-card>
     <q-card-section class='bg-primary text-white'>
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
@@ -17,7 +41,10 @@
 </template>
 
 <script setup lang='ts'>
+import saveAs from 'file-saver'
+import { NotificationType, useApplicationStore } from 'npool-cli-v2'
 import { NotifyType, useAdminUserStore, User, formatTime } from 'npool-cli-v4'
+import { AppID } from 'src/const/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -67,9 +94,49 @@ const columns = computed(() => [
   }
 ])
 const user = useAdminUserStore()
-const users = computed(() => user.Users.Users)
-const userLoading = ref(false)
+const users = computed(() => user.Users.Users.filter((el) => {
+  let display = true
+  if (start.value.length) {
+    display = display && (el.CreatedAt >= new Date(start.value).getTime() / 1000)
+  }
+  if (end.value.length) {
+    display = display && (el.CreatedAt <= new Date(end.value).getTime() / 1000)
+  }
+  return display
+}))
 
+const start = ref('')
+const end = ref('')
+const onExport = () => {
+  if (users.value.length === 0) {
+    return
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { CreatedAt, AddressFields, AddressFieldsString, KycStateStr, Roles, InvitationCode, InvitationCodeConfirmed, InvitationCodeID, LoginVerified, ...columns } = { ...users.value[0] }
+  let str = ''
+  str += Object.keys(columns).join(',') + ',AddressFields,Roles,InvitationCode,InvitationCodeConfirmed,CreatedAt\n'
+  users.value.forEach((el) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { CreatedAt, AddressFields, AddressFieldsString, KycStateStr, Roles, InvitationCode, InvitationCodeConfirmed, InvitationCodeID, LoginVerified, ...values } = { ...el }
+    const valueArray = Object.values(values)
+    valueArray.push(AddressFieldsString.split(',').join(';'), Roles.join(';'), InvitationCode, InvitationCodeConfirmed, formatTime(CreatedAt))
+    str += valueArray.join(',') + '\n'
+  })
+  const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
+  const filename = application.Application.App.Name + '-Users-' + formatTime(new Date().getTime() / 1000) + '.csv'
+  saveAs(blob, filename)
+}
+
+const userLoading = ref(false)
+onMounted(() => {
+  if (user.Users.Users.length === 0) {
+    userLoading.value = true
+    getUsers(0, 500)
+  }
+  if (application.Application === undefined) {
+    getApplication()
+  }
+})
 const getUsers = (offset: number, limit: number) => {
   user.getUsers({
     Offset: offset,
@@ -91,11 +158,20 @@ const getUsers = (offset: number, limit: number) => {
   })
 }
 
-onMounted(() => {
-  if (user.Users.Users.length === 0) {
-    userLoading.value = true
-    getUsers(0, 500)
-  }
-})
-
+const application = useApplicationStore()
+const getApplication = () => {
+  application.getApplication({
+    ID: AppID,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP',
+        Message: 'MSG_GET_APP_FAIL',
+        Popup: true,
+        Type: NotificationType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
 </script>
