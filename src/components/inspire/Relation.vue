@@ -32,6 +32,15 @@
     :rows='inviteesArchivemnents'
     :loading='loading'
   >
+    <template #top-right>
+      <div class='row indent flat'>
+        <select class='order-type' name='order-type' v-model='currentKolState'>
+          <option v-for='item in KOLOptions' :key='item.Label' :value='item'>
+            {{ item.Label }}
+          </option>
+        </select>
+      </div>
+    </template>
     <template #body='props'>
       <q-tr :props='props'>
         <q-td key='UserID' label='UserID' :props='props'>
@@ -303,12 +312,36 @@ const invitersArchivemnents = computed(() => {
   })
   return data
 })
+interface KOLOption {
+  Label: string;
+  Value: boolean;
+}
+
+const KOLOptions = ref([
+  {
+    Label: 'ALL',
+    Value: true
+  },
+  {
+    Label: 'KOL',
+    Value: true
+  },
+  {
+    Label: 'NOT KOL',
+    Value: false
+  }
+] as Array<KOLOption>)
+const currentKolState = ref(KOLOptions.value[0])
+
 const inviteesArchivemnents = computed(() => {
-  const data = [] as Array<UserGoodArchivements>
+  let data = [] as Array<UserGoodArchivements>
   userInvitees.value.forEach((user) => {
     const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
     data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
   })
+  if (currentKolState.value.Label !== 'ALL') {
+    data = data.filter((el) => el.Kol === currentKolState.value.Value)
+  }
   return data
 })
 
@@ -370,4 +403,9 @@ onMounted(() => {
 ::v-deep .commission
   max-width: 160px
   width: 160px
+
+select
+  border: none
+  outline: none
+
 </style>
