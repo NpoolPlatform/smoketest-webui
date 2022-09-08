@@ -30,8 +30,17 @@
     row-key='name'
     :columns='(columns as never)'
     :rows='inviteesArchivemnents'
-    :loading='inviteesTableLoading'
+    :loading='loading'
   >
+    <template #top-right>
+      <div class='row indent flat'>
+        <select class='order-type' name='order-type' v-model='currentKolState'>
+          <option v-for='item in KOLOptions' :key='item.Label' :value='item'>
+            {{ item.Label }}
+          </option>
+        </select>
+      </div>
+    </template>
     <template #body='props'>
       <q-tr :props='props'>
         <q-td key='UserID' label='UserID' :props='props'>
@@ -45,6 +54,12 @@
         </q-td>
         <q-td key='PhoneNO' :props='props'>
           {{ props.row.PhoneNO }}
+        </q-td>
+        <q-td key='Kol' :props='props'>
+          {{ props.row.Kol }}
+        </q-td>
+        <q-td key='TotalInvitees' :props='props'>
+          {{ props.row.TotalInvitees }}
         </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
@@ -90,7 +105,7 @@
     :rows-per-page-options='[10]'
     :rows='invitersArchivemnents'
     :columns='(columns as never)'
-    :loading='invitersTableLoading'
+    :loading='loading'
   >
     <template #body='props'>
       <q-tr :props='props'>
@@ -105,6 +120,12 @@
         </q-td>
         <q-td key='PhoneNO' :props='props'>
           {{ props.row.PhoneNO }}
+        </q-td>
+        <q-td key='Kol' :props='props'>
+          {{ props.row.Kol }}
+        </q-td>
+        <q-td key='TotalInvitees' :props='props'>
+          {{ props.row.TotalInvitees }}
         </q-td>
         <q-td key='Archivements' :props='props'>
           <table>
@@ -207,6 +228,8 @@ const columns = [
   { name: 'InviterID', label: 'INVITERID', field: 'InviterID', align: 'center' },
   { name: 'EmailAddress', label: 'EMAILADRESS', field: 'EmailAddress', align: 'center' },
   { name: 'PhoneNO', label: 'PHONENO', field: 'PhoneNO', align: 'center' },
+  { name: 'Kol', label: 'KOL', field: 'Kol', align: 'center', sortable: true },
+  { name: 'TotalInvitees', label: 'TOTALINVITEES', field: 'TotalInvitees', align: 'center', sortable: true },
   { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
 ]
 const regInvitation = useRegInvitationStore()
@@ -224,6 +247,7 @@ watch(curUserID, () => {
   userInvitees.value = [] // reset
   userInviters.value = []
   if (curUserID.value !== '' && curUserID.value !== undefined) {
+    loading.value = true
     getUserInvitees(curUserID.value)
     getUserInviters(curUserID.value)
   }
@@ -236,7 +260,7 @@ const getUserInvitees = (userID: string) => {
 }
 const getUserInviters = (userID: string) => {
   const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
-  if (!root) { // top level user
+  if (!root) {
     if (userInviters.value.length === 0) {
       userInviters.value.push({ UserID: userID, InviterID: '' })
     } else {
@@ -263,9 +287,11 @@ const getUserArchivements = (userIDs: Array<string>, offset: number, limit: numb
       }
     }, (error: boolean, count?: number) => {
       if (error) { // has error
+        loading.value = false
         return
       }
       if (count !== undefined && count < limit) { // no more data
+        loading.value = false
         return
       }
       getUserArchivements(userIDs, offset + limit, limit)
@@ -286,17 +312,40 @@ const invitersArchivemnents = computed(() => {
   })
   return data
 })
+interface KOLOption {
+  Label: string;
+  Value: boolean;
+}
+
+const KOLOptions = ref([
+  {
+    Label: 'ALL',
+    Value: true
+  },
+  {
+    Label: 'KOL',
+    Value: true
+  },
+  {
+    Label: 'NOT KOL',
+    Value: false
+  }
+] as Array<KOLOption>)
+const currentKolState = ref(KOLOptions.value[0])
+
 const inviteesArchivemnents = computed(() => {
-  const data = [] as Array<UserGoodArchivements>
+  let data = [] as Array<UserGoodArchivements>
   userInvitees.value.forEach((user) => {
     const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
     data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
   })
+  if (currentKolState.value.Label !== 'ALL') {
+    data = data.filter((el) => el.Kol === currentKolState.value.Value)
+  }
   return data
 })
 
-const inviteesTableLoading = ref(false)
-const invitersTableLoading = ref(false)
+const loading = ref(false)
 
 const getUsers = (offset: number, limit: number) => {
   user.getUsers({
@@ -354,4 +403,9 @@ onMounted(() => {
 ::v-deep .commission
   max-width: 160px
   width: 160px
+
+select
+  border: none
+  outline: none
+
 </style>

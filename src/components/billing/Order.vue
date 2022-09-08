@@ -6,8 +6,15 @@
     :rows='displayOrders'
     row-key='ID'
     :rows-per-page-options='[10]'
+    :loading='orderLoading'
+    @row-click='(evt, row, index) => onRowClick(row as Order)'
   >
     <template #top-right>
+      <select class='order-type' name='order-type' v-model='selectedOrderType'>
+        <option v-for='value in OrderTypes' :key='value'>
+          {{ value }}
+        </option>
+      </select>
       <q-btn
         dense
         flat
@@ -49,6 +56,44 @@
   <q-item>
     <span>{{ $t('MSG_ORDER_USER_COUNT') }}: {{ orderUsers }}</span>
   </q-item>
+
+  <q-dialog
+    v-model='orderInfoDialog'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_ORDER_INFO') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <q-item-label>{{ $t('MSG_ORDER_ID') }}: {{ currentOrder?.ID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_USER_ID') }}: {{ currentOrder?.UserID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ currentOrder?.EmailAddress }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ currentOrder?.PhoneNO }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COINTYPE_ID') }}: {{ currentOrder?.CoinTypeID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COINNAME') }}: {{ currentOrder?.CoinName }} {{ currentOrder?.Units }}</q-item-label>
+        <q-item-label>{{ $t('MSG_UNTITS') }}: {{ currentOrder?.Units }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PAYMENT_AMOUNT') }}: {{ currentOrder?.PaymentAmount }}</q-item-label>
+        <q-item-label>{{ $t('MSG_CREATED_AT') }}: {{ formatTime(currentOrder?.CreatedAt) }}</q-item-label>
+      </q-card-section>
+      <q-card-section>
+        <q-item-label>{{ $t('MSG_GOOD_NAME') }}: {{ currentOrder?.GoodName }}</q-item-label>
+        <q-item-label>{{ $t('MSG_PERIOD_DAYS') }}: {{ currentOrder?.GoodServicePeriodDays }}</q-item-label>
+        <q-item-label>{{ $t('MSG_ORDER_TYPE') }}: {{ currentOrder?.OrderType }}</q-item-label>
+      </q-card-section>
+      <q-item class='row'>
+        <q-item-label>{{ $t('MSG_ORDER_STATE') }}: {{ currentOrder?.State }}</q-item-label>
+      </q-item>
+      <q-item class='row'>
+        <q-item-label> <span class='cancel-order-tip' v-if='currentOrder.OrderType !== OrderType.Offline'>Only Paid offline orders can be Canceled!</span></q-item-label>
+      </q-item>
+      <q-item class='row'>
+        <q-btn class='btn round alt' :label='$t("MSG_CANCEL_ORDER")' @click='cancelOrder' :disable='currentOrder.OrderType !== OrderType.Offline || currentOrder.State !== OrderState.PAID' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
@@ -58,7 +103,7 @@ import {
   PriceCoinName,
   useApplicationStore
 } from 'npool-cli-v2'
-import { OrderState, useAdminLocalOrderStore } from 'src/teststore/order'
+import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderTypes } from 'npool-cli-v4'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
@@ -66,8 +111,8 @@ const goodId = ref('')
 const start = ref('')
 const end = ref('')
 
-const order = useAdminLocalOrderStore()
-
+const order = useAdminOrderStore()
+const selectedOrderType = ref('ALL')
 const displayOrders = computed(() => order.Orders.filter((el) => {
   let display = el.GoodID.includes(goodId.value)
   if (start.value.length) {
@@ -75,6 +120,9 @@ const displayOrders = computed(() => order.Orders.filter((el) => {
   }
   if (end.value.length) {
     display = display && (el.CreatedAt <= new Date(end.value).getTime() / 1000)
+  }
+  if (selectedOrderType.value !== 'ALL') {
+    display = display && (el.OrderType === selectedOrderType.value)
   }
   return display
 }))
@@ -97,6 +145,8 @@ const orderUsers = computed(() => {
   })
   return users.size
 })
+
+const orderLoading = ref(false)
 const getAppOrders = (offset: number, limit: number) => {
   order.getAppOrders({
     Offset: offset,
@@ -106,14 +156,12 @@ const getAppOrders = (offset: number, limit: number) => {
         Title: 'MSG_GET_ORDERS',
         Message: 'MSG_GET_ORDERS_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, (error: boolean, count?: number) => {
-    if (error) {
-      return
-    }
-    if (count !== undefined && count < limit) { // one less request
+  }, (orders: Array<Order>, error: boolean) => {
+    if (error || orders.length < limit) {
+      orderLoading.value = false
       return
     }
     getAppOrders(offset + limit, limit)
@@ -122,7 +170,8 @@ const getAppOrders = (offset: number, limit: number) => {
 
 onMounted(() => {
   if (order.Orders.length === 0) {
-    getAppOrders(0, 100)
+    orderLoading.value = true
+    getAppOrders(0, 500)
   }
   if (application.Application === undefined) {
     application.getApplication({
@@ -177,9 +226,51 @@ const onExport = () => {
   })
 
   const blob = new Blob([orderStr], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-Users-' +
+  const filename = application.Application.App.Name + '-Orders-' +
                    formatTime(new Date().getTime() / 1000) +
                    '.csv'
   saveAs(blob, filename)
 }
+
+const orderInfoDialog = ref(false)
+const currentOrder = ref({} as Order)
+const onRowClick = (row: Order) => {
+  orderInfoDialog.value = true
+  currentOrder.value = { ...row }
+}
+const onMenuHide = () => {
+  currentOrder.value = {} as Order
+  orderInfoDialog.value = false
+}
+const cancelOrder = () => {
+  orderInfoDialog.value = false
+  order.updateUserOrder({
+    ID: currentOrder.value.ID,
+    TargetUserID: currentOrder.value.UserID,
+    PaymentID: currentOrder.value.PaymentID,
+    Canceled: true,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_ORDER',
+        Message: 'MSG_UPDATE_ORDER_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+const onCancel = () => {
+  onMenuHide()
+}
 </script>
+<style scoped>
+select {
+  border: none;
+  outline: none
+}
+.cancel-order-tip {
+  color: #34b6e0
+}
+</style>
