@@ -354,6 +354,24 @@ const MainDrawerMenus = [
       sectionBegin: false,
       children: []
     } as MenuItem]
+  } as MenuItem, {
+    menuId: uid(),
+    label: '站内转账',
+    caption: '查看站内转账',
+    icon: 'format_list_numbered',
+    target: '/transfer',
+    level: 0,
+    sectionBegin: false,
+    children: [{
+      menuId: uid(),
+      label: '白名单',
+      caption: '查看白名单',
+      icon: 'format_list_numbered',
+      target: '/transfer/accounts',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem]
   } as MenuItem
 ] as Array<MenuItem>
 
