@@ -226,7 +226,7 @@ const onExport = () => {
   })
 
   const blob = new Blob([orderStr], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-Users-' +
+  const filename = application.Application.App.Name + '-Orders-' +
                    formatTime(new Date().getTime() / 1000) +
                    '.csv'
   saveAs(blob, filename)
