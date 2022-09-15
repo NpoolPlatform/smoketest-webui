@@ -24,7 +24,13 @@
         <q-item-label>{{ $t('MSG_LOCKED') }}: {{ goodStock?.Locked }}</q-item-label>
         <q-item-label>{{ $t('MSG_IN_SERVICE') }}: {{ goodStock?.InService }}</q-item-label>
         <q-select :options='goods' v-model='selectedGood' :label='$t("MSG_GOOD")' />
-        <q-select :options='users' v-model='selectedUser' :label='$t("MSG_USER")' />
+        <q-select
+          :options='displayUsers'
+          use-input
+          v-model='selectedUser'
+          :label='$t("MSG_USER")'
+          @filter='filterUser'
+        />
         <q-input
           v-model='units' :label='$t("MSG_PURCHASE_UNITS")' type='number' min='0'
           :max='maxUnits'
@@ -112,6 +118,14 @@ const users = computed(() => user.Users.Users.map((el) => {
     value: el
   } as MyUser
 }))
+const displayUsers = ref(users.value)
+const filterUser = (val: string, doneFn: (callbackFn: () => void) => void) => {
+  doneFn(() => {
+    displayUsers.value = users.value.filter((el) => {
+      return el.value.EmailAddress?.toLowerCase().includes(val.toLowerCase()) || el.value.PhoneNO?.toLowerCase().includes(val.toLowerCase())
+    })
+  })
+}
 
 const selectedGood = ref(undefined as unknown as MyGood)
 const goodStock = computed(() => {
