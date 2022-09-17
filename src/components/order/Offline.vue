@@ -95,7 +95,7 @@ const goods = computed(() => Array.from(agood.Goods.filter((el) => {
   }
 
   const index = appGoods.findIndex((gel) => gel.GoodID === el.Good.Good.ID)
-  if (index >= 0 && appGoods[index].Visible && appGoods[index].Online) {
+  if (index >= 0 && /* appGoods[index].Visible && */ appGoods[index].Online) {
     return true
   }
   return false
