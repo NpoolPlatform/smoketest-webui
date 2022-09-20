@@ -1,5 +1,5 @@
 <template>
-  <q-img :src='logoImg' />
+  <q-img :src='logoImg' class='logo' />
 </template>
 
 <script setup lang='ts'>

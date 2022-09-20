@@ -7833,7 +7833,7 @@ npool-cli-v2@^0.2.295:
     wrappy "^1.0.2"
     yocto-queue "^0.1.0"
 
-npool-cli-v4@^0.3.147:
+npool-cli-v4@^0.3.181:
   version "0.3.181"
   resolved "https://registry.yarnpkg.com/npool-cli-v4/-/npool-cli-v4-0.3.181.tgz#65b7b7bb344d46d2f29c190e15c1060c4150d90f"
   integrity sha512-Pu/pfOyft6tC/kzaVs1TG0r9Yv/ADonsi43c8VN239mHoms8aW60jc3/FloHbvAUpuYdUdM9Ao666tZAYVWkhQ==
