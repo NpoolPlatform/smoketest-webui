@@ -1,10 +1,8 @@
 <template>
   <q-btn
     :loading='loadingStatus'
-    dense
-    flat
-    class='btn flat'
     @click='simulateProgress'
+    class='btn round'
     :label='label'
   />
 </template>
