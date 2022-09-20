@@ -38,7 +38,7 @@
         />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton :loading='true' @click='onSubmit' :label='$t("MSG_SUBMIT")' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -68,6 +68,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n({ useScope: 'global' })
 
 const OrderPage = defineAsyncComponent(() => import('src/components/billing/Order.vue'))
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 interface MyGood {
   label: string
@@ -233,7 +234,7 @@ onMounted(() => {
   })
 })
 
-const onSubmit = () => {
+const onSubmit = (done: ()=> void) => {
   if (units.value > maxUnits.value) {
     console.log('purchase units', units.value, 'max units', maxUnits.value)
     return
@@ -265,6 +266,7 @@ const onSubmit = () => {
       }
     }
   }, (order: Order, error: boolean) => {
+    done()
     if (error) {
       return
     }
