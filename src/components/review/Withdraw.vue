@@ -50,8 +50,8 @@
         <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove()' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject()' />
+        <LoadingButton :loading='true' :label='$t("MSG_APPROVE")' @click='onApprove' />
+        <LoadingButton :loading='true' :label='$t("MSG_REJECT")' @click='onReject' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -62,11 +62,13 @@
 import { NotificationType, useCoinStore, useLocaleStore } from 'npool-cli-v2'
 import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
-import { computed, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocalUserStore } from 'npool-cli-v4'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 // const review = useReviewStore()
 const coins = useCoinStore()
@@ -141,7 +143,7 @@ const onRowClick = (r: WithdrawReview) => {
   showing.value = true // open dialog
 }
 
-const updateReview = () => {
+const updateReview = (done: () => void) => {
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
     LangID: locale.CurLang?.ID as string,
@@ -157,7 +159,8 @@ const updateReview = () => {
       }
     }
   }, (error: boolean) => {
-    if (error) { // fail
+    done()
+    if (error) {
       return
     }
     onMenuHide()
@@ -165,18 +168,18 @@ const updateReview = () => {
   })
 }
 
-const onApprove = () => {
+const onApprove = (done: () => void) => {
   target.value.State = ReviewState.Approved
-  updateReview()
+  updateReview(done)
 }
 
-const onReject = () => {
-  if (target.value.Message.trim().length <= 0) { // need value when reject
+const onReject = (done: () => void) => {
+  if (target.value.Message.trim().length <= 0) {
     console.log('need message')
     return
   }
   target.value.State = ReviewState.Rejected
-  updateReview()
+  updateReview(done)
 }
 
 const onCancel = () => {
