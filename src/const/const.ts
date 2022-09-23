@@ -1,5 +1,5 @@
 // Default is procyon app id
-let AppID = 'ef936d96-d8bb-40ee-a9b6-8c5af3d41bf8'
+let AppID = '9141b71a-ff6e-4229-8cf5-cc71459e9803'
 
 if (window.location.host.includes('.ohhash.com')) {
   AppID = 'ab7895dd-c4d1-48bd-be77-c0f255556a36'
