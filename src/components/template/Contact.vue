@@ -38,7 +38,7 @@
       </q-card-section>
       <q-item class='row'>
         <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
-        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='updating ? updateContact : createContact' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -75,41 +75,6 @@ const onCreate = () => {
   updating.value = false
 }
 
-const onSubmit = (done: ()=> void) => {
-  showing.value = false
-
-  if (updating.value) {
-    contact.updateContact({
-      ...target.value,
-      Message: {
-        Error: {
-          Title: 'MSG_UPDATE_CONTACT',
-          Message: 'MSG_UPDATE_CONTACT_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      done()
-    })
-    return
-  }
-
-  contact.createContact({
-    ...target.value,
-    Message: {
-      Error: {
-        Title: 'MSG_CREATE_CONTACT',
-        Message: 'MSG_CREATE_CONTACT_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, () => {
-    done()
-  })
-}
-
 const onCancel = () => {
   showing.value = false
   onMenuHide()
@@ -138,6 +103,44 @@ const getContacts = (offset: number, limit: number) => {
       contactsLoading.value = false
     }
     getContacts(offset + limit, limit)
+  })
+}
+
+const updateContact = (done: () => void) => {
+  contact.updateContact({
+    ...target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_CONTACT',
+        Message: 'MSG_UPDATE_CONTACT_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: Contact, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
+  })
+}
+
+const createContact = (done: () => void) => {
+  contact.createContact({
+    ...target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_CONTACT',
+        Message: 'MSG_CREATE_CONTACT_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: Contact, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
   })
 }
 </script>
