@@ -55,31 +55,6 @@ const contact = useAdminContactStore()
 const contacts = computed(() => contact.Contacts.Contacts)
 const contactsLoading = ref(true)
 
-const getContacts = (offset: number, limit: number) => {
-  contact.getContacts({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_CONTACTS',
-        Message: 'MSG_GET_CONTACTS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (contacts: Array<Contact>, error: boolean) => {
-    if (error || contacts.length < limit) {
-      contactsLoading.value = false
-    }
-    getContacts(offset + limit, limit)
-  })
-}
-onMounted(() => {
-  if (contact.Contacts.Contacts.length === 0) {
-    getContacts(0, 500)
-  }
-})
-
 const showing = ref(false)
 const updating = ref(false)
 
@@ -140,4 +115,29 @@ const onCancel = () => {
   onMenuHide()
 }
 
+onMounted(() => {
+  if (contact.Contacts.Contacts.length === 0) {
+    getContacts(0, 500)
+  }
+})
+
+const getContacts = (offset: number, limit: number) => {
+  contact.getContacts({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_CONTACTS',
+        Message: 'MSG_GET_CONTACTS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (contacts: Array<Contact>, error: boolean) => {
+    if (error || contacts.length < limit) {
+      contactsLoading.value = false
+    }
+    getContacts(offset + limit, limit)
+  })
+}
 </script>
