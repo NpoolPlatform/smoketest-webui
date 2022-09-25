@@ -38,7 +38,7 @@
       </q-card-section>
       <q-item class='row'>
         <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
-        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='updating ? updateContact : createContact' />
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -78,6 +78,10 @@ const onCreate = () => {
 const onCancel = () => {
   showing.value = false
   onMenuHide()
+}
+
+const onSubmit = (done: () => void) => {
+  updating.value ? updateContact(done) : createContact(done)
 }
 
 onMounted(() => {

@@ -41,7 +41,7 @@
         <q-input v-model='target.Message' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='updating ? updateSMSTemplate : createSMSTemplate' />
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -54,6 +54,7 @@ import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useAdminSMSTemplateStore, SMSTemplate, NotifyType, UsedFors } from 'npool-cli-v4'
 
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 const sms = useAdminSMSTemplateStore()
 const smsTemplates = computed(() => sms.SMSTemplates.SMSTemplates)
@@ -86,6 +87,9 @@ const onCancel = () => {
   onMenuHide()
 }
 
+const onSubmit = (done: () => void) => {
+  updating.value ? updateSMSTemplate(done) : createSMSTemplate(done)
+}
 onMounted(() => {
   if (sms.SMSTemplates.SMSTemplates.length === 0) {
     getSMSTemplates(0, 500)
