@@ -41,7 +41,7 @@
         <q-input v-model='target.Message' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='updating ? updateSMSTemplate : createSMSTemplate' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -81,42 +81,6 @@ const onCreate = () => {
   updating.value = false
 }
 
-const onSubmit = () => {
-  showing.value = false
-  target.value.LangID = language.value.ID
-
-  if (updating.value) {
-    sms.updateSMSTemplate({
-      ...target.value,
-      NotifyMessage: {
-        Error: {
-          Title: 'MSG_UPDATE_SMS_TEMPLATE',
-          Message: 'MSG_UPDATE_SMS_TEMPLATE_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
-  }
-
-  sms.createSMSTemplate({
-    ...target.value,
-    NotifyMessage: {
-      Error: {
-        Title: 'MSG_CREATE_SMS_TEMPLATE',
-        Message: 'MSG_CREATE_SMS_TEMPLATE_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-}
-
 const onCancel = () => {
   showing.value = false
   onMenuHide()
@@ -145,6 +109,44 @@ const getSMSTemplates = (offset: number, limit: number) => {
       smsLoading.value = false
     }
     getSMSTemplates(offset + limit, limit)
+  })
+}
+
+const createSMSTemplate = (done: () => void) => {
+  target.value.LangID = language.value.ID
+  sms.createSMSTemplate({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: 'MSG_CREATE_SMS_TEMPLATE',
+        Message: 'MSG_CREATE_SMS_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: SMSTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
+  })
+}
+const updateSMSTemplate = (done: () => void) => {
+  sms.updateSMSTemplate({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: 'MSG_UPDATE_SMS_TEMPLATE',
+        Message: 'MSG_UPDATE_SMS_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: SMSTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
   })
 }
 </script>
