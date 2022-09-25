@@ -5,7 +5,7 @@
     :title='$t("MSG_CONTACTS")'
     :rows='contacts'
     row-key='ID'
-    :loading='contactLoading'
+    :loading='contactsLoading'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as Contact)'
   >
@@ -31,13 +31,14 @@
         <span>{{ $t('MSG_CREATE_CONTACT') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-select :options='MessageUsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
-        <q-select :options='ContactTypes' v-model='target.AccountType' :label='$t("MSG_CONTACT_TYPE")' />
+        <q-select :options='UsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-select :options='SignMethodTypes' v-model='target.AccountType' :label='$t("MSG_CONTACT_TYPE")' />
         <q-input v-model='target.Account' :label='$t("MSG_ACCOUNT")' />
         <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -45,26 +46,38 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useTemplateStore, Contact, ContactTypes, MessageUsedFors } from 'npool-cli-v2'
-import { computed, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
+import { useAdminContactStore, Contact, NotifyType, UsedFors, SignMethodTypes } from 'npool-cli-v4'
 
-const templates = useTemplateStore()
-const contacts = computed(() => templates.Contacts)
-const contactLoading = ref(true)
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
-onMounted(() => {
-  templates.getContacts({
+const contact = useAdminContactStore()
+const contacts = computed(() => contact.Contacts.Contacts)
+const contactsLoading = ref(true)
+
+const getContacts = (offset: number, limit: number) => {
+  contact.getContacts({
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
         Title: 'MSG_GET_CONTACTS',
         Message: 'MSG_GET_CONTACTS_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, () => {
-    contactLoading.value = false
+  }, (contacts: Array<Contact>, error: boolean) => {
+    if (error || contacts.length < limit) {
+      contactsLoading.value = false
+    }
+    getContacts(offset + limit, limit)
   })
+}
+onMounted(() => {
+  if (contact.Contacts.Contacts.length === 0) {
+    getContacts(0, 500)
+  }
 })
 
 const showing = ref(false)
@@ -87,38 +100,38 @@ const onCreate = () => {
   updating.value = false
 }
 
-const onSubmit = () => {
+const onSubmit = (done: ()=> void) => {
   showing.value = false
 
   if (updating.value) {
-    templates.updateContact({
-      Info: target.value,
+    contact.updateContact({
+      ...target.value,
       Message: {
         Error: {
           Title: 'MSG_UPDATE_CONTACT',
           Message: 'MSG_UPDATE_CONTACT_FAIL',
           Popup: true,
-          Type: NotificationType.Error
+          Type: NotifyType.Error
         }
       }
     }, () => {
-      // TODO
+      done()
     })
     return
   }
 
-  templates.createContact({
-    Info: target.value,
+  contact.createContact({
+    ...target.value,
     Message: {
       Error: {
         Title: 'MSG_CREATE_CONTACT',
         Message: 'MSG_CREATE_CONTACT_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {
-    // TODO
+    done()
   })
 }
 
