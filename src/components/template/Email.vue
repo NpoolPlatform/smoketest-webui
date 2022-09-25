@@ -46,7 +46,7 @@
       </q-card-section>
       <q-item class='row'>
         <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
-        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='updating ? updateEmailTemplate : createEmailTemplate' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -139,41 +139,6 @@ const onCreate = () => {
   updating.value = false
 }
 
-const onSubmit = (done: () =>void) => {
-  showing.value = false
-
-  if (updating.value) {
-    email.updateEmailTemplate({
-      ...target.value,
-      Message: {
-        Error: {
-          Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
-          Message: 'MSG_UPDATE_EMAIL_TEMPLATE_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      done()
-    })
-    return
-  }
-
-  email.createEmailTemplate({
-    ...target.value,
-    Message: {
-      Error: {
-        Title: 'MSG_CREATE_EMAIL_TEMPLATE',
-        Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, () => {
-    done()
-  })
-}
-
 const onCancel = () => {
   showing.value = false
   onMenuHide()
@@ -202,6 +167,44 @@ const getEmailTemplates = (offset: number, limit: number) => {
       emailLoading.value = false
     }
     getEmailTemplates(offset + limit, limit)
+  })
+}
+
+const updateEmailTemplate = (done: () => void) => {
+  email.updateEmailTemplate({
+    ...target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
+        Message: 'MSG_UPDATE_EMAIL_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: EmailTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
+  })
+}
+
+const createEmailTemplate = (done: () => void) => {
+  email.createEmailTemplate({
+    ...target.value,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_EMAIL_TEMPLATE',
+        Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: EmailTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
   })
 }
 </script>
