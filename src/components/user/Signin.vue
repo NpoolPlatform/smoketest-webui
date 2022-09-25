@@ -66,21 +66,17 @@
 <script setup lang='ts'>
 import { defineAsyncComponent, ref } from 'vue'
 import {
-  encryptPassword,
-  GoogleTokenType,
-  useCodeRepoStore,
-  NotificationType,
-  MessageUsedFor,
-  AccountType as OldAccountType,
-  validateVerificationCode
-} from 'npool-cli-v2'
-import {
   useFrontendUserStore,
   AccountType,
   NotifyType,
   useFrontendAppStore,
   useLocalUserStore,
-  User
+  User,
+  useFrontendVerifyStore,
+  UsedFor,
+  encryptPassword,
+  GoogleTokenType,
+  validateVerificationCode
 } from 'npool-cli-v4'
 import { useRouter } from 'vue-router'
 import { useReCaptcha } from 'vue-recaptcha-v3'
@@ -96,7 +92,7 @@ const account = ref('')
 const password = ref('')
 
 const user = useFrontendUserStore()
-const coderepo = useCodeRepoStore()
+const coderepo = useFrontendVerifyStore()
 const recaptcha = useReCaptcha()
 
 const router = useRouter()
@@ -156,7 +152,7 @@ const getRecaptcha = () => {
         Title: 'MSG_GET_GOOGLE_TOKEN',
         Message: 'MSG_GET_GOOGLE_TOKEN_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, (token: string) => {
@@ -172,7 +168,7 @@ const showVerifyDialog = ref(false)
 const verifyCode = ref('')
 
 const onSendCodeClick = () => {
-  coderepo.sendVerificationCode(account.value, AccountType.Email.toLowerCase() as OldAccountType, MessageUsedFor.Signin, account.value)
+  coderepo.sendVerificationCode(account.value, AccountType.Email, UsedFor.Signin, account.value)
 }
 
 const fuser = useFrontendUserStore()
