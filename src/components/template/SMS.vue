@@ -107,6 +107,7 @@ const getSMSTemplates = (offset: number, limit: number) => {
   }, (smsTemplates: Array<SMSTemplate>, error: boolean) => {
     if (error || smsTemplates.length < limit) {
       smsLoading.value = false
+      return
     }
     getSMSTemplates(offset + limit, limit)
   })

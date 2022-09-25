@@ -101,6 +101,7 @@ const getContacts = (offset: number, limit: number) => {
   }, (contacts: Array<Contact>, error: boolean) => {
     if (error || contacts.length < limit) {
       contactsLoading.value = false
+      return
     }
     getContacts(offset + limit, limit)
   })

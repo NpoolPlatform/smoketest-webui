@@ -165,6 +165,7 @@ const getEmailTemplates = (offset: number, limit: number) => {
   }, (emailTemplates: Array<EmailTemplate>, error: boolean) => {
     if (error || emailTemplates.length < limit) {
       emailLoading.value = false
+      return
     }
     getEmailTemplates(offset + limit, limit)
   })
