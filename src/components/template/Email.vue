@@ -88,7 +88,7 @@ const emails = computed(() => Array.from(appEmails.value).map((el) => {
     Body: el.Body
   } as MyEmailTemplate
 }))
-const emailLoading = ref(true)
+const emailLoading = ref(false)
 
 const showing = ref(false)
 const updating = ref(false)
