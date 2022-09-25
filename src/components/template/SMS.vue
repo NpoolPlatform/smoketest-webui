@@ -3,7 +3,7 @@
     dense
     flat
     :title='$t("MSG_SMS_TEMPLATES")'
-    :rows='smss'
+    :rows='smsTemplates'
     row-key='ID'
     :loading='smsLoading'
     :rows-per-page-options='[20]'
@@ -36,7 +36,7 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-select :options='MessageUsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-select :options='UsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
         <q-input v-model='target.Subject' :label='$t("MSG_SUBJECT")' />
         <q-input v-model='target.Message' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
@@ -49,29 +49,15 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useTemplateStore, SMSTemplate, Language, MessageUsedFors } from 'npool-cli-v2'
+import { Language } from 'npool-cli-v2'
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+import { useAdminSMSTemplateStore, SMSTemplate, NotifyType, UsedFors } from 'npool-cli-v4'
 
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 
-const templates = useTemplateStore()
-const smss = computed(() => templates.SMSTemplates)
+const sms = useAdminSMSTemplateStore()
+const smsTemplates = computed(() => sms.SMSTemplates.SMSTemplates)
 const smsLoading = ref(true)
-
-onMounted(() => {
-  templates.getSMSTemplates({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_SMS_TEMPLATES',
-        Message: 'MSG_GET_SMS_TEMPLATES_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    smsLoading.value = false
-  })
-})
 
 const showing = ref(false)
 const updating = ref(false)
@@ -97,16 +83,17 @@ const onCreate = () => {
 
 const onSubmit = () => {
   showing.value = false
+  target.value.LangID = language.value.ID
 
   if (updating.value) {
-    templates.updateSMSTemplate({
-      Info: target.value,
-      Message: {
+    sms.updateSMSTemplate({
+      ...target.value,
+      NotifyMessage: {
         Error: {
           Title: 'MSG_UPDATE_SMS_TEMPLATE',
           Message: 'MSG_UPDATE_SMS_TEMPLATE_FAIL',
           Popup: true,
-          Type: NotificationType.Error
+          Type: NotifyType.Error
         }
       }
     }, () => {
@@ -115,15 +102,14 @@ const onSubmit = () => {
     return
   }
 
-  templates.createSMSTemplate({
-    TargetLangID: language.value?.ID,
-    Info: target.value,
-    Message: {
+  sms.createSMSTemplate({
+    ...target.value,
+    NotifyMessage: {
       Error: {
         Title: 'MSG_CREATE_SMS_TEMPLATE',
         Message: 'MSG_CREATE_SMS_TEMPLATE_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {
@@ -136,4 +122,29 @@ const onCancel = () => {
   onMenuHide()
 }
 
+onMounted(() => {
+  if (sms.SMSTemplates.SMSTemplates.length === 0) {
+    getSMSTemplates(0, 500)
+  }
+})
+
+const getSMSTemplates = (offset: number, limit: number) => {
+  sms.getSMSTemplates({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_EMAIL_TEMPLATES',
+        Message: 'MSG_GET_EMAIL_TEMPLATES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (smsTemplates: Array<SMSTemplate>, error: boolean) => {
+    if (error || smsTemplates.length < limit) {
+      smsLoading.value = false
+    }
+    getSMSTemplates(offset + limit, limit)
+  })
+}
 </script>
