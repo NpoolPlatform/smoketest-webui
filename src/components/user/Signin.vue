@@ -171,11 +171,10 @@ const onSendCodeClick = () => {
   coderepo.sendVerificationCode(account.value, AccountType.Email, UsedFor.Signin, account.value)
 }
 
-const fuser = useFrontendUserStore()
 const logined = useLocalUserStore()
 
 const onVerifyClick = () => {
-  fuser.loginVerify({
+  user.loginVerify({
     Account: account.value,
     AccountType: AccountType.Email,
     UserID: logined.User?.ID,
