@@ -36,7 +36,7 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-select :options='UsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-select :options='UsedFors' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_USED_FOR")' />
         <q-input v-model='target.Subject' :label='$t("MSG_SUBJECT")' />
         <q-input v-model='target.Message' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>

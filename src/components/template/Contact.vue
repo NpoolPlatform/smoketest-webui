@@ -31,7 +31,7 @@
         <span>{{ $t('MSG_CREATE_CONTACT') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-select :options='UsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-select :options='UsedFors' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_USED_FOR")' />
         <q-select :options='SignMethodTypes' v-model='target.AccountType' :label='$t("MSG_CONTACT_TYPE")' />
         <q-input v-model='target.Account' :label='$t("MSG_ACCOUNT")' />
         <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
