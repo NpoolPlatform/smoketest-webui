@@ -58,7 +58,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 
 const sms = useAdminSMSTemplateStore()
 const smsTemplates = computed(() => sms.SMSTemplates.SMSTemplates)
-const smsLoading = ref(true)
+const smsLoading = ref(false)
 
 const showing = ref(false)
 const updating = ref(false)

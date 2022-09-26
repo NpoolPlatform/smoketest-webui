@@ -94,7 +94,7 @@ const showing = ref(false)
 const updating = ref(false)
 
 const target = ref({} as unknown as EmailTemplate)
-const replyTos = ref(target.value?.ReplyTos?.join(','))
+
 const myTarget = ref({} as unknown as MyEmailTemplate)
 watch(myTarget, () => {
   target.value = {
@@ -110,10 +110,12 @@ watch(myTarget, () => {
   } as EmailTemplate
 })
 
+const replyTos = computed(() => myTarget.value?.ReplyTos)
 watch(replyTos, () => {
   target.value.ReplyTos = replyTos.value?.split(',')
 })
-const ccTos = ref(target.value?.CCTos?.join(','))
+
+const ccTos = computed(() => myTarget.value?.CCTos)
 watch(replyTos, () => {
   target.value.CCTos = ccTos.value?.split(',')
 })
@@ -129,7 +131,7 @@ const onMenuHide = () => {
 }
 
 const onRowClick = (template: MyEmailTemplate) => {
-  myTarget.value = template
+  myTarget.value = { ...template }
   showing.value = true
   updating.value = true
 }

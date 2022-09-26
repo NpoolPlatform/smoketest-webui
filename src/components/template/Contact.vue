@@ -53,7 +53,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 
 const contact = useAdminContactStore()
 const contacts = computed(() => contact.Contacts.Contacts)
-const contactsLoading = ref(true)
+const contactsLoading = ref(false)
 
 const showing = ref(false)
 const updating = ref(false)
