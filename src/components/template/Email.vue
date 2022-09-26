@@ -36,13 +36,13 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
-        <q-select :options='UsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
-        <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
-        <q-input v-model='replyTos' :label='$t("MSG_REPLY_TOS_COMMA")' />
-        <q-input v-model='ccTos' :label='$t("MSG_CC_TOS_COMMA")' />
-        <q-input v-model='target.Subject' :label='$t("MSG_SUBJECT")' />
-        <q-input v-model='target.Body' :label='$t("MSG_BODY")' type='textarea' />
+        <q-input v-model='myTarget.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
+        <q-select :options='UsedFors' :disable='updating' v-model='myTarget.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-input v-model='myTarget.Sender' :label='$t("MSG_SENDER")' />
+        <q-input v-model='myTarget.ReplyTos' :label='$t("MSG_REPLY_TOS_COMMA")' />
+        <q-input v-model='myTarget.CCTos' :label='$t("MSG_CC_TOS_COMMA")' />
+        <q-input v-model='myTarget.Subject' :label='$t("MSG_SUBJECT")' />
+        <q-input v-model='myTarget.Body' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
         <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
@@ -56,7 +56,7 @@
 <script setup lang='ts'>
 import { Language } from 'npool-cli-v2'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
-import { useAdminEmailTemplateStore, EmailTemplate, UsedFors, NotifyType } from 'npool-cli-v4'
+import { useAdminEmailTemplateStore, EmailTemplate, UsedFors, NotifyType, UsedFor } from 'npool-cli-v4'
 
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
@@ -65,7 +65,7 @@ interface MyEmailTemplate {
   ID: string
   LangID: string
   DefaultToUsername: string
-  UsedFor: string
+  UsedFor: UsedFor
   Sender: string
   ReplyTos: string
   CCTos: string
@@ -93,41 +93,16 @@ const emailLoading = ref(false)
 const showing = ref(false)
 const updating = ref(false)
 
-const target = ref({} as unknown as EmailTemplate)
-
 const myTarget = ref({} as unknown as MyEmailTemplate)
-watch(myTarget, () => {
-  target.value = {
-    ID: myTarget.value.ID,
-    LangID: myTarget.value.LangID,
-    DefaultToUsername: myTarget.value.DefaultToUsername,
-    UsedFor: myTarget.value.UsedFor,
-    Sender: myTarget.value.Sender,
-    ReplyTos: myTarget.value.ReplyTos?.split(','),
-    CCTos: myTarget.value.CCTos?.split(','),
-    Subject: myTarget.value.Subject,
-    Body: myTarget.value.Body
-  } as EmailTemplate
-})
-
-const replyTos = computed(() => myTarget.value?.ReplyTos)
-watch(replyTos, () => {
-  target.value.ReplyTos = replyTos.value?.split(',')
-})
-
-const ccTos = computed(() => myTarget.value?.CCTos)
-watch(replyTos, () => {
-  target.value.CCTos = ccTos.value?.split(',')
-})
 
 const language = ref(undefined as unknown as Language)
 watch(language, () => {
-  target.value.LangID = language.value?.ID
+  myTarget.value.LangID = language.value?.ID
 })
 
 const onMenuHide = () => {
   language.value = undefined as unknown as Language
-  target.value = {} as unknown as EmailTemplate
+  myTarget.value = {} as unknown as MyEmailTemplate
 }
 
 const onRowClick = (template: MyEmailTemplate) => {
@@ -145,6 +120,7 @@ const onCancel = () => {
   showing.value = false
   onMenuHide()
 }
+
 const onSubmit = (done: () => void) => {
   updating.value ? updateEmailTemplate(done) : createEmailTemplate(done)
 }
@@ -178,7 +154,13 @@ const getEmailTemplates = (offset: number, limit: number) => {
 
 const updateEmailTemplate = (done: () => void) => {
   email.updateEmailTemplate({
-    ...target.value,
+    ID: myTarget.value.ID,
+    Sender: myTarget.value.Sender,
+    ReplyTos: myTarget.value?.ReplyTos?.split(','),
+    CCTos: myTarget.value?.CCTos?.split(','),
+    Subject: myTarget.value?.Subject,
+    Body: myTarget.value?.Body,
+    DefaultToUsername: myTarget.value?.DefaultToUsername,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
@@ -197,7 +179,14 @@ const updateEmailTemplate = (done: () => void) => {
 
 const createEmailTemplate = (done: () => void) => {
   email.createEmailTemplate({
-    ...target.value,
+    UsedFor: myTarget.value.UsedFor,
+    LangID: myTarget.value.LangID,
+    Sender: myTarget.value.Sender,
+    ReplyTos: myTarget.value?.ReplyTos?.split(','),
+    CCTos: myTarget.value?.CCTos?.split(','),
+    Subject: myTarget.value?.Subject,
+    Body: myTarget.value?.Body,
+    DefaultToUsername: myTarget.value?.DefaultToUsername,
     Message: {
       Error: {
         Title: 'MSG_CREATE_EMAIL_TEMPLATE',
