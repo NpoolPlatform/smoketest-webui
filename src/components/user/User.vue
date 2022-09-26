@@ -42,8 +42,7 @@
 
 <script setup lang='ts'>
 import saveAs from 'file-saver'
-import { NotificationType, useApplicationStore } from 'npool-cli-v2'
-import { NotifyType, useAdminUserStore, User, formatTime } from 'npool-cli-v4'
+import { NotifyType, useAdminUserStore, User, formatTime, useFrontendAppStore } from 'npool-cli-v4'
 import { AppID } from 'src/const/const'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -123,7 +122,7 @@ const onExport = () => {
     str += valueArray.join(',') + '\n'
   })
   const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-Users-' + formatTime(new Date().getTime() / 1000) + '.csv'
+  const filename = app.App.Name + '-Users-' + formatTime(new Date().getTime() / 1000) + '.csv'
   saveAs(blob, filename)
 }
 
@@ -133,7 +132,7 @@ onMounted(() => {
     userLoading.value = true
     getUsers(0, 500)
   }
-  if (application.Application === undefined) {
+  if (app.App === undefined) {
     getApplication()
   }
 })
@@ -158,16 +157,16 @@ const getUsers = (offset: number, limit: number) => {
   })
 }
 
-const application = useApplicationStore()
+const app = useFrontendAppStore()
 const getApplication = () => {
-  application.getApplication({
-    ID: AppID,
+  app.getApp({
+    AppID: AppID,
     Message: {
       Error: {
         Title: 'MSG_GET_APP',
         Message: 'MSG_GET_APP_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {

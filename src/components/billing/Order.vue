@@ -98,12 +98,9 @@
 
 <script setup lang='ts'>
 import {
-  formatTime,
-  NotificationType,
-  PriceCoinName,
-  useApplicationStore
+  PriceCoinName
 } from 'npool-cli-v2'
-import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderTypes } from 'npool-cli-v4'
+import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderTypes, useFrontendAppStore, formatTime } from 'npool-cli-v4'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
@@ -173,15 +170,15 @@ onMounted(() => {
     orderLoading.value = true
     getAppOrders(0, 500)
   }
-  if (application.Application === undefined) {
-    application.getApplication({
-      ID: AppID,
+  if (app.App === undefined) {
+    app.getApp({
+      AppID: AppID,
       Message: {
         Error: {
           Title: 'MSG_GET_APP',
           Message: 'MSG_GET_APP_FAIL',
           Popup: true,
-          Type: NotificationType.Error
+          Type: NotifyType.Error
         }
       }
     }, () => {
@@ -189,7 +186,7 @@ onMounted(() => {
     })
   }
 })
-const application = useApplicationStore()
+const app = useFrontendAppStore()
 const onExport = () => {
   let orderStr = ''
   let createdAtCol = 0
@@ -226,7 +223,7 @@ const onExport = () => {
   })
 
   const blob = new Blob([orderStr], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-Orders-' +
+  const filename = app.App.Name + '-Orders-' +
                    formatTime(new Date().getTime() / 1000) +
                    '.csv'
   saveAs(blob, filename)

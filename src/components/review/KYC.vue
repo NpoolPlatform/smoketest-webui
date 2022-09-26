@@ -83,12 +83,9 @@
 <script setup lang='ts'>
 import saveAs from 'file-saver'
 import {
-  NotificationType,
-  useApplicationStore,
   useLocaleStore
 } from 'npool-cli-v2'
 import {
-  NotifyType,
   ImageType,
   DocumentType,
   KYCReview,
@@ -96,7 +93,9 @@ import {
   useAdminUserStore,
   useAdminKycStore,
   KYCReviewState,
-  formatTime
+  formatTime,
+  useFrontendAppStore,
+  NotifyType
 } from 'npool-cli-v4'
 import { AppID } from 'src/const/const'
 import { computed, onMounted, ref } from 'vue'
@@ -322,7 +321,7 @@ const onExport = () => {
     str += Object.values(valueArray).join(',') + '\n'
   })
   const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-Kycs-' + formatTime(new Date().getTime() / 1000) + '.csv'
+  const filename = app.App.Name + '-Kycs-' + formatTime(new Date().getTime() / 1000) + '.csv'
   saveAs(blob, filename)
 }
 
@@ -334,7 +333,7 @@ onMounted(() => {
   if (user.Users.Users.length === 0) {
     getUsers(0, 500)
   }
-  if (application.Application === undefined) {
+  if (app.App === undefined) {
     getApplication()
   }
 })
@@ -378,16 +377,16 @@ const getKycReviews = (offset: number, limit: number) => {
     getKycReviews(offset + limit, limit)
   })
 }
-const application = useApplicationStore()
+const app = useFrontendAppStore()
 const getApplication = () => {
-  application.getApplication({
-    ID: AppID,
+  app.getApp({
+    AppID: AppID,
     Message: {
       Error: {
         Title: 'MSG_GET_APP',
         Message: 'MSG_GET_APP_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {
