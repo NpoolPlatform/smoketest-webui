@@ -101,7 +101,6 @@ const onRowClick = (template: MyEmailTemplate) => {
   myTarget.value = { ...template }
   showing.value = true
   updating.value = true
-  console.log('updating: ', updating)
 }
 
 const onCreate = () => {
