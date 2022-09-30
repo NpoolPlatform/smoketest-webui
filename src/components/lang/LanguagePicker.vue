@@ -1,5 +1,6 @@
 <template>
   <q-select
+    :disable='!updating ? false : true'
     v-model='lang'
     :options='languages'
     options-selected-class='text-deep-orange'
@@ -25,9 +26,13 @@ import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {
   language: string
+  updating?: boolean
 }
+
 const props = defineProps<Props>()
 const language = toRef(props, 'language')
+const updating = toRef(props, 'updating')
+
 const lang = ref(language.value)
 
 const locale = useLocaleStore()
