@@ -46,7 +46,7 @@ const onUpdate = () => {
 
 onMounted(() => {
   if (!language.value) {
-    lang.value = languages.value.length > 0 ? languages.value[0].value : ''
+    lang.value = locale.CurLang?.ID as string
     emit('update:language', lang.value)
   }
 })
