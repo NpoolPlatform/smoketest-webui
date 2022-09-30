@@ -31,9 +31,7 @@
         <span>{{ $t('MSG_CREATE_SMS_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
-        <div class='dark-bg'>
-          <LangSwitcher v-model:language='language' />
-        </div>
+        <LanguagePicker v-model:language='target.LangID' />
       </q-card-section>
       <q-card-section>
         <q-select :options='UsedFors' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_USED_FOR")' />
@@ -49,12 +47,11 @@
 </template>
 
 <script setup lang='ts'>
-import { Language } from 'npool-cli-v2'
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useAdminSMSTemplateStore, SMSTemplate, NotifyType, UsedFors } from 'npool-cli-v4'
 
-const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const LanguagePicker = defineAsyncComponent(() => import('src/components/lang/LanguagePicker.vue'))
 
 const sms = useAdminSMSTemplateStore()
 const smsTemplates = computed(() => sms.SMSTemplates.SMSTemplates)
@@ -63,16 +60,14 @@ const smsLoading = ref(false)
 const showing = ref(false)
 const updating = ref(false)
 
-const target = ref({} as unknown as SMSTemplate)
-const language = ref(undefined as unknown as Language)
+const target = ref({} as SMSTemplate)
 
 const onMenuHide = () => {
-  language.value = undefined as unknown as Language
   target.value = {} as unknown as SMSTemplate
 }
 
 const onRowClick = (template: SMSTemplate) => {
-  target.value = template
+  target.value = { ...template }
   showing.value = true
   updating.value = true
 }
@@ -118,9 +113,11 @@ const getSMSTemplates = (offset: number, limit: number) => {
 }
 
 const createSMSTemplate = (done: () => void) => {
-  target.value.LangID = language.value.ID
   sms.createSMSTemplate({
-    ...target.value,
+    TargetLangID: target.value.LangID,
+    UsedFor: target.value.UsedFor,
+    Subject: target.value.Subject,
+    Message: target.value.Message,
     NotifyMessage: {
       Error: {
         Title: 'MSG_CREATE_SMS_TEMPLATE',
@@ -138,7 +135,10 @@ const createSMSTemplate = (done: () => void) => {
 }
 const updateSMSTemplate = (done: () => void) => {
   sms.updateSMSTemplate({
-    ...target.value,
+    TargetLangID: target.value.LangID,
+    ID: target.value.ID,
+    Subject: target.value.Subject,
+    Message: target.value.Message,
     NotifyMessage: {
       Error: {
         Title: 'MSG_UPDATE_SMS_TEMPLATE',
