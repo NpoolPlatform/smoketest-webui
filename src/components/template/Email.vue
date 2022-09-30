@@ -31,9 +31,7 @@
         <span>{{ $t('MSG_CREATE_EMAIL_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
-        <div class='dark-bg'>
-          <LangSwitcher v-model:language='language' />
-        </div>
+        <LanguagePicker v-model:language='myTarget.LangID' :updating='updating' />
       </q-card-section>
       <q-card-section>
         <q-input v-model='myTarget.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
@@ -54,12 +52,11 @@
 </template>
 
 <script setup lang='ts'>
-import { Language } from 'npool-cli-v2'
-import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useAdminEmailTemplateStore, EmailTemplate, UsedFors, NotifyType, UsedFor } from 'npool-cli-v4'
 
-const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const LanguagePicker = defineAsyncComponent(() => import('src/components/lang/LanguagePicker.vue'))
 
 interface MyEmailTemplate {
   ID: string
@@ -93,22 +90,18 @@ const emailLoading = ref(false)
 const showing = ref(false)
 const updating = ref(false)
 
-const myTarget = ref({} as unknown as MyEmailTemplate)
-
-const language = ref(undefined as unknown as Language)
-watch(language, () => {
-  myTarget.value.LangID = language.value?.ID
-})
+const myTarget = ref({} as MyEmailTemplate)
 
 const onMenuHide = () => {
-  language.value = undefined as unknown as Language
-  myTarget.value = {} as unknown as MyEmailTemplate
+  showing.value = false
+  myTarget.value = {} as MyEmailTemplate
 }
 
 const onRowClick = (template: MyEmailTemplate) => {
   myTarget.value = { ...template }
   showing.value = true
   updating.value = true
+  console.log('updating: ', updating)
 }
 
 const onCreate = () => {
@@ -117,7 +110,6 @@ const onCreate = () => {
 }
 
 const onCancel = () => {
-  showing.value = false
   onMenuHide()
 }
 
@@ -154,6 +146,7 @@ const getEmailTemplates = (offset: number, limit: number) => {
 
 const updateEmailTemplate = (done: () => void) => {
   email.updateEmailTemplate({
+    TargetLangID: myTarget.value.LangID,
     ID: myTarget.value.ID,
     Sender: myTarget.value.Sender,
     ReplyTos: myTarget.value?.ReplyTos?.split(','),
@@ -179,8 +172,8 @@ const updateEmailTemplate = (done: () => void) => {
 
 const createEmailTemplate = (done: () => void) => {
   email.createEmailTemplate({
+    TargetLangID: myTarget.value.LangID,
     UsedFor: myTarget.value.UsedFor,
-    LangID: myTarget.value.LangID,
     Sender: myTarget.value.Sender,
     ReplyTos: myTarget.value?.ReplyTos?.split(','),
     CCTos: myTarget.value?.CCTos?.split(','),

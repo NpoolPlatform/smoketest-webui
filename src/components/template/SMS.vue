@@ -31,7 +31,7 @@
         <span>{{ $t('MSG_CREATE_SMS_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
-        <LanguagePicker v-model:language='target.LangID' />
+        <LanguagePicker v-model:language='target.LangID' :updating='updating' />
       </q-card-section>
       <q-card-section>
         <q-select :options='UsedFors' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_USED_FOR")' />
