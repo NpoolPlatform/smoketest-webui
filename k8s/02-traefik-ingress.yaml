@@ -4,7 +4,6 @@ metadata:
   name: app-dashboard-v3-treafik-ingress
   namespace: kube-system
   annotations:
-    cert-manager.io/cluster-issuer: alidns-npool-letsencrypt-issuer
     k8s.kuboard.cn/displayName: app-dashboard-v3-treafik
     k8s.kuboard.cn/workload: app-dashboard-v3-treafik
     kubernetes.io/ingress.class: "traefik-internet"
