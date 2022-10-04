@@ -247,6 +247,7 @@ pipeline {
         sh(returnStdout: false, script: '''
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
         '''.stripIndent())
         sh 'sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml'
 
@@ -271,6 +272,7 @@ pipeline {
           sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
 
           sed -i "s/app-dashboard-v3:latest/app-dashboard-v3:$tag/g" k8s/01-app-dashboard-v3.yaml
@@ -302,6 +304,7 @@ pipeline {
           sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
 
           sed -i "s/app-dashboard-v3:latest/app-dashboard-v3:$tag/g" k8s/01-app-dashboard-v3.yaml
