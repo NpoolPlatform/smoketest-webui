@@ -124,10 +124,10 @@ import {
   Message,
   NotificationType,
   useAdminLangStore,
-  useApplicationStore,
   useLangStore,
   useLocaleStore
 } from 'npool-cli-v2'
+import { useFrontendAppStore, NotifyType } from 'npool-cli-v4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
@@ -135,7 +135,7 @@ import { AppID } from 'src/const/const'
 const lang = useLangStore()
 const adminLang = useAdminLangStore()
 const locale = useLocaleStore()
-const application = useApplicationStore()
+const app = useFrontendAppStore()
 
 const langLoading = ref(true)
 const messageLoading = ref(false)
@@ -183,14 +183,14 @@ const updating = ref(false)
 const target = ref({} as unknown as Message)
 
 onMounted(() => {
-  application.getApplication({
-    ID: AppID,
+  app.getApp({
+    AppID: AppID,
     Message: {
       Error: {
         Title: 'MSG_GET_APP',
         Message: 'MSG_GET_APP_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
   }, () => {
@@ -239,7 +239,7 @@ const onExport = () => {
     Language: language.value,
     Messages: messages.value
   })], { type: 'text/plain;charset=utf-8' })
-  const filename = application.Application.App.Name + '-' +
+  const filename = app.App.Name + '-' +
                    language.value.Name + '-' +
                    formatTime(new Date().getTime() / 1000) +
                    '.json'

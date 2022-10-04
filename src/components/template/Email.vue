@@ -31,21 +31,20 @@
         <span>{{ $t('MSG_CREATE_EMAIL_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
-        <div class='dark-bg'>
-          <LangSwitcher v-model:language='language' />
-        </div>
+        <LanguagePicker v-model:language='myTarget.LangID' :updating='updating' />
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
-        <q-select :options='MessageUsedFors' v-model='target.UsedFor' :label='$t("MSG_USED_FOR")' />
-        <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
-        <q-input v-model='replyTos' :label='$t("MSG_REPLY_TOS_COMMA")' />
-        <q-input v-model='ccTos' :label='$t("MSG_CC_TOS_COMMA")' />
-        <q-input v-model='target.Subject' :label='$t("MSG_SUBJECT")' />
-        <q-input v-model='target.Body' :label='$t("MSG_BODY")' type='textarea' />
+        <q-input v-model='myTarget.DefaultToUsername' :label='$t("MSG_DEFAULT_TO_USERNAME")' />
+        <q-select :options='UsedFors' :disable='updating' v-model='myTarget.UsedFor' :label='$t("MSG_USED_FOR")' />
+        <q-input v-model='myTarget.Sender' :label='$t("MSG_SENDER")' />
+        <q-input v-model='myTarget.ReplyTos' :label='$t("MSG_REPLY_TOS_COMMA")' />
+        <q-input v-model='myTarget.CCTos' :label='$t("MSG_CC_TOS_COMMA")' />
+        <q-input v-model='myTarget.Subject' :label='$t("MSG_SUBJECT")' />
+        <q-input v-model='myTarget.Body' :label='$t("MSG_BODY")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <!-- <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' /> -->
+        <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -53,16 +52,17 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useTemplateStore, EmailTemplate, Language, MessageUsedFors } from 'npool-cli-v2'
-import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+import { useAdminEmailTemplateStore, EmailTemplate, UsedFors, NotifyType, UsedFor } from 'npool-cli-v4'
 
-const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const LanguagePicker = defineAsyncComponent(() => import('src/components/lang/LanguagePicker.vue'))
 
 interface MyEmailTemplate {
   ID: string
   LangID: string
   DefaultToUsername: string
-  UsedFor: string
+  UsedFor: UsedFor
   Sender: string
   ReplyTos: string
   CCTos: string
@@ -70,8 +70,8 @@ interface MyEmailTemplate {
   Body: string
 }
 
-const templates = useTemplateStore()
-const appEmails = computed(() => templates.EmailTemplates)
+const email = useAdminEmailTemplateStore()
+const appEmails = computed(() => email.EmailTemplates.EmailTemplates)
 const emails = computed(() => Array.from(appEmails.value).map((el) => {
   return {
     ID: el.ID,
@@ -85,63 +85,20 @@ const emails = computed(() => Array.from(appEmails.value).map((el) => {
     Body: el.Body
   } as MyEmailTemplate
 }))
-const emailLoading = ref(true)
-
-onMounted(() => {
-  templates.getEmailTemplates({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_EMAIL_TEMPLATES',
-        Message: 'MSG_GET_EMAIL_TEMPLATES_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    emailLoading.value = false
-  })
-})
+const emailLoading = ref(false)
 
 const showing = ref(false)
 const updating = ref(false)
 
-const target = ref({} as unknown as EmailTemplate)
-const replyTos = ref(target.value?.ReplyTos?.join(','))
-const myTarget = ref({} as unknown as MyEmailTemplate)
-watch(myTarget, () => {
-  target.value = {
-    ID: myTarget.value.ID,
-    LangID: myTarget.value.LangID,
-    DefaultToUsername: myTarget.value.DefaultToUsername,
-    UsedFor: myTarget.value.UsedFor,
-    Sender: myTarget.value.Sender,
-    ReplyTos: myTarget.value.ReplyTos?.split(','),
-    CCTos: myTarget.value.CCTos?.split(','),
-    Subject: myTarget.value.Subject,
-    Body: myTarget.value.Body
-  } as EmailTemplate
-})
-
-watch(replyTos, () => {
-  target.value.ReplyTos = replyTos.value?.split(',')
-})
-const ccTos = ref(target.value?.CCTos?.join(','))
-watch(replyTos, () => {
-  target.value.CCTos = ccTos.value?.split(',')
-})
-
-const language = ref(undefined as unknown as Language)
-watch(language, () => {
-  target.value.LangID = language.value?.ID
-})
+const myTarget = ref({} as MyEmailTemplate)
 
 const onMenuHide = () => {
-  language.value = undefined as unknown as Language
-  target.value = {} as unknown as EmailTemplate
+  showing.value = false
+  myTarget.value = {} as MyEmailTemplate
 }
 
 const onRowClick = (template: MyEmailTemplate) => {
-  myTarget.value = template
+  myTarget.value = { ...template }
   showing.value = true
   updating.value = true
 }
@@ -151,45 +108,90 @@ const onCreate = () => {
   updating.value = false
 }
 
-const onSubmit = () => {
-  showing.value = false
+const onCancel = () => {
+  onMenuHide()
+}
 
-  if (updating.value) {
-    templates.updateEmailTemplate({
-      Info: target.value,
-      Message: {
-        Error: {
-          Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
-          Message: 'MSG_UPDATE_EMAIL_TEMPLATE_FAIL',
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
+const onSubmit = (done: () => void) => {
+  updating.value ? updateEmailTemplate(done) : createEmailTemplate(done)
+}
+
+onMounted(() => {
+  if (email.EmailTemplates.EmailTemplates.length === 0) {
+    getEmailTemplates(0, 500)
   }
+})
 
-  templates.createEmailTemplate({
-    TargetLangID: language.value?.ID,
-    Info: target.value,
+const getEmailTemplates = (offset: number, limit: number) => {
+  email.getEmailTemplates({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_EMAIL_TEMPLATES',
+        Message: 'MSG_GET_EMAIL_TEMPLATES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (emailTemplates: Array<EmailTemplate>, error: boolean) => {
+    if (error || emailTemplates.length < limit) {
+      emailLoading.value = false
+      return
+    }
+    getEmailTemplates(offset + limit, limit)
+  })
+}
+
+const updateEmailTemplate = (done: () => void) => {
+  email.updateEmailTemplate({
+    TargetLangID: myTarget.value.LangID,
+    ID: myTarget.value.ID,
+    Sender: myTarget.value.Sender,
+    ReplyTos: myTarget.value?.ReplyTos?.split(','),
+    CCTos: myTarget.value?.CCTos?.split(','),
+    Subject: myTarget.value?.Subject,
+    Body: myTarget.value?.Body,
+    DefaultToUsername: myTarget.value?.DefaultToUsername,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_EMAIL_TEMPLATE',
+        Message: 'MSG_UPDATE_EMAIL_TEMPLATE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (template: EmailTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
+  })
+}
+
+const createEmailTemplate = (done: () => void) => {
+  email.createEmailTemplate({
+    TargetLangID: myTarget.value.LangID,
+    UsedFor: myTarget.value.UsedFor,
+    Sender: myTarget.value.Sender,
+    ReplyTos: myTarget.value?.ReplyTos?.split(','),
+    CCTos: myTarget.value?.CCTos?.split(','),
+    Subject: myTarget.value?.Subject,
+    Body: myTarget.value?.Body,
+    DefaultToUsername: myTarget.value?.DefaultToUsername,
     Message: {
       Error: {
         Title: 'MSG_CREATE_EMAIL_TEMPLATE',
         Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (template: EmailTemplate, error: boolean) => {
+    done()
+    if (!error) {
+      onCancel()
+    }
   })
 }
-
-const onCancel = () => {
-  showing.value = false
-  onMenuHide()
-}
-
 </script>
