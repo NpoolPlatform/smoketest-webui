@@ -70,24 +70,27 @@ const logined = useLocalUserStore()
 
 const reviews = computed(() => review.WithdrawAddressReviews.WithdrawAddressReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawAddressReviews.WithdrawAddressReviews).map((el) => el.Review))
-const reviewLoading = ref(true)
+const reviewLoading = ref(false)
 
 const displayCoins = computed(() => coins.Coins)
 const coinLoading = ref(true)
 
 onMounted(() => {
-  review.getWithdrawAddressReviews({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS'),
-        Message: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS_FAIL'),
-        Popup: true,
-        Type: NotifyType.Error
+  if (reviews.value.length === 0) {
+    reviewLoading.value = true
+    review.getWithdrawAddressReviews({
+      Message: {
+        Error: {
+          Title: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS'),
+          Message: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS_FAIL'),
+          Popup: true,
+          Type: NotifyType.Error
+        }
       }
-    }
-  }, () => {
-    reviewLoading.value = false
-  })
+    }, () => {
+      reviewLoading.value = false
+    })
+  }
 
   coins.getCoins({
     Message: {
@@ -104,7 +107,7 @@ onMounted(() => {
 })
 
 const showing = ref(false)
-const target = ref({} as unknown as WithdrawAddressReview)
+const target = ref({} as WithdrawAddressReview)
 const coin = computed(() => coins.getCoinByID(target.value.Address?.CoinTypeID))
 
 const onMenuHide = () => {
@@ -112,7 +115,7 @@ const onMenuHide = () => {
 }
 
 const onRowClick = (index: number) => {
-  target.value = reviews.value[index]
+  target.value = JSON.parse(JSON.stringify(reviews.value[index])) as WithdrawAddressReview
   showing.value = true
 }
 
