@@ -15,7 +15,7 @@ if (window.location.host.includes('.procyon.npool.top')) {
 if (window.location.host.includes('.ohhash.npool.top')) {
   AppID = 'ab7895dd-c4d1-48bd-be77-c0f255556a36'
 }
-if (window.location.host.includes('.lpsecretbase.npool.top')) {
+if (window.location.host.includes('.lpsb.npool.top')) {
   AppID = '9141b71a-ff6e-4229-8cf5-cc71459e9803'
 }
 
