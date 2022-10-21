@@ -57,7 +57,7 @@
 
 <script setup lang='ts'>
 import { NotificationType, useCoinStore } from 'npool-cli-v2'
-import { NotifyType, useAdminWithdrawAddressReviewStore, useLocalUserStore, WithdrawAddressReview, formatTime, ReviewState } from 'npool-cli-v4'
+import { NotifyType, useAdminWithdrawAddressReviewStore, useLocalUserStore, WithdrawAddressReview, formatTime, WithdrawAddressReviewState } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -139,14 +139,14 @@ const updateReview = () => {
 
 const onApprove = () => {
   showing.value = false
-  target.value.Review.State = ReviewState.Approved
+  target.value.Review.State = WithdrawAddressReviewState.Approved
   updateReview()
   onMenuHide()
 }
 
 const onReject = () => {
   showing.value = false
-  target.value.Review.State = ReviewState.Rejected
+  target.value.Review.State = WithdrawAddressReviewState.Rejected
   updateReview()
   onMenuHide()
 }
