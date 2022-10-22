@@ -86,8 +86,8 @@ const review = useWithdrawReviewStore()
 
 const getWithdrawReviews = (offset: number, limit: number) => {
   review.getWithdrawReviews({
-    offset: offset,
-    limit: limit,
+    Offset: offset,
+    Limit: limit,
     NotificationMessage: {
       Error: {
         Title: t('MSG_GET_WITHDRAW_REVIEWS'),

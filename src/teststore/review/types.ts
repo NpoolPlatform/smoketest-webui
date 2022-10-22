@@ -44,8 +44,8 @@ interface UpdateReviewRequest extends BaseRequest{
 }
 
 interface GetWithdrawReviewsRequest extends BaseRequest{
-  offset: number;
-  limit: number;
+  Offset: number;
+  Limit: number;
 }
 interface GetWithdrawReviewsResponse {
   Infos: Array<WithdrawReview>;
