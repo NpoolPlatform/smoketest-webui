@@ -91,7 +91,7 @@ const updating = ref(false)
 const onCreate = () => {
   updating.value = false
   showing.value = true
-  target.value.GoodID = selectedGood.value[0]?.ID
+  target.value.GoodID = selectedGood.value[0]?.GoodID
 }
 
 const onRowClick = (row: Promotion) => {
