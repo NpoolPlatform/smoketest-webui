@@ -2,10 +2,9 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_GOODS")'
-    :rows='goods'
+    :title='$t("MSG_APP_GOODS")'
+    :rows='appGoods'
     row-key='ID'
-    :loading='goodLoading'
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedGood'
@@ -16,7 +15,6 @@
     :title='$t("MSG_APP_GOOD_PROMOTIONS")'
     :rows='promotions'
     row-key='ID'
-    :loading='promotionLoading'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as Promotion)'
   >
@@ -27,6 +25,7 @@
           flat
           class='btn flat'
           :label='$t("MSG_CREATE")'
+          :disable='selectedGood.length === 0'
           @click='onCreate'
         />
       </div>
@@ -42,16 +41,16 @@
         <span>{{ $t('MSG_CREATE_PROMOTION') }}</span>
       </q-card-section>
       <q-card-section>
-        <span>{{ selectedGood[0]?.Title }}</span>
+        <span>{{ updating? target.GoodName : selectedGood[0]?.GoodName }}</span>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
         <q-input type='number' v-model='target.Price' :label='$t("MSG_PRICE")' />
-        <q-input type='date' v-model='start' :label='$t("MSG_START")' />
-        <q-input type='date' v-model='end' :label='$t("MSG_END")' />
+        <DatePicker v-model:date='target.StartAt' :label='$t("MSG_START_AT")' />
+        <DatePicker v-model:date='target.EndAt' :label='$t("MSG_END_AT")' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -64,125 +63,154 @@
 </template>
 
 <script setup lang='ts'>
-import { buildGoods, NotificationType, useAdminGoodStore, useGoodStore, Promotion, GoodBase } from 'npool-cli-v2'
-import { computed, onMounted, ref, watch } from 'vue'
+import { NotifyType } from 'npool-cli-v4'
+import { useAdminAppGoodStore } from 'src/teststore/good/appgood'
+import { AppGood } from 'src/teststore/good/appgood/types'
+import { useAdminPromotionStore } from 'src/teststore/good/promotion'
+import { Promotion } from 'src/teststore/good/promotion/types'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const good = useGoodStore()
-const adminGood = useAdminGoodStore()
-const goods = computed(() => buildGoods(good.Goods))
-const goodLoading = ref(true)
+const DatePicker = defineAsyncComponent(() => import('src/components/date/DatePicker.vue'))
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
-const promotions = computed(() => good.Promotions)
-const promotionLoading = ref(true)
-const selectedGood = ref([] as Array<GoodBase>)
+const appGood = useAdminAppGoodStore()
+const appGoods = computed(() => appGood.AppGoods.AppGoods)
+const selectedGood = ref([] as Array<AppGood>)
 
-const target = ref({} as unknown as Promotion)
+const promotion = useAdminPromotionStore()
+const promotions = computed(() => promotion?.Promotions.Promotions)
 
-const selectedGoodID = computed(() => selectedGood.value[0]?.ID)
-watch(selectedGoodID, () => {
-  target.value.GoodID = selectedGoodID.value as string
-})
-const start = ref('')
-watch(start, () => {
-  target.value.Start = new Date(start.value).getTime() / 1000
-})
-const end = ref('')
-watch(end, () => {
-  target.value.End = new Date(end.value).getTime() / 1000
-})
-
-onMounted(() => {
-  good.getGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOODS'),
-        Message: t('MSG_GET_GOODS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    goodLoading.value = false
-  })
-
-  good.getPromotions({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOODS'),
-        Message: t('MSG_GET_GOODS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    promotionLoading.value = false
-  })
-})
+const target = ref({} as Promotion)
 
 const showing = ref(false)
 const updating = ref(false)
 
 const onCreate = () => {
-  if (selectedGood.value.length === 0) {
-    return
-  }
-
   updating.value = false
   showing.value = true
+  target.value.GoodID = selectedGood.value[0]?.ID
 }
 
-const onRowClick = (promotion: Promotion) => {
+const onRowClick = (row: Promotion) => {
   updating.value = true
   showing.value = true
-  target.value = promotion
-  selectedGood.value = [good.getGoodByID(promotion.GoodID).Good.Good]
-}
-
-const onSubmit = () => {
-  showing.value = false
-
-  if (updating.value) {
-    adminGood.updatePromotion({
-      Info: target.value,
-      Message: {
-        Error: {
-          Title: t('MSG_UPDATE_PROMOTIONS'),
-          Message: t('MSG_UPDATE_PROMOTIONS_FAIL'),
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
-  }
-
-  adminGood.createPromotion({
-    Info: target.value,
-    Message: {
-      Error: {
-        Title: t('MSG_UPDATE_PROMOTIONS'),
-        Message: t('MSG_UPDATE_PROMOTIONS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  target.value = { ...row }
 }
 
 const onCancel = () => {
-  showing.value = false
+  onMenuHide()
 }
 
 const onMenuHide = () => {
-  target.value = {} as unknown as Promotion
+  showing.value = false
+  target.value = {} as Promotion
 }
 
+const onSubmit = (done: () => void) => {
+  updating.value ? updateAppPromotion(done) : createAppPromotion(done)
+}
+
+const createAppPromotion = (done: () => void) => {
+  promotion.createPromotion({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: t('MSG_CREATE_PROMOTION'),
+        Message: t('MSG_CREATE_PROMOTION_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_CREATE_PROMOTION'),
+        Message: t('MSG_CREATE_PROMOTION_SUCCESS'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (g: Promotion, error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const updateAppPromotion = (done: () => void) => {
+  promotion.updatePromotion({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: t('MSG_UPDATE_PROMOTION'),
+        Message: t('MSG_UPDATE_PROMOTION_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_UPDATE_PROMOTION'),
+        Message: t('MSG_UPDATE_PROMOTION_SUCCESS'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (g: Promotion, error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+onMounted(() => {
+  if (promotions.value.length === 0) {
+    getPromotions(0, 500)
+  }
+  if (appGoods.value.length === 0) {
+    getAppGoods(0, 500)
+  }
+})
+
+const getPromotions = (offset: number, limit: number) => {
+  promotion.getPromotions({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_GOOD_PROMOTIONS'),
+        Message: t('MSG_GET_GOOD_PROMOTIONS_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (goods: Array<Promotion>, error: boolean) => {
+    if (error || goods.length < limit) {
+      return
+    }
+    getPromotions(offset + limit, limit)
+  })
+}
+
+const getAppGoods = (offset: number, limit: number) => {
+  appGood.getAppGoods({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP_GOODS',
+        Message: 'MSG_GET_APP_GOODS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (goods: Array<AppGood>, error: boolean) => {
+    if (error || goods.length < limit) {
+      return
+    }
+    getAppGoods(offset + limit, limit)
+  })
+}
 </script>

@@ -2,21 +2,20 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_GOODS")'
-    :rows='goods'
+    :title='$t("MSG_APP_GOODS")'
+    :rows='appGoods'
     row-key='ID'
-    :loading='goodLoading'
     :rows-per-page-options='[10]'
     selection='single'
     v-model:selected='selectedGood'
   />
+
   <q-table
     dense
     flat
     :title='$t("MSG_APP_GOOD_RECOMMENDS")'
     :rows='recommends'
     row-key='ID'
-    :loading='promotionLoading'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as Recommend)'
   >
@@ -27,6 +26,7 @@
           flat
           class='btn flat'
           :label='$t("MSG_CREATE")'
+          :disable='selectedGood.length === 0'
           @click='onCreate'
         />
       </div>
@@ -42,13 +42,16 @@
         <span>{{ $t('MSG_CREATE_RECOMMEND') }}</span>
       </q-card-section>
       <q-card-section>
-        <span>{{ selectedGood[0]?.Title }}</span>
+        <span> {{ updating? target.GoodName : selectedGood[0]?.GoodName }}</span>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
       </q-card-section>
+      <q-card-section>
+        <q-input v-model.number='target.RecommendIndex' :label='$t("MSG_RECOMMEND_INDEX")' />
+      </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -61,117 +64,158 @@
 </template>
 
 <script setup lang='ts'>
-import { buildGoods, NotificationType, useAdminGoodStore, useGoodStore, Recommend, GoodBase } from 'npool-cli-v2'
-import { computed, onMounted, ref, watch } from 'vue'
+import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
+import { useAdminRecommendStore } from 'src/teststore/good/recommend'
+import { AppGood } from 'src/teststore/good/appgood/types'
+import { Recommend } from 'src/teststore/good/recommend/types'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
+import { useAdminAppGoodStore } from 'src/teststore/good/appgood'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const good = useGoodStore()
-const adminGood = useAdminGoodStore()
-const goods = computed(() => buildGoods(good.Goods))
-const goodLoading = ref(true)
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
-const recommends = computed(() => good.Recommends)
-const promotionLoading = ref(true)
-const selectedGood = ref([] as Array<GoodBase>)
+const appGood = useAdminAppGoodStore()
+const appGoods = computed(() => appGood.AppGoods.AppGoods)
+const selectedGood = ref([] as Array<AppGood>)
 
-const target = ref({} as unknown as Recommend)
+const recommend = useAdminRecommendStore()
+const recommends = computed(() => recommend.Recommends.Recommends)
 
-const selectedGoodID = computed(() => selectedGood.value[0]?.ID)
-watch(selectedGoodID, () => {
-  target.value.GoodID = selectedGoodID.value as string
-})
-
-onMounted(() => {
-  good.getGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOODS'),
-        Message: t('MSG_GET_GOODS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    goodLoading.value = false
-  })
-
-  adminGood.getRecommends({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOOD_RECOMMENDS'),
-        Message: t('MSG_GET_GOOD_RECOMMENDS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    promotionLoading.value = false
-  })
-})
+const logined = useLocalUserStore()
+const target = ref({
+  RecommenderID: logined.User?.ID
+} as Recommend)
 
 const showing = ref(false)
 const updating = ref(false)
 
 const onCreate = () => {
-  if (selectedGood.value.length === 0) {
-    return
-  }
-
   updating.value = false
   showing.value = true
+  target.value.GoodID = selectedGood.value[0]?.ID
 }
 
-const onRowClick = (promotion: Recommend) => {
+const onRowClick = (row: Recommend) => {
   updating.value = true
   showing.value = true
-  target.value = promotion
-  selectedGood.value = [good.getGoodByID(promotion.GoodID).Good.Good]
-}
-
-const onSubmit = () => {
-  showing.value = false
-
-  if (updating.value) {
-    adminGood.updateRecommend({
-      Info: target.value,
-      Message: {
-        Error: {
-          Title: t('MSG_CREATE_RECOMMENDS'),
-          Message: t('MSG_CREATE_RECOMMENDS_FAIL'),
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
-  }
-
-  adminGood.createRecommend({
-    Info: target.value,
-    Message: {
-      Error: {
-        Title: t('MSG_UPDATE_RECOMMENDS'),
-        Message: t('MSG_UPDATE_RECOMMENDS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  target.value = { ...row }
 }
 
 const onCancel = () => {
-  showing.value = false
+  onMenuHide()
 }
 
 const onMenuHide = () => {
-  target.value = {} as unknown as Recommend
+  target.value = {
+    RecommenderID: logined.User?.ID
+  } as Recommend
+  showing.value = false
 }
 
+const onSubmit = (done: () => void) => {
+  updating.value ? updateRecommend(done) : createRecommend(done)
+}
+
+const createRecommend = (done: () => void) => {
+  recommend.createRecommend({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: t('MSG_CREATE_RECOMMEND'),
+        Message: t('MSG_CREATE_RECOMMEND_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_CREATE_RECOMMEND'),
+        Message: t('MSG_CREATE_RECOMMEND_SUCCESS'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (g: Recommend, error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const updateRecommend = (done: () => void) => {
+  recommend.updateRecommend({
+    ...target.value,
+    NotifyMessage: {
+      Error: {
+        Title: t('MSG_UPDATE_RECOMMEND'),
+        Message: t('MSG_UPDATE_RECOMMEND_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_UPDATE_RECOMMEND'),
+        Message: t('MSG_UPDATE_RECOMMEND_SUCCESS'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (g: Recommend, error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+onMounted(() => {
+  if (recommends.value.length === 0) {
+    getRecommends(0, 500)
+  }
+  if (appGoods.value.length === 0) {
+    getAppGoods(0, 500)
+  }
+})
+
+const getRecommends = (offset: number, limit: number) => {
+  recommend.getRecommends({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_GOOD_RECOMMENDS'),
+        Message: t('MSG_GET_GOOD_RECOMMENDS_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (goods: Array<Recommend>, error: boolean) => {
+    if (error || goods.length < limit) {
+      return
+    }
+    getRecommends(offset + limit, limit)
+  })
+}
+
+const getAppGoods = (offset: number, limit: number) => {
+  appGood.getAppGoods({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP_GOODS',
+        Message: 'MSG_GET_APP_GOODS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (goods: Array<AppGood>, error: boolean) => {
+    if (error || goods.length < limit) {
+      return
+    }
+    getAppGoods(offset + limit, limit)
+  })
+}
 </script>
