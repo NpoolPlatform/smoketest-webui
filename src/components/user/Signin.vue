@@ -83,6 +83,7 @@ import { useReCaptcha } from 'vue-recaptcha-v3'
 import { AppID } from 'src/const/const'
 import { useI18n } from 'vue-i18n'
 import { computed } from '@vue/reactivity'
+import { NotificationType, useCoinStore } from 'npool-cli-v2'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -195,7 +196,26 @@ const onVerifyClick = () => {
     }
     showVerifyDialog.value = false
     void router.push({ path: '/' })
+    getCoins()
   })
+}
+
+const coin = useCoinStore()
+const getCoins = () => {
+  if (coin.Coins.length === 0) {
+    coin.getCoins({
+      Message: {
+        Error: {
+          Title: 'MSG_GET_COINS',
+          Message: 'MSG_GET_COINS_FAIL',
+          Popup: true,
+          Type: NotificationType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+  }
 }
 </script>
 
