@@ -91,5 +91,5 @@ onMounted(() => {
 
 </script>
 
-<stype lang='sass' scoped>
-</stype>
+<style lang='sass' scoped>
+</style>
