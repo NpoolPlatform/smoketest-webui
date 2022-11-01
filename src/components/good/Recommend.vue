@@ -66,6 +66,7 @@
 
 <script setup lang='ts'>
 import { formatTime, NotifyType, useLocalUserStore, useAdminRecommendStore, useAdminAppGoodStore, AppGood, Recommend } from 'npool-cli-v4'
+import { getAppGoods, getRecommends } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -175,46 +176,6 @@ onMounted(() => {
     getAppGoods(0, 500)
   }
 })
-
-const getRecommends = (offset: number, limit: number) => {
-  recommend.getRecommends({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOOD_RECOMMENDS'),
-        Message: t('MSG_GET_GOOD_RECOMMENDS_FAIL'),
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<Recommend>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getRecommends(offset + limit, limit)
-  })
-}
-
-const getAppGoods = (offset: number, limit: number) => {
-  appGood.getAppGoods({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_APP_GOODS',
-        Message: 'MSG_GET_APP_GOODS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<AppGood>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getAppGoods(offset + limit, limit)
-  })
-}
 
 const appGoodsColumns = computed(() => [
   {

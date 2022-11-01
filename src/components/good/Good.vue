@@ -74,6 +74,7 @@ import {
   useCoinStore
 } from 'npool-cli-v2'
 import { formatTime, NotifyType, useAdminAppGoodStore, AppGood } from 'npool-cli-v4'
+import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -161,25 +162,6 @@ onMounted(() => {
   }
 })
 
-const getAppGoods = (offset: number, limit: number) => {
-  appGood.getAppGoods({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_APP_GOODS',
-        Message: 'MSG_GET_APP_GOODS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<AppGood>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getAppGoods(offset + limit, limit)
-  })
-}
 const appGoodsColumns = computed(() => [
   {
     name: 'ID',
