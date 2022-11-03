@@ -173,7 +173,7 @@ const MainDrawerMenus = [
       } as MenuItem, {
         menuId: uid(),
         label: '提现地址',
-        caption: '审核提现地址设置',
+        caption: '查看提现地址',
         icon: 'format_list_numbered',
         target: '/review/withdraw/address',
         level: 1,
