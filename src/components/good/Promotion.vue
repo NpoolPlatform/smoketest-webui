@@ -4,6 +4,7 @@
     flat
     :title='$t("MSG_APP_GOODS")'
     :rows='appGoods'
+    :columns='appGoodsColumns'
     row-key='ID'
     :rows-per-page-options='[10]'
     selection='single'
@@ -14,6 +15,7 @@
     flat
     :title='$t("MSG_APP_GOOD_PROMOTIONS")'
     :rows='promotions'
+    :columns='columns'
     row-key='ID'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as Promotion)'
@@ -63,11 +65,8 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
-import { useAdminAppGoodStore } from 'src/teststore/good/appgood'
-import { AppGood } from 'src/teststore/good/appgood/types'
-import { useAdminPromotionStore } from 'src/teststore/good/promotion'
-import { Promotion } from 'src/teststore/good/promotion/types'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminPromotionStore, Promotion } from 'npool-cli-v4'
+import { getAppGoods, getPromotions } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -174,43 +173,114 @@ onMounted(() => {
   }
 })
 
-const getPromotions = (offset: number, limit: number) => {
-  promotion.getPromotions({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: t('MSG_GET_GOOD_PROMOTIONS'),
-        Message: t('MSG_GET_GOOD_PROMOTIONS_FAIL'),
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<Promotion>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getPromotions(offset + limit, limit)
-  })
-}
+const appGoodsColumns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: AppGood) => row.ID
+  },
+  {
+    name: 'GOODID',
+    label: t('MSG_GOODID'),
+    field: (row: AppGood) => row.GoodID
+  },
+  {
+    name: 'GOODNAME',
+    label: t('MSG_GOODNAME'),
+    field: (row: AppGood) => row.GoodName
+  },
+  {
+    name: 'GOODTYPE',
+    label: t('MSG_GOOD_TYPE'),
+    field: (row: AppGood) => row.GoodType
+  },
+  {
+    name: 'ONLINE',
+    label: t('MSG_ONLINE'),
+    field: (row: AppGood) => row.Online
+  },
+  {
+    name: 'VISIBLE',
+    label: t('MSG_VISIBLE'),
+    field: (row: AppGood) => row.Visible
+  },
+  {
+    name: 'GOODPRICE',
+    label: t('MSG_GOOD_PRICE'),
+    field: (row: AppGood) => row.Price
+  },
+  {
+    name: 'GOODUNIT',
+    label: t('MSG_GOOD_UNIT'),
+    field: (row: AppGood) => row.Unit
+  },
+  {
+    name: 'GOODTOTAL',
+    label: t('MSG_GOOD_TOTAL'),
+    field: (row: AppGood) => row.Total
+  },
+  {
+    name: 'GOODSOLD',
+    label: t('MSG_GOOD_SOLD'),
+    field: (row: AppGood) => row.Sold
+  },
+  {
+    name: 'GOODLOCKED',
+    label: t('MSG_GOOD_LOCKED'),
+    field: (row: AppGood) => row.Locked
+  },
+  {
+    name: 'GOODINSERVICE',
+    label: t('MSG_GOOD_INSERVICE'),
+    field: (row: AppGood) => row.InService
+  },
+  {
+    name: 'COINNAME',
+    label: t('MSG_COINNAME'),
+    field: (row: AppGood) => row.CoinName
+  },
+  {
+    name: 'BENEFITTYPE',
+    label: t('MSG_BENEFITTYPE'),
+    field: (row: AppGood) => row.BenefitType
+  },
+  {
+    name: 'STARTAT',
+    label: t('MSG_STARTAT'),
+    field: (row: AppGood) => formatTime(row.StartAt)
+  }
+])
 
-const getAppGoods = (offset: number, limit: number) => {
-  appGood.getAppGoods({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_APP_GOODS',
-        Message: 'MSG_GET_APP_GOODS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<AppGood>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getAppGoods(offset + limit, limit)
-  })
-}
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: Promotion) => row.ID
+  },
+  {
+    name: 'GOODID',
+    label: t('MSG_GOOD_ID'),
+    field: (row: Promotion) => row.GoodID
+  },
+  {
+    name: 'GOODNAME',
+    label: t('MSG_GOOD_NAME'),
+    field: (row: Promotion) => row.GoodName
+  },
+  {
+    name: 'PRICE',
+    label: t('MSG_GOOD_RPICE'),
+    field: (row: Promotion) => row.Price
+  },
+  {
+    name: 'START_AT',
+    label: t('MSG_START_AT'),
+    field: (row: Promotion) => formatTime(row.StartAt)
+  },
+  {
+    name: 'END_AT',
+    label: t('MSG_END_AT'),
+    field: (row: Promotion) => formatTime(row.EndAt)
+  }
+])
 </script>

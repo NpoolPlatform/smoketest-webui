@@ -107,11 +107,9 @@ import {
   PurchaseAmountSetting,
   InvalidID,
   useCommissionStore,
-  usePurchaseAmountSettingStore,
-  useAdminGoodStore,
-  Good
+  usePurchaseAmountSettingStore
 } from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
+import { AppGood, formatTime, NotifyType, useAdminAppGoodStore, useAdminUserStore, User } from 'npool-cli-v4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -175,16 +173,16 @@ const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings
   return s
 }))
 
-const good = useAdminGoodStore()
-const goods = computed(() => good.Goods)
+const good = useAdminAppGoodStore()
+const goods = computed(() => good.AppGoods.AppGoods)
 
 interface MyGood {
   label: string
-  value: Good
+  value: AppGood
 }
 const myGoods = computed(() => Array.from(goods.value).map((el) => {
   return {
-    label: el.Good.Good.Title + '(' + (el.Good.Good.ID as string) + ')',
+    label: el.GoodName + '(' + (el.GoodID) + ')',
     value: el
   } as MyGood
 }))
@@ -193,14 +191,14 @@ const selectedGood = computed({
     const g = good.getGoodByID(target.value.GoodID)
     if (g) {
       return {
-        label: g.Good.Good.Title + '(' + (g.Good.Good.ID as string) + ')',
+        label: g.GoodName + '(' + (g.GoodID) + ')',
         value: g
       } as MyGood
     }
     return undefined as unknown as MyGood
   },
   set: (val: MyGood) => {
-    target.value.GoodID = val.value.Good.Good.ID as string
+    target.value.GoodID = val.value.GoodID
   }
 })
 
@@ -220,9 +218,9 @@ const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).m
   s.EmailAddress = user.getUserByID(s.UserID as string)?.EmailAddress
   s.PhoneNO = user.getUserByID(s.UserID as string)?.PhoneNO
   s.GoodName = ''
-  const index = goods.value.findIndex((gel) => gel.Good.Good.ID === el.GoodID)
+  const index = goods.value.findIndex((gel) => gel.GoodID === el.GoodID)
   if (index >= 0) {
-    s.GoodName = goods.value[index].Good.Good.Title
+    s.GoodName = goods.value[index].GoodName
   }
   return s
 }))
@@ -302,19 +300,9 @@ onMounted(() => {
   if (user.Users.Users.length === 0) {
     getUsers(0, 500)
   }
-
-  good.getAllGoods({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_ALL_GOODS'),
-        Message: t('MSG_GET_ALL_GOODS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  if (goods.value.length === 0) {
+    getAppGoods(0, 500)
+  }
 })
 
 const showing = ref(false)
@@ -372,4 +360,23 @@ const onCreatePurchaseAmountSettingClick = () => {
   start.value = ''
 }
 
+const getAppGoods = (offset: number, limit: number) => {
+  good.getAppGoods({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APP_GOODS',
+        Message: 'MSG_GET_APP_GOODS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (goods: Array<AppGood>, error: boolean) => {
+    if (error || goods.length < limit) {
+      return
+    }
+    getAppGoods(offset + limit, limit)
+  })
+}
 </script>

@@ -20,6 +20,7 @@
     flat
     :title='$t("MSG_APP_GOODS")'
     :rows='appGoods'
+    :columns='appGoodsColumns'
     row-key='ID'
     selection='single'
     :rows-per-page-options='[10]'
@@ -72,10 +73,13 @@
 import {
   useCoinStore
 } from 'npool-cli-v2'
-import { NotifyType } from 'npool-cli-v4'
-import { useAdminAppGoodStore } from 'src/teststore/good/appgood'
-import { AppGood } from 'src/teststore/good/appgood/types'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood } from 'npool-cli-v4'
+import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
@@ -158,24 +162,82 @@ onMounted(() => {
   }
 })
 
-const getAppGoods = (offset: number, limit: number) => {
-  appGood.getAppGoods({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_APP_GOODS',
-        Message: 'MSG_GET_APP_GOODS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (goods: Array<AppGood>, error: boolean) => {
-    if (error || goods.length < limit) {
-      return
-    }
-    getAppGoods(offset + limit, limit)
-  })
-}
+const appGoodsColumns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: AppGood) => row.ID
+  },
+  {
+    name: 'GOODID',
+    label: t('MSG_GOODID'),
+    field: (row: AppGood) => row.GoodID
+  },
+  {
+    name: 'GOODNAME',
+    label: t('MSG_GOODNAME'),
+    field: (row: AppGood) => row.GoodName
+  },
+  {
+    name: 'GOODTYPE',
+    label: t('MSG_GOOD_TYPE'),
+    field: (row: AppGood) => row.GoodType
+  },
+  {
+    name: 'ONLINE',
+    label: t('MSG_ONLINE'),
+    field: (row: AppGood) => row.Online
+  },
+  {
+    name: 'VISIBLE',
+    label: t('MSG_VISIBLE'),
+    field: (row: AppGood) => row.Visible
+  },
+  {
+    name: 'GOODPRICE',
+    label: t('MSG_GOOD_PRICE'),
+    field: (row: AppGood) => row.Price
+  },
+  {
+    name: 'GOODUNIT',
+    label: t('MSG_GOOD_UNIT'),
+    field: (row: AppGood) => row.Unit
+  },
+  {
+    name: 'GOODTOTAL',
+    label: t('MSG_GOOD_TOTAL'),
+    field: (row: AppGood) => row.Total
+  },
+  {
+    name: 'GOODSOLD',
+    label: t('MSG_GOOD_SOLD'),
+    field: (row: AppGood) => row.Sold
+  },
+  {
+    name: 'GOODLOCKED',
+    label: t('MSG_GOOD_LOCKED'),
+    field: (row: AppGood) => row.Locked
+  },
+  {
+    name: 'GOODINSERVICE',
+    label: t('MSG_GOOD_INSERVICE'),
+    field: (row: AppGood) => row.InService
+  },
+  {
+    name: 'COINNAME',
+    label: t('MSG_COINNAME'),
+    field: (row: AppGood) => row.CoinName
+  },
+  {
+    name: 'BENEFITTYPE',
+    label: t('MSG_BENEFITTYPE'),
+    field: (row: AppGood) => row.BenefitType
+  },
+  {
+    name: 'STARTAT',
+    label: t('MSG_STARTAT'),
+    field: (row: AppGood) => formatTime(row.StartAt)
+  }
+])
 
 </script>
