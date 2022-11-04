@@ -180,6 +180,21 @@ const appGoodsColumns = computed(() => [
     field: (row: AppGood) => row.ID
   },
   {
+    name: 'GOODID',
+    label: t('MSG_GOODID'),
+    field: (row: AppGood) => row.GoodID
+  },
+  {
+    name: 'GOODNAME',
+    label: t('MSG_GOODNAME'),
+    field: (row: AppGood) => row.GoodName
+  },
+  {
+    name: 'GOODTYPE',
+    label: t('MSG_GOOD_TYPE'),
+    field: (row: AppGood) => row.GoodType
+  },
+  {
     name: 'ONLINE',
     label: t('MSG_ONLINE'),
     field: (row: AppGood) => row.Online
@@ -188,11 +203,6 @@ const appGoodsColumns = computed(() => [
     name: 'VISIBLE',
     label: t('MSG_VISIBLE'),
     field: (row: AppGood) => row.Visible
-  },
-  {
-    name: 'GOODTYPE',
-    label: t('MSG_GOOD_TYPE'),
-    field: (row: AppGood) => row.GoodType
   },
   {
     name: 'GOODPRICE',
