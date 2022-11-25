@@ -7,14 +7,6 @@
     row-key='ID'
     :rows-per-page-options='[10]'
   />
-  <!-- <q-table
-    dense
-    flat
-    :title='$t("MSG_GOODS")'
-    :rows='goods'
-    row-key='ID'
-    :rows-per-page-options='[10]'
-  /> -->
   <q-table
     dense
     flat
@@ -70,10 +62,8 @@
 </template>
 
 <script setup lang='ts'>
-import {
-  useCoinStore
-} from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore } from 'npool-cli-v4'
+import { getCoins } from 'src/api/coin'
 import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -83,8 +73,8 @@ const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
-const coin = useCoinStore()
-const coins = computed(() => coin.Coins)
+const coin = useAdminAppCoinStore()
+const coins = computed(() => coin.AppCoins.AppCoins)
 
 const appGood = useAdminAppGoodStore()
 const appGoods = computed(() => appGood.AppGoods.AppGoods)
@@ -159,6 +149,10 @@ const createAppGood = (done: () => void) => {
 onMounted(() => {
   if (appGoods.value.length === 0) {
     getAppGoods(0, 500)
+  }
+
+  if (coins.value?.length === 0) {
+    getCoins(0, 500)
   }
 })
 

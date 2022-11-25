@@ -3,9 +3,8 @@
     dense
     flat
     :title='$t("MSG_COINS")'
-    :rows='displayCoins'
+    :rows='coins'
     row-key='ID'
-    :loading='coinLoading'
     :rows-per-page-options='[10]'
   />
   <q-table
@@ -41,7 +40,7 @@
         <!-- <q-item-label>{{ $t('MSG_GENDER') }}: {{ target?.Gender }}</q-item-label> -->
       </q-card-section>
       <q-card-section>
-        <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin?.Name }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin.getCoinByID(target?.CoinTypeID)?.Name }}</q-item-label>
         <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
         <!-- <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.WithdrawType }}</q-item-label> -->
         <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.Trigger }}</q-item-label>
@@ -59,19 +58,18 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useCoinStore, useLocaleStore } from 'npool-cli-v2'
+import { NotificationType, useLocaleStore } from 'npool-cli-v2'
 import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useLocalUserStore } from 'npool-cli-v4'
+import { useAdminAppCoinStore, useLocalUserStore } from 'npool-cli-v4'
+import { getCoins } from 'src/api/coin'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
-// const review = useReviewStore()
-const coins = useCoinStore()
 const locale = useLocaleStore()
 const logined = useLocalUserStore()
 
@@ -79,8 +77,8 @@ const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
 const reviewLoading = ref(false)
 
-const displayCoins = computed(() => coins.Coins)
-const coinLoading = ref(true)
+const coin = useAdminAppCoinStore()
+const coins = computed(() => coin.AppCoins.AppCoins)
 
 const review = useWithdrawReviewStore()
 
@@ -108,28 +106,9 @@ const getWithdrawReviews = (offset: number, limit: number) => {
     getWithdrawReviews(offset + limit, limit)
   })
 }
-onMounted(() => {
-  coins.getCoins({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_WITHDRAW_REVIEWS'),
-        Message: t('MSG_GET_WITHDRAW_REVIEWS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    coinLoading.value = false
-  })
-  if (review.WithdrawReviews.WithdrawReviews.length === 0) {
-    reviewLoading.value = true
-    getWithdrawReviews(0, 100)
-  }
-})
 
 const showing = ref(false)
 const target = ref({} as unknown as WithdrawReview)
-const coin = computed(() => coins.getCoinByID(target?.value.CoinTypeID))
 
 const onMenuHide = () => {
   target.value = {} as unknown as WithdrawReview
@@ -188,4 +167,13 @@ const onCancel = () => {
   onMenuHide()
 }
 
+onMounted(() => {
+  if (review.WithdrawReviews.WithdrawReviews.length === 0) {
+    reviewLoading.value = true
+    getWithdrawReviews(0, 100)
+  }
+  if (coins.value.length === 0) {
+    getCoins(0, 100)
+  }
+})
 </script>
