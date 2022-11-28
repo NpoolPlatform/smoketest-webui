@@ -25,7 +25,7 @@
         <q-item-label>{{ $t('MSG_IN_SERVICE') }}: {{ good?.InService }}</q-item-label>
         <AppGoodSelector v-model:id='target.GoodID' />
         <AppUserSelector v-model:id='target.TargetUserID' />
-        <CoinPicker v-model:id='target.PaymentCoinID' />
+        <CoinPicker v-model:id='target.PaymentCoinID' hidden-disabled-coins />
         <q-input
           v-model='target.Units' :label='$t("MSG_PURCHASE_UNITS")' type='number' min='1'
           :max='maxUnits'
@@ -95,6 +95,7 @@ const order = useAdminOrderStore()
 const onSubmit = (done: ()=> void) => {
   if (target.value?.Units > maxUnits.value) {
     console.log('purchase units', target.value?.Units, 'max units', maxUnits.value)
+    done()
     return
   }
   order.createUserOrder({
