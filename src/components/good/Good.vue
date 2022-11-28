@@ -218,6 +218,11 @@ const appGoodsColumns = computed(() => [
     field: (row: AppGood) => row.InService
   },
   {
+    name: 'COINTYPEID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: AppGood) => row.CoinTypeID
+  },
+  {
     name: 'COINNAME',
     label: t('MSG_COINNAME'),
     field: (row: AppGood) => row.CoinName
