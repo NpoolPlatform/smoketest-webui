@@ -78,7 +78,7 @@ import {
   useCommissionStore,
   usePurchaseAmountSettingStore
 } from 'npool-cli-v2'
-import { useAdminAppCoinStore, useAdminAppGoodStore, useAdminUserStore } from 'npool-cli-v4'
+import { InvalidID, useAdminAppCoinStore, useAdminAppGoodStore, useAdminUserStore } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -126,7 +126,7 @@ const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).m
 }))
 
 const showing = ref(false)
-const target = ref({} as MyPurchaseAmountSetting)
+const target = ref({ UserID: InvalidID, GoodID: InvalidID } as MyPurchaseAmountSetting)
 
 const onCreate = () => {
   showing.value = true
@@ -134,7 +134,7 @@ const onCreate = () => {
 
 const onMenuHide = () => {
   showing.value = false
-  target.value = {} as MyPurchaseAmountSetting
+  target.value = { UserID: InvalidID, GoodID: InvalidID } as MyPurchaseAmountSetting
 }
 
 const onCancel = () => {
