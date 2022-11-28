@@ -38,8 +38,8 @@ const target = ref(id.value)
 const coin = useAdminAppCoinStore()
 const coins = computed(() => Array.from(coin.AppCoins.AppCoins).map((el) => {
   return {
-    value: el.ID,
-    label: `${el.Name} | ${el.ID}`
+    value: el.CoinTypeID,
+    label: `${el.Name} | ${el.CoinTypeID}`
   }
 }))
 const displayCoins = ref(coins.value)
