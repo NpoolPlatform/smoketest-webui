@@ -28,20 +28,28 @@ import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 interface Props {
   id: string
   updating?: boolean
+  hiddenDisabledCoins?: boolean
 }
 
 const props = defineProps<Props>()
 const id = toRef(props, 'id')
 const updating = toRef(props, 'updating')
+const hiddenDisabledCoins = toRef(props, 'hiddenDisabledCoins')
 const target = ref(id.value)
 
 const coin = useAdminAppCoinStore()
-const coins = computed(() => Array.from(coin.AppCoins.AppCoins).map((el) => {
-  return {
-    value: el.CoinTypeID,
-    label: `${el.Name} | ${el.CoinTypeID}`
+const coins = computed(() => {
+  let items = coin.AppCoins.AppCoins
+  if (hiddenDisabledCoins.value) {
+    items = coin.AppCoins.AppCoins.filter((el) => !el.Disabled && !el.CoinDisabled)
   }
-}))
+  return Array.from(items).map((el) => {
+    return {
+      value: el.CoinTypeID,
+      label: `${el.Name} | ${el.CoinTypeID}`
+    }
+  })
+})
 const displayCoins = ref(coins.value)
 
 const onFilter = (val: string, doneFn: (callbackFn: () => void) => void) => {
