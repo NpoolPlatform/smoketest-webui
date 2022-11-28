@@ -2,14 +2,6 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_COINS")'
-    :rows='coins'
-    row-key='ID'
-    :rows-per-page-options='[10]'
-  />
-  <q-table
-    dense
-    flat
     :title='$t("MSG_WITHDRAW_REVIEWS")'
     :rows='displayReviews'
     row-key='ID'
@@ -34,15 +26,11 @@
       <q-card-section>
         <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target?.EmailAddress }}</q-item-label>
         <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target?.PhoneNO }}</q-item-label>
-        <!-- <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target?.Username }}</q-item-label> -->
-        <!-- <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target?.FirstName }}</q-item-label> -->
-        <!-- <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target?.LastName }}</q-item-label> -->
-        <!-- <q-item-label>{{ $t('MSG_GENDER') }}: {{ target?.Gender }}</q-item-label> -->
       </q-card-section>
       <q-card-section>
-        <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin.getCoinByID(target?.CoinTypeID)?.Name }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COIN_TYPE_ID') }}: {{ target?.CoinTypeID }}</q-item-label>
+        <q-item-label>{{ $t('MSG_COIN_NAME') }}: {{ target?.CoinName }}</q-item-label>
         <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
-        <!-- <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.WithdrawType }}</q-item-label> -->
         <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.Trigger }}</q-item-label>
       </q-card-section>
       <q-card-section>
@@ -63,8 +51,7 @@ import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAdminAppCoinStore, useLocalUserStore } from 'npool-cli-v4'
-import { getCoins } from 'src/api/coin'
+import { useLocalUserStore } from 'npool-cli-v4'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -76,9 +63,6 @@ const logined = useLocalUserStore()
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
 const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
 const reviewLoading = ref(false)
-
-const coin = useAdminAppCoinStore()
-const coins = computed(() => coin.AppCoins.AppCoins)
 
 const review = useWithdrawReviewStore()
 
@@ -171,9 +155,6 @@ onMounted(() => {
   if (review.WithdrawReviews.WithdrawReviews.length === 0) {
     reviewLoading.value = true
     getWithdrawReviews(0, 100)
-  }
-  if (coins.value.length === 0) {
-    getCoins(0, 100)
   }
 })
 </script>
