@@ -100,7 +100,7 @@ interface AmountSetting extends PurchaseAmountSetting {
 }
 
 interface MyPurchaseAmountSetting extends PurchaseAmountSetting {
-  UserID: string;
+  UserID: string; // Make UserID To Must From Optional
 }
 
 const coin = useAdminAppCoinStore()
