@@ -197,15 +197,6 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
-      } as MenuItem, {
-        menuId: uid(),
-        label: '超时支付',
-        caption: '管理超时支付账户',
-        icon: 'format_list_numbered',
-        target: '/review/payment',
-        level: 1,
-        sectionBegin: false,
-        children: []
       } as MenuItem
     ]
   } as MenuItem, {
