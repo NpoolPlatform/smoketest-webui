@@ -27,9 +27,6 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <CoinPicker v-model:id='target.CoinTypeID' updating />
-      </q-card-section>
-      <q-card-section>
         <q-input v-model='target.Name' :label='$t("MSG_COIN_NAME")' />
         <q-input v-model='target.Logo' :label='$t("MSG_COIN_LOGO")' />
         <q-input v-model='target.HomePage' :label='$t("MSG_COIN_HOMEPAGE")' />
@@ -59,7 +56,6 @@ import { NotifyType, AppCoin, useAdminAppCoinStore } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
 
-const CoinPicker = defineAsyncComponent(() => import('src/components/coin/CoinPicker.vue'))
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 const coin = useAdminAppCoinStore()
