@@ -62,6 +62,8 @@ const AppGoodSelector = defineAsyncComponent(() => import('src/components/good/A
 const AppUserSelector = defineAsyncComponent(() => import('src/components/user/AppUserSelector.vue'))
 const CoinPicker = defineAsyncComponent(() => import('src/components/coin/CoinPicker.vue'))
 
+const coin = useAdminAppCoinStore()
+
 const appGood = useAdminAppGoodStore()
 const good = computed(() => appGood.getGoodByID(target.value?.GoodID))
 const maxUnits = computed(() => !good.value ? 0 : (good.value.Total - good.value.Locked - good.value.InService))
@@ -114,7 +116,6 @@ const onSubmit = (done: ()=> void) => {
   })
 }
 
-const coin = useAdminAppCoinStore()
 onMounted(() => {
   if (coin.AppCoins.AppCoins.length === 0) {
     getCoins(0, 100)
