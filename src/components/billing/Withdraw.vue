@@ -2,7 +2,7 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_GOOD_WITHDRAWS")'
+    :title='$t("MSG_WITHDRAW_RECORDS")'
     :rows='withdraws'
     row-key='ID'
     :rows-per-page-options='[10]'
