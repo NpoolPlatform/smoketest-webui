@@ -328,7 +328,7 @@ const MainDrawerMenus = [
       children: []
     } as MenuItem, {
       menuId: uid(),
-      label: '提现',
+      label: '提现记录',
       caption: '查看提现记录',
       icon: 'format_list_numbered',
       target: '/billing/withdraw',
