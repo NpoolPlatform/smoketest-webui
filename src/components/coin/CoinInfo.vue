@@ -40,8 +40,8 @@
       </q-card-section>
       <q-card-section>
         <div><q-toggle dense v-model='target.ProductPage' :label='$t("MSG_PRODUCT_PAGE")' /></div>
-        <div><q-toggle dense v-model='target.CoinForPay' :label='$t("MSG_COIN_FOR_PAY")' /><span class='tip'>ForPay: {{ target.ForPay }}</span></div>
-        <div><q-toggle dense v-model='target.CoinDisabled' :label='$t("MSG_COIN_DISABLE")' /><span class='tip'>Disabled: {{ target.Disabled }}</span></div>
+        <div><q-toggle dense v-model='target.ForPay' :label='$t("MSG_FOR_PAY")' /><span class='tip'>CoinForPay: {{ target.CoinForPay }}</span></div>
+        <div><q-toggle dense v-model='target.Disabled' :label='$t("MSG_DISABLE")' /><span class='tip'>CoinDisabled: {{ target.CoinDisabled }}</span></div>
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -125,12 +125,12 @@ const updateAppCoin = (done: () => void) => {
   })
 }
 
-watch([() => target.value?.CoinDisabled, () => target.value?.CoinForPay], () => {
-  if (target.value?.Disabled) {
-    target.value.CoinDisabled = true
+watch([() => target.value?.Disabled, () => target.value?.ForPay], () => {
+  if (target.value?.CoinDisabled) {
+    target.value.Disabled = true
   }
-  if (!target.value?.ForPay) {
-    target.value.CoinForPay = false
+  if (!target.value?.CoinForPay) {
+    target.value.ForPay = false
   }
 })
 
