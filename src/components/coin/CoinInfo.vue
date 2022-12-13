@@ -63,7 +63,7 @@ const coins = computed(() => coin.AppCoins.AppCoins)
 
 const name = ref('')
 const displayCoins = computed(() => {
-  return coins.value.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
+  return coins.value.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.CoinTypeID?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
 })
 
 const showing = ref(false)
