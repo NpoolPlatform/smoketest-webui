@@ -96,13 +96,13 @@ const updateTarget = computed(() => {
     AppID: target.value?.AppID,
     CoinTypeID: target.value?.CoinTypeID,
     Name: target.value?.Name,
-    Logo: target.value?.Logo,
+    Logo: target.value?.Logo?.length > 0 ? target.value?.Logo : undefined as unknown as string,
     ForPay: target.value?.ForPay,
     WithdrawAutoReviewAmount: target.value?.WithdrawAutoReviewAmount,
     MarketValue: target.value?.MarketValue,
     SettlePercent: target.value?.SettlePercent,
-    ProductPage: target.value?.ProductPage,
-    DailyRewardAmount: target.value?.DailyRewardAmount,
+    ProductPage: target.value?.ProductPage?.length > 0 ? target.value?.ProductPage : undefined as unknown as string,
+    DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Display: target.value?.Display
   }
 })
