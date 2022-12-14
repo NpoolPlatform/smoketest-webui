@@ -32,13 +32,14 @@
         <q-item-label>{{ $t('MSG_COIN_NAME') }}: {{ target?.CoinName }}</q-item-label>
         <q-item-label>{{ $t('MSG_AMOUNT') }}: {{ target?.Amount }}</q-item-label>
         <q-item-label>{{ $t('MSG_MESSAGE') }}: {{ target?.Trigger }}</q-item-label>
+        <q-item-label>{{ $t('MSG_STATE') }}: {{ target?.State }}</q-item-label>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Message' :label='$t("MSG_COMMENT")' />
       </q-card-section>
       <q-item class='row'>
-        <LoadingButton :loading='true' :label='$t("MSG_APPROVE")' @click='onApprove' />
-        <LoadingButton :loading='true' :label='$t("MSG_REJECT")' @click='onReject' />
+        <LoadingButton :loading='true' :label='$t("MSG_APPROVE")' @click='onApprove' :disabled='target.State === ReviewState.Rejected' />
+        <LoadingButton :loading='true' :label='$t("MSG_REJECT")' @click='onReject' :disabled='target.State === ReviewState.Rejected' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
