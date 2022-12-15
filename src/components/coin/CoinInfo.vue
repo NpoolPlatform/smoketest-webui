@@ -29,7 +29,6 @@
       <q-card-section>
         <q-input v-model='target.Name' :label='$t("MSG_COIN_NAME")' />
         <q-input v-model='target.Logo' :label='$t("MSG_COIN_LOGO")' />
-        <q-input v-model='target.HomePage' :label='$t("MSG_COIN_HOMEPAGE")' />
         <!-- <q-input v-model='target.Specs' :label='$t("MSG_COIN_SPECS")' /> -->
         <!-- <q-input type='number' v-model='target.ReservedAmount' :label='$t("MSG_COIN_RESERVED_AMOUNT")' /> -->
         <q-input type='number' v-model='target.WithdrawAutoReviewAmount' :label='$t("MSG_WITHDRAW_AUTO_REVIEW_AMOUNT")' />
