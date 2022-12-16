@@ -2,158 +2,127 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_COINS")'
-    :rows='displayCoins'
+    :title='$t("MSG_WITHDRAW_ADDRESS")'
+    :rows='withdrawAddress'
     row-key='ID'
-    :loading='coinLoading'
-    :rows-per-page-options='[10]'
-  />
-  <q-table
-    dense
-    flat
-    :title='$t("MSG_WITHDRAW_ADDRESS_REVIEWS")'
-    :rows='displayReviews'
-    row-key='ID'
-    :loading='reviewLoading'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(index)'
+    :columns='columns'
   />
-  <q-dialog
-    v-model='showing'
-    @hide='onMenuHide'
-    position='right'
-  >
-    <q-card class='popup-menu'>
-      <q-card-section>
-        <span>{{ $t('MSG_REVIEW_WITHDRAW_ADDRESSES') }}</span>
-      </q-card-section>
-      <q-card-section>
-        <q-item-label>{{ $t('MSG_EMAIL_ADDRESS') }}: {{ target.User.EmailAddress }}</q-item-label>
-        <q-item-label>{{ $t('MSG_PHONE_NO') }}: {{ target.User.PhoneNO }}</q-item-label>
-        <q-item-label>{{ $t('MSG_USERNAME') }}: {{ target.User.Username }}</q-item-label>
-        <q-item-label>{{ $t('MSG_FIRST_NAME') }}: {{ target.User.FirstName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_LAST_NAME') }}: {{ target.User.LastName }}</q-item-label>
-        <q-item-label>{{ $t('MSG_GENDER') }}: {{ target.User.Gender }}</q-item-label>
-      </q-card-section>
-      <q-card-section>
-        <q-item-label>{{ $t('MSG_COIN_TYPE') }}: {{ coin?.Name }}</q-item-label>
-        <q-item-label>{{ $t('MSG_ADDRESS_NAME') }}: {{ target.Address.Name }}</q-item-label>
-        <q-item-label>{{ $t('MSG_ADDRESS_MESSAGE') }}: {{ target.Address.Message }}</q-item-label>
-        <q-item-label>{{ $t('MSG_ADDRESS_LABELS') }}: {{ target.Address.Labels }}</q-item-label>
-        <q-item-label>{{ $t('MSG_CREATE_AT') }}: {{ formatTime(target.Address.CreateAt) }}</q-item-label>
-        <q-item-label>{{ $t('MSG_ADDRESS') }}: {{ target.Account.Address }}</q-item-label>
-      </q-card-section>
-      <q-card-section>
-        <q-input v-model='target.Review.Message' :label='$t("MSG_COMMENT")' />
-      </q-card-section>
-      <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_APPROVE")' @click='onApprove' />
-        <q-btn class='btn round alt' :label='$t("MSG_REJECT")' @click='onReject' />
-        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
-      </q-item>
-    </q-card>
-  </q-dialog>
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useCoinStore } from 'npool-cli-v2'
-import { NotifyType, useAdminWithdrawAddressReviewStore, useLocalUserStore, WithdrawAddressReview, formatTime, WithdrawAddressReviewState } from 'npool-cli-v4'
-import { computed, onMounted, ref } from 'vue'
+import { useAdminUserAccountStore, Account, formatTime } from 'npool-cli-v4'
+import { getAppUserAccounts } from 'src/api/account'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const review = useAdminWithdrawAddressReviewStore()
-const coins = useCoinStore()
-const logined = useLocalUserStore()
-
-const reviews = computed(() => review.WithdrawAddressReviews.WithdrawAddressReviews)
-const displayReviews = computed(() => Array.from(review.WithdrawAddressReviews.WithdrawAddressReviews).map((el) => el.Review))
-const reviewLoading = ref(false)
-
-const displayCoins = computed(() => coins.Coins)
-const coinLoading = ref(true)
+const account = useAdminUserAccountStore()
+const withdrawAddress = computed(() => account.withdrawAddress)
 
 onMounted(() => {
-  if (reviews.value.length === 0) {
-    reviewLoading.value = true
-    review.getWithdrawAddressReviews({
-      Message: {
-        Error: {
-          Title: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS'),
-          Message: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS_FAIL'),
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, () => {
-      reviewLoading.value = false
-    })
+  if (withdrawAddress.value.length === 0) {
+    getAppUserAccounts(0, 500)
   }
-
-  coins.getCoins({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS'),
-        Message: t('MSG_GET_WITHDRAW_ADDRESS_REVIEWS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    coinLoading.value = false
-  })
 })
 
-const showing = ref(false)
-const target = ref({} as WithdrawAddressReview)
-const coin = computed(() => coins.getCoinByID(target.value.Address?.CoinTypeID))
-
-const onMenuHide = () => {
-  target.value = {} as unknown as WithdrawAddressReview
-}
-
-const onRowClick = (index: number) => {
-  target.value = JSON.parse(JSON.stringify(reviews.value[index])) as WithdrawAddressReview
-  showing.value = true
-}
-
-const updateReview = () => {
-  target.value.Review.ReviewerID = logined.User?.ID
-
-  review.updateWithdrawAddressReview({
-    Info: target.value.Review,
-    Message: {
-      Error: {
-        Title: t('MSG_UPDATE_WITHDRAW_ADDRESS_REVIEW'),
-        Message: t('MSG_UPDATE_WITHDRAW_ADDRESS_REVIEW_FAIL'),
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-}
-
-const onApprove = () => {
-  showing.value = false
-  target.value.Review.State = WithdrawAddressReviewState.Approved
-  updateReview()
-  onMenuHide()
-}
-
-const onReject = () => {
-  showing.value = false
-  target.value.Review.State = WithdrawAddressReviewState.Rejected
-  updateReview()
-  onMenuHide()
-}
-
-const onCancel = () => {
-  showing.value = false
-  onMenuHide()
-}
-
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: Account) => row.ID,
+    sortable: true
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: Account) => row.AppID,
+    sortable: true
+  },
+  {
+    name: 'AccountID',
+    label: t('MSG_ACCOUNT_ID'),
+    field: (row: Account) => row.AccountID,
+    sortable: true
+  },
+  {
+    name: 'Address',
+    label: t('MSG_ADDRESS'),
+    field: (row: Account) => row.Address,
+    sortable: true
+  },
+  {
+    name: 'UsedFor',
+    label: t('MSG_USED_FOR'),
+    field: (row: Account) => row.UsedFor,
+    sortable: true
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: Account) => row.UserID,
+    sortable: true
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: Account) => row.EmailAddress,
+    sortable: true
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: Account) => row.PhoneNO,
+    sortable: true
+  },
+  {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: Account) => row.CoinTypeID,
+    sortable: true
+  },
+  {
+    name: 'CoinName',
+    label: t('MSG_COINNAME'),
+    field: (row: Account) => row.CoinName,
+    sortable: true
+  },
+  {
+    name: 'CoinEnv',
+    label: t('MSG_COINENV'),
+    field: (row: Account) => row.CoinEnv,
+    sortable: true
+  },
+  {
+    name: 'CoinUnit',
+    label: t('MSG_COINUNIT'),
+    field: (row: Account) => row.CoinUnit,
+    sortable: true
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: Account) => formatTime(row.CreatedAt),
+    sortable: true
+  },
+  {
+    name: 'Label',
+    label: t('MSG_LABEL'),
+    field: (row: Account) => row.Labels?.join(','),
+    sortable: true
+  },
+  {
+    name: 'Active',
+    label: t('MSG_ACTIVE'),
+    field: (row: Account) => row.Active,
+    sortable: true
+  },
+  {
+    name: 'Blocked',
+    label: t('MSG_BLOCKED'),
+    field: (row: Account) => row.Blocked,
+    sortable: true
+  }
+])
 </script>

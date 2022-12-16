@@ -104,6 +104,7 @@ import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderType
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
+import { getAppOrders } from 'src/api/order'
 const goodId = ref('')
 const start = ref('')
 const end = ref('')
@@ -144,32 +145,12 @@ const orderUsers = computed(() => {
 })
 
 const orderLoading = ref(false)
-const getAppOrders = (offset: number, limit: number) => {
-  order.getAppOrders({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_ORDERS',
-        Message: 'MSG_GET_ORDERS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (orders: Array<Order>, error: boolean) => {
-    if (error || orders.length < limit) {
-      orderLoading.value = false
-      return
-    }
-    getAppOrders(offset + limit, limit)
-  })
-}
 
 onMounted(() => {
   if (order.Orders.length === 0) {
-    orderLoading.value = true
     getAppOrders(0, 500)
   }
+
   if (app.App === undefined) {
     app.getApp({
       AppID: AppID,

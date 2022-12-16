@@ -181,18 +181,6 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
-        path: 'review/payment',
-        component: () => import('pages/review/Payment.vue'),
-        meta: {
-          ShowHeaderAnnouncement: true,
-          ShowMainHeader: false,
-          ShowBigLogo: true,
-          ShowFooterTop: true,
-          ShowSignHelper: true,
-          ShowTopTip: false,
-          NeedLogined: true
-        }
-      }, {
         path: 'users',
         component: () => import('pages/user/User.vue'),
         meta: {
@@ -337,8 +325,20 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
-        path: 'coin/currency',
-        component: () => import('pages/coin/Currency.vue'),
+        path: 'coin/info',
+        component: () => import('src/pages/coin/CoinInfo.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
+      }, {
+        path: 'coin/description',
+        component: () => import('src/pages/coin/Description.vue'),
         meta: {
           ShowHeaderAnnouncement: true,
           ShowMainHeader: false,

@@ -63,17 +63,26 @@ const MainDrawerMenus = [
   } as MenuItem, {
     menuId: uid(),
     label: '币种',
-    caption: '设置币种信息',
+    caption: '管理币种',
     icon: 'format_list_numbered',
     target: '/coin',
     level: 0,
     sectionBegin: false,
     children: [{
       menuId: uid(),
-      label: '汇率',
-      caption: '设定币种当前汇率',
+      label: '币种',
+      caption: '管理币种',
       icon: 'format_list_numbered',
-      target: '/coin/currency',
+      target: '/coin/info',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
+      label: '币种描述',
+      caption: '管理币种描述',
+      icon: 'format_list_numbered',
+      target: '/coin/description',
       level: 1,
       sectionBegin: false,
       children: []
@@ -173,7 +182,7 @@ const MainDrawerMenus = [
       } as MenuItem, {
         menuId: uid(),
         label: '提现地址',
-        caption: '审核提现地址设置',
+        caption: '查看提现地址',
         icon: 'format_list_numbered',
         target: '/review/withdraw/address',
         level: 1,
@@ -185,15 +194,6 @@ const MainDrawerMenus = [
         caption: '审核提现请求',
         icon: 'format_list_numbered',
         target: '/review/withdraw',
-        level: 1,
-        sectionBegin: false,
-        children: []
-      } as MenuItem, {
-        menuId: uid(),
-        label: '超时支付',
-        caption: '管理超时支付账户',
-        icon: 'format_list_numbered',
-        target: '/review/payment',
         level: 1,
         sectionBegin: false,
         children: []
@@ -328,7 +328,7 @@ const MainDrawerMenus = [
       children: []
     } as MenuItem, {
       menuId: uid(),
-      label: '提现',
+      label: '提现记录',
       caption: '查看提现记录',
       icon: 'format_list_numbered',
       target: '/billing/withdraw',
