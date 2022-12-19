@@ -23,6 +23,11 @@ export const useAdminMessageStore = defineStore('admin-message-v4', {
     }
   }),
   getters: {
+    filterMessages () {
+      return (str: string) => {
+        return this.Messages.Messages.filter((el) => el.MessageID.toLowerCase().includes(str.toLowerCase()) || el.Message.toLowerCase().includes(str.toLowerCase()))
+      }
+    }
   },
   actions: {
     getMessages (req: GetMessagesRequest, done: (error: boolean, rows: Array<Message>) => void) {
