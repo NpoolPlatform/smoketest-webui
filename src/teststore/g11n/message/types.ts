@@ -62,7 +62,7 @@ export interface GetMessagesResponse {
 
 export interface UpdateMessageRequest extends MyRequest {
   ID: string;
-  AppID: string;
+  // AppID: string;
   TargetLangID: string;
   MessageID: string;
   Message: string;
