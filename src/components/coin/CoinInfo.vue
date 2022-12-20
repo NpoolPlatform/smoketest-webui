@@ -99,7 +99,7 @@ const updateTarget = computed(() => {
     ForPay: target.value?.ForPay,
     WithdrawAutoReviewAmount: target.value?.WithdrawAutoReviewAmount,
     MarketValue: target.value?.MarketValue,
-    SettlePercent: target.value?.SettlePercent,
+    SettlePercent: target.value?.SettlePercent === 0 ? undefined as unknown as number : target.value?.SettlePercent,
     ProductPage: target.value?.ProductPage?.length > 0 ? target.value?.ProductPage : undefined as unknown as string,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Disabled: target.value?.Disabled,
