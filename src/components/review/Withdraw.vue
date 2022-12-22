@@ -141,7 +141,7 @@ const getWithdrawReviews = (offset: number, limit: number) => {
       }
     }
   }, (rows: Array<WithdrawReview>, error: boolean) => {
-    if (error || rows.length < limit) {
+    if (error || rows.length === 0) {
       reviewLoading.value = false
       return
     }
