@@ -40,7 +40,7 @@ const getAppWithdraws = (offset: number, limit: number) => {
       }
     }
   }, (error: boolean, rows: Array<Withdraw>) => {
-    if (error || rows.length < limit) {
+    if (error || rows.length === 0) {
       return
     }
     getAppWithdraws(offset + limit, limit)
