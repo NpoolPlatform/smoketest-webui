@@ -7,6 +7,7 @@
     :title='$t("MSG_APP_COINS")'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as AppCoin)'
+    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -44,6 +45,7 @@
         <div><q-toggle dense v-model='target.ForPay' :label='$t("MSG_FOR_PAY")' /><span class='tip'>CoinForPay: {{ target.CoinForPay }}</span></div>
         <div><q-toggle dense v-model='target.Disabled' :label='$t("MSG_DISABLE")' /><span class='tip'>CoinDisabled: {{ target.CoinDisabled }}</span></div>
         <div><q-toggle dense v-model='target.Display' :label='$t("MSG_DISPLAY")' /></div>
+        <q-input v-model='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -57,6 +59,9 @@
 import { NotifyType, AppCoin, useAdminAppCoinStore } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
@@ -67,6 +72,104 @@ const name = ref('')
 const displayCoins = computed(() => {
   return coins.value.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.CoinTypeID?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
 })
+
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: AppCoin) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: AppCoin) => row.AppID
+  },
+  {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: AppCoin) => row.CoinTypeID
+  },
+  {
+    name: 'Name',
+    label: t('MSG_APP_COIN_NAME'),
+    field: (row: AppCoin) => row.Name
+  },
+  {
+    name: 'DisplayNames',
+    label: t('MSG_COIN_NAME'),
+    field: (row: AppCoin) => row.DisplayNames
+  },
+  {
+    name: 'Logo',
+    label: t('MSG_LOGO'),
+    field: (row: AppCoin) => row.Logo
+  },
+  {
+    name: 'Unit',
+    label: t('MSG_UNIT'),
+    field: (row: AppCoin) => row.Unit
+  },
+  {
+    name: 'Presale',
+    label: t('MSG_PRESALE'),
+    field: (row: AppCoin) => row.Presale
+  },
+  {
+    name: 'ReservedAmount',
+    label: t('MSG_RESERVED_AMOUNT'),
+    field: (row: AppCoin) => row.ReservedAmount
+  },
+  {
+    name: 'ForPay',
+    label: t('MSG_FOR_PAY'),
+    field: (row: AppCoin) => row.ForPay
+  },
+  {
+    name: 'ProductPage',
+    label: t('MSG_PRODUCT_PAGE'),
+    field: (row: AppCoin) => row.ProductPage
+  },
+  {
+    name: 'ENV',
+    label: t('MSG_ENV'),
+    field: (row: AppCoin) => row.ENV
+  },
+  {
+    name: 'MarketValue',
+    label: t('MSG_MARKET_VALUE'),
+    field: (row: AppCoin) => row.MarketValue
+  },
+  {
+    name: 'SettleValue',
+    label: t('MSG_SETTLE_VALUE'),
+    field: (row: AppCoin) => row.SettleValue
+  },
+  {
+    name: 'SettlePercent',
+    label: t('MSG_SETTLE_PERCENT'),
+    field: (row: AppCoin) => row.SettlePercent
+  },
+  {
+    name: 'SettleTips',
+    label: t('MSG_SETTLE_TIPS'),
+    field: (row: AppCoin) => row.SettleTips
+  },
+  {
+    name: 'DailyRewardAmount',
+    label: t('MSG_DAILY_REWARD_AMOUNT'),
+    field: (row: AppCoin) => row.DailyRewardAmount
+  },
+  {
+    name: 'Display',
+    label: t('MSG_DISPLAY'),
+    field: (row: AppCoin) => row.Display
+  },
+  {
+    name: 'DisplayIndex',
+    label: t('MSG_DISPLAY_INDEX'),
+    field: (row: AppCoin) => row.DisplayIndex
+  }
+])
 
 const showing = ref(false)
 const updating = ref(false)
