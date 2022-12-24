@@ -214,7 +214,8 @@ const updateTarget = computed(() => {
     ProductPage: target.value?.ProductPage?.length > 0 ? target.value?.ProductPage : undefined as unknown as string,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Disabled: target.value?.Disabled,
-    Display: target.value?.Display
+    Display: target.value?.Display,
+    DisplayIndex: target.value?.DisplayIndex
   }
 })
 
