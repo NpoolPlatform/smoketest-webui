@@ -97,7 +97,7 @@ const columns = computed(() => [
   {
     name: 'DisplayNames',
     label: t('MSG_COIN_NAME'),
-    field: (row: AppCoin) => row.DisplayNames
+    field: (row: AppCoin) => row.DisplayNames.join(',')
   },
   {
     name: 'Logo',
@@ -152,7 +152,7 @@ const columns = computed(() => [
   {
     name: 'SettleTips',
     label: t('MSG_SETTLE_TIPS'),
-    field: (row: AppCoin) => row.SettleTips
+    field: (row: AppCoin) => row.SettleTips.join(',')
   },
   {
     name: 'DailyRewardAmount',
@@ -179,6 +179,8 @@ const settleTips = ref('')
 
 const onRowClick = (row: AppCoin) => {
   target.value = { ...row }
+  displayNames.value = target.value.DisplayNames.join(',')
+  settleTips.value = target.value.SettleTips.join(',')
   showing.value = true
   updating.value = true
 }
