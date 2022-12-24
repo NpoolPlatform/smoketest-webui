@@ -28,6 +28,7 @@
     <q-card class='popup-menu'>
       <q-card-section>
         <q-input v-model='target.Name' :label='$t("MSG_COIN_NAME")' />
+        <q-input v-model='displayNames' :label='$t("MSG_DISPLAY_NAMES")' />
         <q-input v-model='target.Logo' :label='$t("MSG_COIN_LOGO")' />
         <q-input v-model='target.ProductPage' :label='$t("MSG_PRODUCT_PAGE")' />
         <!-- <q-input v-model='target.Specs' :label='$t("MSG_COIN_SPECS")' /> -->
@@ -35,6 +36,7 @@
         <q-input type='number' v-model='target.WithdrawAutoReviewAmount' :label='$t("MSG_WITHDRAW_AUTO_REVIEW_AMOUNT")' />
         <q-input type='number' v-model='target.MarketValue' :label='$t("MSG_COIN_MARKET_VALUE")' />
         <q-input type='number' v-model.number='target.SettlePercent' :label='$t("MSG_COIN_SETTLE_PERCENT")' />
+        <q-input v-model='settleTips' :label='$t("MSG_SETTLE_TIPS")' />
         <q-input type='number' v-model='target.DailyRewardAmount' :label='$t("MSG_DAILY_REWARD_AMOUNT")' />
         <!-- <q-select dense :options='CoinEnvironments' v-model='target.ENV' :label='$t("MSG_COIN_ENVIRONMENT")' /> -->
       </q-card-section>
@@ -69,6 +71,8 @@ const displayCoins = computed(() => {
 const showing = ref(false)
 const updating = ref(false)
 const target = ref({} as AppCoin)
+const displayNames = ref('')
+const settleTips = ref('')
 
 const onRowClick = (row: AppCoin) => {
   target.value = { ...row }
@@ -95,11 +99,13 @@ const updateTarget = computed(() => {
     AppID: target.value?.AppID,
     CoinTypeID: target.value?.CoinTypeID,
     Name: target.value?.Name,
+    DisplayNames: displayNames.value.split(','),
     Logo: target.value?.Logo?.length > 0 ? target.value?.Logo : undefined as unknown as string,
     ForPay: target.value?.ForPay,
     WithdrawAutoReviewAmount: target.value?.WithdrawAutoReviewAmount,
     MarketValue: target.value?.MarketValue,
     SettlePercent: target.value?.SettlePercent === 0 ? undefined as unknown as number : target.value?.SettlePercent,
+    SettleTips: settleTips.value.split(','),
     ProductPage: target.value?.ProductPage?.length > 0 ? target.value?.ProductPage : undefined as unknown as string,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Disabled: target.value?.Disabled,
