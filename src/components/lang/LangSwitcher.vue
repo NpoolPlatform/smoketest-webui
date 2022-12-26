@@ -38,11 +38,13 @@
 </template>
 
 <script setup lang='ts'>
+import { useAdminAppLangStore } from 'src/teststore/g11n/applang'
+import { AppLang } from 'src/teststore/g11n/applang/types'
+import { useLocalLangStore } from 'src/teststore/lang'
 import { ref, computed, defineProps, withDefaults, toRef, defineEmits, onMounted } from 'vue'
-import { Language, useLangStore, useLocaleStore } from 'npool-cli-v2'
 
 interface Props {
-  language?: Language
+  language?: AppLang
   emitResult?: boolean
 }
 
@@ -55,24 +57,25 @@ const emitResult = toRef(props, 'emitResult')
 const downArrow = ref('img: icons/DownArrow.svg')
 const internet = ref('img: icons/Internet.svg')
 
-const lang = useLangStore()
-const locale = useLocaleStore()
-const langs = computed(() => locale.Languages)
-const langLabel = computed(() => locale.CurLang?.Short !== '' ? locale.CurLang?.Short : locale.CurLang.Lang)
+const lang = useAdminAppLangStore()
+const langs = computed(() => lang.AppLangs.AppLangs)
 
-const emit = defineEmits<{(e: 'update:language', language: Language): void}>()
+const locale = useLocalLangStore()
+const langLabel = computed(() => locale.AppLang?.Short !== '' ? locale.AppLang?.Short : locale.AppLang.Lang)
 
-const onLangItemClick = (language: Language) => {
+const emit = defineEmits<{(e: 'update:language', language: AppLang): void}>()
+
+const onLangItemClick = (language: AppLang) => {
   if (emitResult.value) {
     emit('update:language', language)
     return
   }
-  lang.setLang(language)
+  locale.setLang(language)
 }
 
 onMounted(() => {
-  if (emitResult.value && locale.CurLang) {
-    emit('update:language', locale.CurLang)
+  if (emitResult.value && locale.AppLang) {
+    emit('update:language', locale.AppLang)
   }
 })
 
