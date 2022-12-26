@@ -49,7 +49,7 @@ export const getAppLangs = (offset: number, limit: number) => {
 }
 
 const message = useAdminMessageStore()
-export const getAppMessages = (offset: number, limit: number) => {
+export const getMessages = (offset: number, limit: number) => {
   message.getMessages({
     Disabled: false,
     Offset: offset,
@@ -66,6 +66,6 @@ export const getAppMessages = (offset: number, limit: number) => {
     if (error || rows.length === 0) {
       return
     }
-    getAppMessages(offset + limit, limit)
+    getMessages(offset + limit, limit)
   })
 }

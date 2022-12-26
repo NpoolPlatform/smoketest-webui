@@ -7,8 +7,8 @@
     row-key='ID'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as Message)'
-    v-model:selected='exportMessages'
-    selection='multiple'
+    v-model:selected='selectedMessages'
+    selection='single'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -30,7 +30,7 @@
           flat
           class='btn flat'
           :label='$t("MSG_DELETE")'
-          :disable='exportMessages.length === 0'
+          :disable='selectedMessages.length === 0'
           @click='onDelete'
         />
         <q-btn
@@ -39,7 +39,6 @@
           class='btn flat'
           :label='$t("MSG_EXPORT")'
           @click='onExport'
-          :disable='exportMessages.length === 0'
         />
       </div>
     </template>
@@ -80,8 +79,6 @@
     row-key='ID'
     :rows-per-page-options='[10]'
     :rows='loadedMessages'
-    selection='multiple'
-    v-model:selected='selectedMessages'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -120,7 +117,7 @@
 <script setup lang='ts'>
 
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
-import { getAppMessages } from 'src/api/g11n'
+import { getMessages } from 'src/api/g11n'
 import { Message } from 'src/teststore/g11n/message/types'
 import { formatTime, NotifyType } from 'npool-cli-v4'
 import saveAs from 'file-saver'
@@ -161,18 +158,18 @@ const onCancel = () => {
   onMenuHide()
 }
 
-const exportMessages = ref([] as Array<Message>)
+const selectedMessages = ref([] as Array<Message>)
 const onExport = () => {
-  const blob = new Blob([JSON.stringify(exportMessages.value)], { type: 'text/plain;charset=utf-8' })
+  const blob = new Blob([JSON.stringify(messages.value)], { type: 'text/plain;charset=utf-8' })
   const filename = 'messages-' + formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
 }
 
 const onSubmit = (done: () => void) => {
-  updating.value ? updateAppMessage(done) : createAppMessage(done)
+  updating.value ? updateMessage(done) : createMessage(done)
 }
 
-const createAppMessage = (done: () => void) => {
+const createMessage = (done: () => void) => {
   message.createMessage({
     TargetLangID: targetLangID.value,
     ...target.value,
@@ -209,7 +206,7 @@ const updateTarget = computed(() => {
     Disabled: target?.value?.Disabled
   }
 })
-const updateAppMessage = (done: () => void) => {
+const updateMessage = (done: () => void) => {
   message.updateMessage({
     ...updateTarget.value,
     NotifyMessage: {
@@ -237,7 +234,7 @@ const updateAppMessage = (done: () => void) => {
 
 const onDelete = () => {
   message.deleteMessage({
-    ID: exportMessages?.value[0].ID,
+    ID: selectedMessages?.value[0].ID,
     NotifyMessage: {
       Error: {
         Title: 'MSG_DELETE_MESSAGE',
@@ -258,7 +255,6 @@ const onDelete = () => {
 }
 
 const loadedMessages = ref([] as Array<Message>)
-const selectedMessages = ref([] as Array<Message>)
 const loadFileButton = ref<HTMLInputElement>()
 
 const uploadFile = (evt: Event) => {
@@ -286,6 +282,7 @@ const importMessages = computed(() => {
 
 const onBatchCreate = () => {
   message.createMessages({
+    TargetLangID: '',
     Infos: importMessages.value,
     Message: {
       Error: {
@@ -308,7 +305,7 @@ const onBatchCreate = () => {
 
 const prepare = () => {
   if (messages.value?.length === 0) {
-    getAppMessages(0, 200)
+    getMessages(0, 200)
   }
 }
 

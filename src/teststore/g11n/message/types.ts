@@ -34,6 +34,8 @@ export interface CreateMessageResponse {
 }
 
 export interface CreateMessagesRequest extends BaseRequest {
+  // AppID: string;
+  TargetLangID: string;
   Infos: Message[];
 }
 
