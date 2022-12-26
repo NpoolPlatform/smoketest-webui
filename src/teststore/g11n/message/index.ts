@@ -80,7 +80,7 @@ export const useAdminMessageStore = defineStore('admin-message-v4', {
       doActionWithError<CreateMessagesRequest, CreateMessagesResponse>(
         API.CREATE_MESSAGES,
         req,
-        req.NotifyMessage,
+        req.Message,
         (resp: CreateMessagesResponse): void => {
           resp.Infos.forEach((el) => {
             const index = this.Messages.Messages.findIndex((al) => al.ID === el.ID)

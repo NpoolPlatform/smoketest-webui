@@ -1,4 +1,4 @@
-import { MyRequest } from 'npool-cli-v4'
+import { BaseRequest, MyRequest } from 'npool-cli-v4'
 
 export interface Message {
   ID: string;
@@ -33,8 +33,8 @@ export interface CreateMessageResponse {
   Info: Message;
 }
 
-export interface CreateMessagesRequest extends MyRequest {
-  Infos: MessageReq[];
+export interface CreateMessagesRequest extends BaseRequest {
+  Infos: Message[];
 }
 
 export interface CreateMessagesResponse {
@@ -63,7 +63,7 @@ export interface GetMessagesResponse {
 export interface UpdateMessageRequest extends MyRequest {
   ID: string;
   // AppID: string;
-  TargetLangID: string;
+  // LangID: string;
   MessageID: string;
   Message: string;
   GetIndex: number;
