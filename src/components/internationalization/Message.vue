@@ -116,10 +116,10 @@ import { formatTime, NotifyType } from 'npool-cli-v4'
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 const message = useAdminMessageStore()
-const messages = computed(() => message.Messages.Messages)
+const messages = computed(() => message.messages())
 
-const searchStr = ref('')
-const displayAppMsgs = computed(() => message.filterMessages(searchStr.value))
+const messageID = ref('')
+const displayAppMsgs = computed(() => messages.value.filter((msg) => msg.MessageID?.toLowerCase().includes(messageID.value?.toLowerCase()) || msg.Message?.toLowerCase()?.includes(messageID.value?.toLowerCase())))
 
 const selectedLang = ref([] as Array<AppLang>)
 console.log('selectedLang: ', selectedLang)
@@ -305,7 +305,7 @@ const onBatchCreate = () => {
 
 onMounted(() => {
   if (messages.value.length === 0) {
-    getAppMessages(0, 300)
+    getAppMessages(0, 500)
   }
 })
 </script>

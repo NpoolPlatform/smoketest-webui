@@ -23,9 +23,12 @@ export const useAdminMessageStore = defineStore('admin-message-v4', {
     }
   }),
   getters: {
+    messages () {
+      return () => this.Messages.Messages.sort((a, b) => a.MessageID.localeCompare(b.MessageID, 'zh-CN'))
+    },
     filterMessages () {
       return (str: string) => {
-        return this.Messages.Messages.filter((el) => el.MessageID.toLowerCase().includes(str.toLowerCase()) || el.Message.toLowerCase().includes(str.toLowerCase()))
+        return this.Messages.Messages.sort((a, b) => a.MessageID.localeCompare(b.MessageID, 'zh-CN')).filter((el) => el.MessageID.toLowerCase().includes(str.toLowerCase()) || el.Message.toLowerCase().includes(str.toLowerCase()))
       }
     }
   },
