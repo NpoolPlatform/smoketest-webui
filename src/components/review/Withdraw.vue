@@ -59,12 +59,13 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, useCoinStore, useLocaleStore } from 'npool-cli-v2'
+import { NotificationType, useCoinStore } from 'npool-cli-v2'
 import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocalUserStore } from 'npool-cli-v4'
+import { useLocalLangStore } from 'src/teststore/lang'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -72,7 +73,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 
 // const review = useReviewStore()
 const coins = useCoinStore()
-const locale = useLocaleStore()
+const locale = useLocalLangStore()
 const logined = useLocalUserStore()
 
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
@@ -146,7 +147,7 @@ const onRowClick = (r: WithdrawReview) => {
 const updateReview = (done: () => void) => {
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
-    LangID: locale.CurLang?.ID as string,
+    LangID: locale.AppLang?.ID,
     UserID: logined.User?.ID,
     Message: target.value.Message,
     State: target.value.State,
