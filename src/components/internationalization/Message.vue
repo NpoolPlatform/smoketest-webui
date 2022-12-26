@@ -102,7 +102,7 @@
           class='btn flat'
           :label='$t("MSG_BATCH_CREATE")'
           :disable='loadedMessages.length === 0'
-          @click='onBatchCreate'
+          @click='onBatchClick'
         />
       </div>
     </template>
@@ -112,6 +112,24 @@
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
     </q-card-section>
   </q-card>
+  <q-dialog
+    v-model='batchCreating'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_BATCH_CREATE_MESSAGE') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <AppLanguagePicker v-model:id='langID' label='MSG_SELECT_LANGUAGE' />
+      </q-card-section>
+      <q-item class='row'>
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onBatchSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onBatchCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
@@ -122,6 +140,7 @@ import { Message } from 'src/teststore/g11n/message/types'
 import { formatTime, NotifyType } from 'npool-cli-v4'
 import saveAs from 'file-saver'
 import { useAdminMessageStore } from 'src/teststore/g11n/message'
+import { useLocalLangStore } from 'src/teststore/lang'
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
@@ -270,7 +289,7 @@ const uploadFile = (evt: Event) => {
 }
 
 const importMessages = computed(() => {
-  return Array.from(selectedMessages.value).map((el) => {
+  return Array.from(loadedMessages.value).map((el) => {
     return {
       MessageID: el.MessageID,
       Message: el.Message,
@@ -280,9 +299,22 @@ const importMessages = computed(() => {
   })
 })
 
-const onBatchCreate = () => {
+const locale = useLocalLangStore()
+const langID = ref(locale?.AppLang?.LangID)
+
+const batchCreating = ref(false)
+
+const onBatchClick = () => {
+  batchCreating.value = true
+}
+
+const onBatchCancel = () => {
+  batchCreating.value = false
+}
+
+const onBatchSubmit = (done: () => void) => {
   message.createMessages({
-    TargetLangID: '',
+    TargetLangID: langID.value,
     Infos: importMessages.value,
     Message: {
       Error: {
@@ -299,7 +331,7 @@ const onBatchCreate = () => {
       }
     }
   }, () => {
-    // TODO
+    done()
   })
 }
 
