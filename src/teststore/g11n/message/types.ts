@@ -3,6 +3,7 @@ import { BaseRequest, MyRequest } from 'npool-cli-v4'
 export interface Message {
   ID: string;
   AppName: string;
+  LangID: string;
   Lang: string;
   MessageID: string;
   Message: string;
@@ -36,7 +37,7 @@ export interface CreateMessageResponse {
 export interface CreateMessagesRequest extends BaseRequest {
   // AppID: string;
   TargetLangID: string;
-  Infos: Message[];
+  Infos: MessageReq[];
 }
 
 export interface CreateMessagesResponse {

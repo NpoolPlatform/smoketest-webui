@@ -136,11 +136,12 @@
 
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { getMessages } from 'src/api/g11n'
-import { Message } from 'src/teststore/g11n/message/types'
-import { formatTime, NotifyType } from 'npool-cli-v4'
+import { Message, MessageReq } from 'src/teststore/g11n/message/types'
+import { NotifyType, formatTime } from 'npool-cli-v4'
 import saveAs from 'file-saver'
 import { useAdminMessageStore } from 'src/teststore/g11n/message'
 import { useLocalLangStore } from 'src/teststore/lang'
+import { AppID } from 'src/const/const'
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
@@ -179,9 +180,23 @@ const onCancel = () => {
 
 const selectedMessages = ref([] as Array<Message>)
 const onExport = () => {
-  const blob = new Blob([JSON.stringify(messages.value)], { type: 'text/plain;charset=utf-8' })
-  const filename = 'messages-' + formatTime(new Date().getTime() / 1000) + '.json'
-  saveAs(blob, filename)
+  const resultMap = new Map<string, Array<Message>>()
+  messages.value.forEach((el) => {
+    let data = resultMap.get(el.LangID)
+    if (!data) {
+      data = []
+    }
+    data.push(el)
+    resultMap.set(el.LangID, data)
+  })
+  resultMap.forEach((values, _key) => {
+    if (values.length > 0) {
+      console.log('_key: ', _key)
+      const blob = new Blob([JSON.stringify(values)], { type: 'text/plain;charset=utf-8' })
+      const filename = 'messages-' + values[0].Lang + '-' + formatTime(new Date().getTime() / 1000) + '.json'
+      saveAs(blob, filename)
+    }
+  })
 }
 
 const onSubmit = (done: () => void) => {
@@ -291,11 +306,14 @@ const uploadFile = (evt: Event) => {
 const importMessages = computed(() => {
   return Array.from(loadedMessages.value).map((el) => {
     return {
+      ID: el.ID,
+      AppID: AppID,
+      LangID: el.LangID,
       MessageID: el.MessageID,
       Message: el.Message,
       GetIndex: el.GetIndex,
       Disabled: el.Disabled
-    } as Message
+    } as MessageReq
   })
 })
 
@@ -330,8 +348,12 @@ const onBatchSubmit = (done: () => void) => {
         Type: NotifyType.Success
       }
     }
-  }, () => {
+  }, (error: boolean) => {
     done()
+    if (error) {
+      return
+    }
+    onBatchCancel()
   })
 }
 
