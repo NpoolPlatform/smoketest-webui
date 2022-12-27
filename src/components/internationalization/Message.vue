@@ -122,7 +122,7 @@
         <span>{{ $t('MSG_BATCH_CREATE_MESSAGE') }}</span>
       </q-card-section>
       <q-card-section>
-        <AppLanguagePicker v-model:id='langID' label='MSG_SELECT_LANGUAGE' />
+        <AppLanguagePicker v-model:id='langID' label='MSG_CURRENT_MESSAGES_LANGUAGE' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onBatchSubmit' />
