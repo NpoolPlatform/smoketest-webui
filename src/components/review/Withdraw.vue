@@ -64,8 +64,7 @@ import { useWithdrawReviewStore, WithdrawReview } from 'src/teststore/review'
 import { ReviewState } from 'src/teststore/review/const'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useLocalUserStore } from 'npool-cli-v4'
-import { useLocalLangStore } from 'src/teststore/lang'
+import { useLocalUserStore, useLocaleStore } from 'npool-cli-v4'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -73,7 +72,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 
 // const review = useReviewStore()
 const coins = useCoinStore()
-const locale = useLocalLangStore()
+const locale = useLocaleStore()
 const logined = useLocalUserStore()
 
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)

@@ -23,7 +23,7 @@
 
 <script setup lang='ts'>
 import { getAppLangs } from 'src/api/g11n'
-import { useAdminAppLangStore } from 'src/teststore/g11n/applang'
+import { useAdminAppLangStore } from 'npool-cli-v4'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {

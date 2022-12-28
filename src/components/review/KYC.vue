@@ -92,10 +92,10 @@ import {
   KYCReviewState,
   formatTime,
   useFrontendAppStore,
-  NotifyType
+  NotifyType,
+  useLocaleStore
 } from 'npool-cli-v4'
 import { AppID } from 'src/const/const'
-import { useLocalLangStore } from 'src/teststore/lang'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -199,7 +199,7 @@ const columns = computed(() => [
     sortable: true
   }
 ])
-const locale = useLocalLangStore()
+const locale = useLocaleStore()
 
 const username = ref('')
 const displayReviews = computed(() => kyc.KycReviews.KycReviews.filter((el) => {
@@ -278,7 +278,7 @@ const updateReview = (state: KYCReviewState) => {
   }
   kyc.updateKycReview({
     ReviewID: target.value?.ReviewID,
-    LangID: locale.AppLang?.ID,
+    LangID: locale.AppLang?.LangID,
     State: state,
     Message: target.value.Message,
     NotifyMessage: {

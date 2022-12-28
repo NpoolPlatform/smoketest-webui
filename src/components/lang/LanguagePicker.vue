@@ -21,8 +21,7 @@
   </q-select>
 </template>
 <script setup lang='ts'>
-import { useAdminAppLangStore } from 'src/teststore/g11n/applang'
-import { useLocalLangStore } from 'src/teststore/lang'
+import { useAdminAppLangStore, useLocaleStore } from 'npool-cli-v4'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {
@@ -50,7 +49,7 @@ const onUpdate = () => {
   emit('update:language', _lang.value)
 }
 
-const locale = useLocalLangStore()
+const locale = useLocaleStore()
 onMounted(() => {
   if (!language.value) {
     _lang.value = locale.AppLang?.ID
