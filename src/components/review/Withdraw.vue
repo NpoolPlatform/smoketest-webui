@@ -146,7 +146,7 @@ const onRowClick = (r: WithdrawReview) => {
 const updateReview = (done: () => void) => {
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
-    LangID: locale.AppLang?.ID,
+    LangID: locale.AppLang?.LangID,
     UserID: logined.User?.ID,
     Message: target.value.Message,
     State: target.value.State,
