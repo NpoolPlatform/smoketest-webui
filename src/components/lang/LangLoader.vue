@@ -1,29 +1,22 @@
 <script setup lang='ts'>
 import { getMessages } from 'src/api/g11n'
-import { useAdminAppLangStore, AppLang, useFrontendMessageStore, useLocaleStore } from 'npool-cli-v4'
-import { onMounted, computed, watch } from 'vue'
+import { useAdminAppLangStore, AppLang, useLocaleStore, useAdminMessageStore } from 'npool-cli-v4'
+import { onMounted, computed } from 'vue'
 
 const lang = useAdminAppLangStore()
 const langs = computed(() => lang.AppLangs.AppLangs)
 
-const message = useFrontendMessageStore()
-const messages = computed(() => message.getMessagesByLangID(locale?.AppLang?.LangID))
+const message = useAdminMessageStore()
+const messages = computed(() => message.Messages.Messages)
 
 const locale = useLocaleStore()
-const langID = computed(() => locale.AppLang?.LangID)
-
-watch(langID, () => {
-  if (messages.value.length === 0) {
-    getMessages(0, 500)
-  }
-})
 
 onMounted(() => {
   if (langs.value.length === 0) {
     getAppLangs(0, 100)
   }
   if (messages.value.length === 0) {
-    getMessages(0, 100)
+    getMessages(0, 500)
   }
 })
 
