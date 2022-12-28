@@ -38,9 +38,7 @@
 </template>
 
 <script setup lang='ts'>
-import { useAdminAppLangStore } from 'src/teststore/g11n/applang'
-import { AppLang } from 'src/teststore/g11n/applang/types'
-import { useLocalLangStore } from 'src/teststore/lang'
+import { useAdminAppLangStore, AppLang, useLocaleStore } from 'npool-cli-v4'
 import { ref, computed, defineProps, withDefaults, toRef, defineEmits, onMounted } from 'vue'
 
 interface Props {
@@ -60,7 +58,7 @@ const internet = ref('img: icons/Internet.svg')
 const lang = useAdminAppLangStore()
 const langs = computed(() => lang.AppLangs.AppLangs)
 
-const locale = useLocalLangStore()
+const locale = useLocaleStore()
 const langLabel = computed(() => locale.AppLang?.Short !== '' ? locale.AppLang?.Short : locale.AppLang.Lang)
 
 const emit = defineEmits<{(e: 'update:language', language: AppLang): void}>()

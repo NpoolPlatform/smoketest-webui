@@ -35,10 +35,8 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
+import { NotifyType, useAdminAppLangStore, AppLang } from 'npool-cli-v4'
 import { getAppLangs } from 'src/api/g11n'
-import { useAdminAppLangStore } from 'src/teststore/g11n/applang'
-import { AppLang } from 'src/teststore/g11n/applang/types'
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))

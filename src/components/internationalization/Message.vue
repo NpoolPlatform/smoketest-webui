@@ -136,11 +136,8 @@
 
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { getMessages } from 'src/api/g11n'
-import { Message, MessageReq } from 'src/teststore/g11n/message/types'
-import { NotifyType, formatTime } from 'npool-cli-v4'
+import { NotifyType, formatTime, Message, MessageReq, useAdminMessageStore, useLocaleStore } from 'npool-cli-v4'
 import saveAs from 'file-saver'
-import { useAdminMessageStore } from 'src/teststore/g11n/message'
-import { useLocalLangStore } from 'src/teststore/lang'
 import { AppID } from 'src/const/const'
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
@@ -317,7 +314,7 @@ const importMessages = computed(() => {
   })
 })
 
-const locale = useLocalLangStore()
+const locale = useLocaleStore()
 const langID = ref(locale?.AppLang?.LangID)
 
 const batchCreating = ref(false)

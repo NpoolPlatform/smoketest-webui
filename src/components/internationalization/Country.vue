@@ -20,7 +20,7 @@
 
 <script setup lang='ts'>
 import { getCountries } from 'src/api/g11n'
-import { useAdminAppCountryStore } from 'src/teststore/g11n/appcountry'
+import { useAdminAppCountryStore } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 
 const country = useAdminAppCountryStore()
