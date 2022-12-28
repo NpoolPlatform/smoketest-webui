@@ -36,8 +36,7 @@
 
 <script setup lang='ts'>
 import { NotifyType, useAdminAppLangStore, AppLang } from 'npool-cli-v4'
-import { getAppLangs } from 'src/api/g11n'
-import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+import { computed, ref, defineAsyncComponent } from 'vue'
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
@@ -88,9 +87,5 @@ const onSubmit = (done: () => void) => {
     onMenuHide()
   })
 }
-
-onMounted(() => {
-  if (langs.value.length === 0) { getAppLangs(0, 100) }
-})
 
 </script>

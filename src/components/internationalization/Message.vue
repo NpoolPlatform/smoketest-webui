@@ -134,8 +134,7 @@
 
 <script setup lang='ts'>
 
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
-import { getMessages } from 'src/api/g11n'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import { NotifyType, formatTime, Message, MessageReq, useAdminMessageStore, useLocaleStore } from 'npool-cli-v4'
 import saveAs from 'file-saver'
 import { AppID } from 'src/const/const'
@@ -315,7 +314,8 @@ const importMessages = computed(() => {
 })
 
 const locale = useLocaleStore()
-const langID = ref(locale?.AppLang?.LangID)
+const _langID = computed(() => locale?.AppLang?.LangID)
+const langID = ref(_langID.value)
 
 const batchCreating = ref(false)
 
@@ -353,14 +353,4 @@ const onBatchSubmit = (done: () => void) => {
     onBatchCancel()
   })
 }
-
-const prepare = () => {
-  if (messages.value?.length === 0) {
-    getMessages(0, 200)
-  }
-}
-
-onMounted(() => {
-  prepare()
-})
 </script>
