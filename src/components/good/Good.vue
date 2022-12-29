@@ -44,6 +44,32 @@
           :min='0'
           suffix='%'
         />
+        <q-input
+          class='commission-percent'
+          v-model.number='target.TechnicalFeeRatio'
+          :label='$t("MSG_TECHNICALFEE_RATIO")'
+          type='number'
+          :min='0'
+        />
+        <q-input
+          class='commission-percent'
+          v-model.number='target.ElectricityFeeRatio'
+          :label='$t("MSG_ELECTRICITYFEE_RATIO")'
+          type='number'
+          :min='0'
+        />
+        <q-input
+          class='commission-percent'
+          v-model='target.DailyRewardAmount'
+          :label='$t("MSG_DAILY_REWARD_AMOUNT")'
+          type='number'
+          :min='0'
+        />
+      </q-card-section>
+      <q-card-section>
+        <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' /></div>
+        <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' /></div>
+        <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div>
       </q-card-section>
       <q-card-section>
         <div>
@@ -53,37 +79,7 @@
           <q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' />
         </div>
       </q-card-section>
-      <q-card-section>
-        <div>
-          <div class='q-pa-md'>
-            <q-input filled v-model='date'>
-              <template #prepend>
-                <q-icon name='event' class='cursor-pointer'>
-                  <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-                    <q-date v-model='date' mask='YYYY-MM-DD HH:mm:ss'>
-                      <div class='row items-center justify-end'>
-                        <q-btn v-close-popup label='Close' color='primary' flat />
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
 
-              <template #append>
-                <q-icon name='access_time' class='cursor-pointer'>
-                  <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-                    <q-time v-model='date' mask='YYYY-MM-DD HH:mm:ss' format24h>
-                      <div class='row items-center justify-end'>
-                        <q-btn v-close-popup label='Close' color='primary' flat />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </div>
-        </div>
-      </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
@@ -103,6 +99,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 
 const coin = useAdminAppCoinStore()
 const coins = computed(() => coin.AppCoins.AppCoins)
@@ -111,7 +108,6 @@ const appGood = useAdminAppGoodStore()
 const appGoods = computed(() => appGood.AppGoods.AppGoods)
 
 const target = ref({} as AppGood)
-const date = ref('2019-02-01 12:44:59')
 
 const showing = ref(false)
 const updating = ref(false)
@@ -144,7 +140,13 @@ const updateTarget = computed(() => {
     Price: target.value.Price,
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
-    CommissionPercent: target.value.CommissionPercent
+    CommissionPercent: target.value.CommissionPercent,
+    TechnicalFeeRatio: target.value.TechnicalFeeRatio,
+    ElectricityFeeRatio: target.value.ElectricityFeeRatio,
+    SaleStartAt: target.value.SaleStartAt,
+    SaleEndAt: target.value.SaleEndAt,
+    ServiceStartAt: target.value.ServiceStartAt,
+    DailyRewardAmount: target.value?.DailyRewardAmount
   }
 })
 
@@ -268,6 +270,26 @@ const appGoodsColumns = computed(() => [
     name: 'STARTAT',
     label: t('MSG_STARTAT'),
     field: (row: AppGood) => formatTime(row.StartAt)
+  },
+  {
+    name: 'SaleStartAt',
+    label: t('MSG_SALE_START_AT'),
+    field: (row: AppGood) => formatTime(row?.SaleStartAt)
+  },
+  {
+    name: 'SaleEndAt',
+    label: t('MSG_SALE_END_AT'),
+    field: (row: AppGood) => formatTime(row?.SaleEndAt)
+  },
+  {
+    name: 'DailyRewardAmount',
+    label: t('MSG_DAILY_REWARD_AMOUNT'),
+    field: (row: AppGood) => row.DailyRewardAmount
+  },
+  {
+    name: 'ServiceStartAt',
+    label: t('MSG_SERVICE_START_AT'),
+    field: (row: AppGood) => formatTime(row?.ServiceStartAt)
   }
 ])
 

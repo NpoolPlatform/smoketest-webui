@@ -1,31 +1,34 @@
 <template>
-  <div class='q-pa-md'>
-    <q-input filled v-model='target'>
-      <template #prepend>
-        <q-icon name='event' class='cursor-pointer'>
-          <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-            <q-date v-model='target' mask='YYYY-MM-DD HH:mm:ss'>
-              <div class='row items-center justify-end'>
-                <q-btn v-close-popup label='Close' color='primary' flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-
-      <template #append>
-        <q-icon name='access_time' class='cursor-pointer'>
-          <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-            <q-time v-model='target' mask='YYYY-MM-DD HH:mm:ss' format24h>
-              <div class='row items-center justify-end'>
-                <q-btn v-close-popup label='Close' color='primary' flat />
-              </div>
-            </q-time>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+  <div class='q-pb-sm'>
+    <q-badge>
+      {{ label }}:
+    </q-badge>
   </div>
+  <q-input filled v-model='target'>
+    <template #prepend>
+      <q-icon name='event' class='cursor-pointer'>
+        <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+          <q-date v-model='target' mask='YYYY-MM-DD HH:mm:ss' color='orange'>
+            <div class='row items-center justify-end'>
+              <q-btn v-close-popup label='Close' color='primary' flat />
+            </div>
+          </q-date>
+        </q-popup-proxy>
+      </q-icon>
+    </template>
+
+    <template #append>
+      <q-icon name='access_time' class='cursor-pointer'>
+        <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+          <q-time v-model='target' mask='YYYY-MM-DD HH:mm:ss' format24h color='orange'>
+            <div class='row items-center justify-end'>
+              <q-btn v-close-popup label='Close' color='primary' flat />
+            </div>
+          </q-time>
+        </q-popup-proxy>
+      </q-icon>
+    </template>
+  </q-input>
 </template>
 <script lang='ts' setup>
 import { formatTime } from 'npool-cli-v4'
@@ -47,9 +50,6 @@ const emit = defineEmits<{(e: 'update:date', target: number): void}>()
 watch(target, () => {
   emit('update:date', new Date(target.value).getTime() / 1000)
 })
-// const onChange = () => {
-//   emit('update:date', new Date(target.value).getTime() / 1000)
-// }
 
 onMounted(() => {
   if (date.value) {
