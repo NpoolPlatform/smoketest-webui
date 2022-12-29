@@ -83,9 +83,6 @@
 <script setup lang='ts'>
 import saveAs from 'file-saver'
 import {
-  useLocaleStore
-} from 'npool-cli-v2'
-import {
   ImageType,
   DocumentType,
   KYCReview,
@@ -98,6 +95,7 @@ import {
   NotifyType
 } from 'npool-cli-v4'
 import { AppID } from 'src/const/const'
+import { useLocalLangStore } from 'src/teststore/lang'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -201,7 +199,7 @@ const columns = computed(() => [
     sortable: true
   }
 ])
-const locale = useLocaleStore()
+const locale = useLocalLangStore()
 
 const username = ref('')
 const displayReviews = computed(() => kyc.KycReviews.KycReviews.filter((el) => {
@@ -280,7 +278,7 @@ const updateReview = (state: KYCReviewState) => {
   }
   kyc.updateKycReview({
     ReviewID: target.value?.ReviewID,
-    LangID: locale.CurLang?.ID,
+    LangID: locale.AppLang?.ID,
     State: state,
     Message: target.value.Message,
     NotifyMessage: {
