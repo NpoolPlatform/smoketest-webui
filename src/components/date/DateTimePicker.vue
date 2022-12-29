@@ -54,7 +54,7 @@ watch(target, () => {
 
 onMounted(() => {
   if (date.value) {
-    target.value = formatTime(date.value, true)?.replace(/\//g, '-')
+    target.value = formatTime(date.value, false)?.replace(/\//g, '-')
   }
 })
 </script>
