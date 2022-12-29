@@ -44,7 +44,7 @@
           :min='0'
           suffix='%'
         />
-        <q-input
+        <!-- <q-input
           class='commission-percent'
           v-model.number='target.TechnicalFeeRatio'
           :label='$t("MSG_TECHNICALFEE_RATIO")'
@@ -57,7 +57,7 @@
           :label='$t("MSG_ELECTRICITYFEE_RATIO")'
           type='number'
           :min='0'
-        />
+        /> -->
         <q-input
           class='commission-percent'
           v-model='target.DailyRewardAmount'
@@ -69,7 +69,7 @@
       <q-card-section>
         <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' /></div>
         <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' /></div>
-        <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div>
+        <!-- <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div> -->
       </q-card-section>
       <q-card-section>
         <div>
@@ -141,12 +141,12 @@ const updateTarget = computed(() => {
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
     CommissionPercent: target.value.CommissionPercent,
-    TechnicalFeeRatio: target.value.TechnicalFeeRatio,
-    ElectricityFeeRatio: target.value.ElectricityFeeRatio,
-    SaleStartAt: target.value.SaleStartAt,
-    SaleEndAt: target.value.SaleEndAt,
-    ServiceStartAt: target.value.ServiceStartAt,
-    DailyRewardAmount: target.value?.DailyRewardAmount
+    // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
+    // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
+    SaleStartAt: target.value.SaleStartAt === 0 ? undefined as unknown as number : target.value.SaleStartAt,
+    SaleEndAt: target.value.SaleEndAt === 0 ? undefined as unknown as number : target.value.SaleEndAt,
+    // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
+    DailyRewardAmount: target.value?.DailyRewardAmount.length === 0 ? undefined as unknown as string : target.value?.DailyRewardAmount
   }
 })
 
