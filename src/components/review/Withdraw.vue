@@ -47,10 +47,9 @@
 </template>
 
 <script setup lang='ts'>
-import { useLocaleStore } from 'npool-cli-v2'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { NotifyType, ReviewState, useAdminWithdrawReviewStore, useLocalUserStore, WithdrawReview } from 'npool-cli-v4'
+import { NotifyType, ReviewState, useAdminWithdrawReviewStore, useLocalUserStore, WithdrawReview, useLocaleStore } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -100,7 +99,7 @@ const onReject = (done: () => void) => {
 const updateReview = (done: () => void) => {
   review.updateWithdrawReview({
     ReviewID: target.value.ReviewID,
-    LangID: locale.CurLang?.ID as string,
+    LangID: locale.AppLang?.LangID,
     UserID: logined.User?.ID,
     Message: target.value.Message,
     State: target.value.State,
