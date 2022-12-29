@@ -1,8 +1,8 @@
 <template>
   <div class='q-pb-sm'>
-    <q-badge>
+    <div>
       {{ label }}:
-    </q-badge>
+    </div>
   </div>
   <q-input filled v-model='target'>
     <template #prepend>
@@ -29,6 +29,8 @@
       </q-icon>
     </template>
   </q-input>
+
+  <div style='height: 20px' />
 </template>
 <script lang='ts' setup>
 import { formatTime } from 'npool-cli-v4'
@@ -42,7 +44,6 @@ const props = defineProps<Props>()
 const date = toRef(props, 'date')
 const label = toRef(props, 'label')
 
-console.log('label: ', label)
 const target = ref('')
 
 const emit = defineEmits<{(e: 'update:date', target: number): void}>()
