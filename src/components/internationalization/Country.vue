@@ -2,38 +2,37 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_COUNTRIES")'
-    :rows='countries'
+    :title='$t("MSG_APP_COUNTRIES")'
+    :rows='displayCountries'
     row-key='ID'
-    :loading='countryLoading'
     :rows-per-page-options='[20]'
-  />
+  >
+    <template #top-right>
+      <q-input
+        dense
+        class='small'
+        v-model='countryName'
+        :label='$t("MSG_COUNTRY")'
+      />
+    </template>
+  </q-table>
 </template>
 
 <script setup lang='ts'>
-import {
-  NotificationType,
-  useLangStore
-} from 'npool-cli-v2'
+import { getCountries } from 'src/api/g11n'
+import { useAdminAppCountryStore } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
 
-const lang = useLangStore()
-const countries = computed(() => lang.Countries)
-const countryLoading = ref(true)
+const country = useAdminAppCountryStore()
+const countries = computed(() => country.AppCountries.AppCountries)
+
+const countryName = ref('')
+const displayCountries = computed(() => countries.value.filter((el) => el.Country?.toLowerCase().includes(countryName.value?.toLowerCase())))
 
 onMounted(() => {
-  lang.getCountries({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_COUNTRIES',
-        Message: 'MSG_GET_COUNTRIES_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    countryLoading.value = false
-  })
+  if (countries.value.length === 0) {
+    getCountries(0, 100)
+  }
 })
 
 </script>

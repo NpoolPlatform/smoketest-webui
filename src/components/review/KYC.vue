@@ -83,9 +83,6 @@
 <script setup lang='ts'>
 import saveAs from 'file-saver'
 import {
-  useLocaleStore
-} from 'npool-cli-v2'
-import {
   ImageType,
   DocumentType,
   KYCReview,
@@ -95,7 +92,8 @@ import {
   KYCReviewState,
   formatTime,
   useFrontendAppStore,
-  NotifyType
+  NotifyType,
+  useLocaleStore
 } from 'npool-cli-v4'
 import { AppID } from 'src/const/const'
 import { computed, onMounted, ref } from 'vue'
@@ -280,7 +278,7 @@ const updateReview = (state: KYCReviewState) => {
   }
   kyc.updateKycReview({
     ReviewID: target.value?.ReviewID,
-    LangID: locale.CurLang?.ID,
+    LangID: locale.AppLang?.LangID,
     State: state,
     Message: target.value.Message,
     NotifyMessage: {

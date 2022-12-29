@@ -2,35 +2,21 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_LANGUAGES")'
-    :rows='langs'
-    row-key='ID'
-    :loading='langLoading'
-    :rows-per-page-options='[20]'
-    selection='single'
-    v-model:selected='selectedLang'
-  />
-  <q-table
-    dense
-    flat
     :title='$t("MSG_APP_MESSAGES")'
     :rows='displayAppMsgs'
-    :loading='messageLoading'
     row-key='ID'
-    :rows-per-page-options='[20, 40, 60, 80, 100, 0]'
+    :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as Message)'
+    v-model:selected='selectedMessages'
+    selection='single'
   >
     <template #top-right>
       <div class='row indent flat'>
-        <div v-if='!language' class='column justify-center'>
-          <span class='warning'>{{ $t('MSG_SELECT_LANGUAGE') }}</span>
-        </div>
         <q-input
           dense
-          flat
           class='small'
-          v-model='searchStr'
-          :label='$t("MSG_SEARCH")'
+          v-model='messageID'
+          :label='$t("MSG_MESSAGE_ID")'
         />
         <q-btn
           dense
@@ -43,51 +29,81 @@
           dense
           flat
           class='btn flat'
+          :label='$t("MSG_DELETE")'
+          :disable='selectedMessages.length === 0'
+          @click='onDelete'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
           :label='$t("MSG_EXPORT")'
           @click='onExport'
         />
       </div>
     </template>
   </q-table>
+  <q-dialog
+    v-model='showing'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ updating ? $t('MSG_UPDATE_MESSAGE') : $t('MSG_CREATE_MESSAGE') }}</span>
+      </q-card-section>
+      <q-card-section v-if='!updating'>
+        <AppLanguagePicker v-model:id='targetLangID' label='MSG_SELECT_LANGUAGE' />
+      </q-card-section>
+      <q-card-section v-if='updating'>
+        <span> {{ target?.Lang }}</span>
+      </q-card-section>
+      <q-card-section>
+        <q-input v-model='target.MessageID' :label='$t("MSG_MESSAGE_ID")' />
+        <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
+        <q-input v-model.number='target.GetIndex' :label='$t("MSG_GET_INDEX")' />
+      </q-card-section>
+      <q-card-section v-if='updating'>
+        <div><q-toggle dense v-model='target.Disabled' :label='$t("MSG_DISABLE")' /></div>
+      </q-card-section>
+      <q-item class='row'>
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
   <q-table
     dense
     flat
     :title='$t("MSG_LOADED_MESSAGES")'
-    :rows='displayLoadedMsgs'
-    row-key='MessageID'
-    :rows-per-page-options='[20]'
+    row-key='ID'
+    :rows-per-page-options='[10]'
+    :rows='loadedMessages'
   >
     <template #top-right>
       <div class='row indent flat'>
-        <q-input
-          dense
-          flat
-          class='small'
-          v-model='loadedSearchStr'
-          :label='$t("MSG_SEARCH")'
-        />
-        <q-btn
-          dense
-          flat
-          class='btn flat'
-          :label='$t("MSG_LOAD_FILE")'
-          @click='onLoadFile'
-        />
         <input
           ref='loadFileButton'
           type='file'
           style='display: none;'
-          @change='onFileLoaded'
+          @change='uploadFile'
           accept='.json'
         >
         <q-btn
           dense
           flat
           class='btn flat'
-          :label='$t("MSG_SUBMIT")'
-          @click='onBatchSubmit'
+          :label='$t("MSG_IMPORT")'
+          @click='loadFileButton?.click()'
         />
-        <div>{{ loadedFile }}</div>
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_BATCH_CREATE")'
+          :disable='loadedMessages.length === 0'
+          @click='onBatchClick'
+        />
       </div>
     </template>
   </q-table>
@@ -97,239 +113,244 @@
     </q-card-section>
   </q-card>
   <q-dialog
-    v-model='showing'
+    v-model='batchCreating'
     @hide='onMenuHide'
     position='right'
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_CONTACT') }}</span>
+        <span>{{ $t('MSG_BATCH_CREATE_MESSAGE') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-input v-model='target.MessageID' :label='$t("MSG_MESSAGE_ID")' />
-        <q-input v-model='target.Message' :label='$t("MSG_MESSAGE")' />
+        <AppLanguagePicker v-model:id='langID' label='MSG_CURRENT_MESSAGES_LANGUAGE' />
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
-        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onBatchSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onBatchCancel' />
       </q-item>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup lang='ts'>
-import {
-  formatTime,
-  Language,
-  Message,
-  NotificationType,
-  useAdminLangStore,
-  useLangStore,
-  useLocaleStore
-} from 'npool-cli-v2'
-import { useFrontendAppStore, NotifyType } from 'npool-cli-v4'
-import { computed, onMounted, ref, watch } from 'vue'
-import { saveAs } from 'file-saver'
+
+import { computed, defineAsyncComponent, ref } from 'vue'
+import { NotifyType, formatTime, Message, MessageReq, useAdminMessageStore, useLocaleStore } from 'npool-cli-v4'
+import saveAs from 'file-saver'
 import { AppID } from 'src/const/const'
 
-const lang = useLangStore()
-const adminLang = useAdminLangStore()
-const locale = useLocaleStore()
-const app = useFrontendAppStore()
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
 
-const langLoading = ref(true)
-const messageLoading = ref(false)
+const message = useAdminMessageStore()
+const messages = computed(() => message.messages())
 
-const langs = computed(() => locale.Languages)
+const messageID = ref('')
+const displayAppMsgs = computed(() => messages.value.filter((msg) => msg.MessageID?.toLowerCase().includes(messageID.value?.toLowerCase()) || msg.Message?.toLowerCase()?.includes(messageID.value?.toLowerCase())))
 
-const selectedLang = ref([] as Array<Language>)
-const language = computed(() => selectedLang.value.length > 0 ? selectedLang.value[0] : undefined as unknown as Language)
-const messages = computed(() => locale.getLangMessages(language.value?.ID))
-const searchStr = ref('')
-const displayAppMsgs = computed(() => messages.value ? messages.value.filter((msg) => {
-  return msg.MessageID.toLowerCase().includes(searchStr.value.toLowerCase()) ||
-        msg.Message.toLowerCase().includes(searchStr.value.toLowerCase())
-}) : [])
-
-const loadedLanguage = ref(undefined as unknown as Language)
-const loadedMessages = ref([] as Array<Message>)
-const loadedSearchStr = ref('')
-const displayLoadedMsgs = computed(() => loadedMessages.value.filter((msg) => {
-  return msg.MessageID.toLowerCase().includes(loadedSearchStr.value.toLowerCase()) ||
-        msg.Message.toLowerCase().includes(loadedSearchStr.value.toLowerCase())
-}))
-
-watch(language, () => {
-  messageLoading.value = true
-
-  lang.getLangMessages({
-    TargetLangID: language.value.ID,
-    LangID: language.value.ID,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_MESSAGES',
-        Message: 'MSG_GET_MESSAGES_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    messageLoading.value = false
-  })
-})
-
+const targetLangID = ref('')
+const target = ref({} as Message)
 const showing = ref(false)
 const updating = ref(false)
-const target = ref({} as unknown as Message)
 
-onMounted(() => {
-  app.getApp({
-    AppID: AppID,
-    Message: {
+const onCreate = () => {
+  showing.value = true
+  updating.value = false
+  target.value.GetIndex = 0
+}
+
+const onMenuHide = () => {
+  target.value = {} as Message
+  showing.value = false
+}
+
+const onRowClick = (row: Message) => {
+  target.value = { ...row }
+  updating.value = true
+  showing.value = true
+}
+
+const onCancel = () => {
+  onMenuHide()
+}
+
+const selectedMessages = ref([] as Array<Message>)
+const onExport = () => {
+  const resultMap = new Map<string, Array<Message>>()
+  messages.value.forEach((el) => {
+    let data = resultMap.get(el.LangID)
+    if (!data) {
+      data = []
+    }
+    data.push(el)
+    resultMap.set(el.LangID, data)
+  })
+  resultMap.forEach((values, _key) => {
+    if (values.length > 0) {
+      console.log('_key: ', _key)
+      const blob = new Blob([JSON.stringify(values)], { type: 'text/plain;charset=utf-8' })
+      const filename = 'messages-' + values[0].Lang + '-' + formatTime(new Date().getTime() / 1000) + '.json'
+      saveAs(blob, filename)
+    }
+  })
+}
+
+const onSubmit = (done: () => void) => {
+  updating.value ? updateMessage(done) : createMessage(done)
+}
+
+const createMessage = (done: () => void) => {
+  message.createMessage({
+    TargetLangID: targetLangID.value,
+    ...target.value,
+    NotifyMessage: {
       Error: {
-        Title: 'MSG_GET_APP',
-        Message: 'MSG_GET_APP_FAIL',
+        Title: 'MSG_CREATE_MESSAGE',
+        Message: 'MSG_CREATE_MESSAGE_FAIL',
         Popup: true,
         Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_CREATE_MESSAGE',
+        Message: 'MSG_CREATE_MESSAGE_SUCCESS',
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const updateTarget = computed(() => {
+  return {
+    ID: target?.value?.ID,
+    TargetLangID: target?.value?.LangID,
+    Lang: target?.value?.Lang,
+    MessageID: target?.value?.MessageID,
+    Message: target?.value?.Message,
+    GetIndex: target?.value?.GetIndex,
+    Disabled: target?.value?.Disabled
+  }
+})
+const updateMessage = (done: () => void) => {
+  message.updateMessage({
+    ...updateTarget.value,
+    NotifyMessage: {
+      Error: {
+        Title: 'MSG_UPDATE_MESSAGE',
+        Message: 'MSG_UPDATE_MESSAGE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_UPDATE_MESSAGE',
+        Message: 'MSG_UPDATE_MESSAGE_FAIL',
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const onDelete = () => {
+  message.deleteMessage({
+    ID: selectedMessages?.value[0].ID,
+    NotifyMessage: {
+      Error: {
+        Title: 'MSG_DELETE_MESSAGE',
+        Message: 'MSG_DELETE_MESSAGE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_DELETE_MESSAGE',
+        Message: 'MSG_DELETE_MESSAGE_FAIL',
+        Popup: true,
+        Type: NotifyType.Success
       }
     }
   }, () => {
     // TODO
   })
-
-  lang.getLangs({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_LANGS',
-        Message: 'MSG_GET_LANGS_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    langLoading.value = false
-  })
-})
-
-const onCreate = () => {
-  target.value = {} as unknown as Message
-  showing.value = true
-  updating.value = false
 }
 
-const onRowClick = (message: Message) => {
-  target.value = message
-  showing.value = true
-  updating.value = true
-}
-
-interface SavedMessages {
-  Languages: Array<Language>
-  Language: Language
-  Messages: Array<Message>
-}
-
-const onExport = () => {
-  if (!language.value) {
-    return
-  }
-
-  const blob = new Blob([JSON.stringify({
-    Languages: locale.Languages,
-    Language: language.value,
-    Messages: messages.value
-  })], { type: 'text/plain;charset=utf-8' })
-  const filename = app.App.Name + '-' +
-                   language.value.Name + '-' +
-                   formatTime(new Date().getTime() / 1000) +
-                   '.json'
-  saveAs(blob, filename)
-}
-
-const loadedFile = ref(undefined as unknown as string)
+const loadedMessages = ref([] as Array<Message>)
 const loadFileButton = ref<HTMLInputElement>()
 
-const onLoadFile = () => {
-  loadFileButton.value?.click()
-}
-
-const onFileLoaded = (evt: Event) => {
+const uploadFile = (evt: Event) => {
   const target = evt.target as unknown as HTMLInputElement
   if (target.files) {
     const filename = target.files[0]
     const reader = new FileReader()
     reader.onload = () => {
-      const loaded = JSON.parse(reader.result as string) as SavedMessages
-      const index = locale.Languages.findIndex((el) => el.ID === loaded.Language.ID)
-      locale.Languages.splice(index, index < 0 ? 0 : 1, loaded.Language)
-      selectedLang.value = [loaded.Language]
-      loadedLanguage.value = loaded.Language
-      loadedMessages.value = loaded.Messages
+      loadedMessages.value = JSON.parse(reader.result as string) as Array<Message>
     }
     reader.readAsText(filename)
   }
 }
 
-const onBatchSubmit = () => {
-  adminLang.createMessages({
-    TargetLangID: loadedLanguage.value.ID,
-    Infos: loadedMessages.value,
+const importMessages = computed(() => {
+  return Array.from(loadedMessages.value).map((el) => {
+    return {
+      AppID: AppID,
+      LangID: el.LangID,
+      MessageID: el.MessageID,
+      Message: el.Message,
+      GetIndex: el.GetIndex,
+      Disabled: el.Disabled
+    } as MessageReq
+  })
+})
+
+const locale = useLocaleStore()
+const _langID = computed(() => locale?.AppLang?.LangID)
+const langID = ref(_langID.value)
+
+const batchCreating = ref(false)
+
+const onBatchClick = () => {
+  batchCreating.value = true
+}
+
+const onBatchCancel = () => {
+  batchCreating.value = false
+}
+
+const onBatchSubmit = (done: () => void) => {
+  message.createMessages({
+    TargetLangID: langID.value,
+    Infos: importMessages.value,
     Message: {
       Error: {
-        Title: 'MSG_CREATE_MESSAGES',
-        Message: 'MSG_CREATE_MESSAGES_FAIL',
+        Title: 'MSG_CREATE_COUNTRIES',
+        Message: 'MSG_CREATE_COUNTRIES_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_BATCH_CREATE_COUNTRIES',
+        Message: 'MSG_BATCH_CREATE_COUNTRIES_SUCCESS',
+        Popup: true,
+        Type: NotifyType.Success
       }
     }
-  }, () => {
-    // TODO
-  })
-}
-
-const onMenuHide = () => {
-  showing.value = false
-}
-
-const onSubmit = () => {
-  showing.value = false
-
-  if (updating.value) {
-    adminLang.updateMessage({
-      Info: target.value,
-      Message: {
-        Error: {
-          Title: 'MSG_UPDATE_MESSAGE',
-          Message: 'MSG_UPDATE_MESSAGE_FAIL',
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
-  }
-
-  adminLang.createMessage({
-    TargetLangID: language.value.ID,
-    Info: target.value,
-    Message: {
-      Error: {
-        Title: 'MSG_CREATE_EMAIL_TEMPLATE',
-        Message: 'MSG_CREATE_EMAIL_TEMPLATE_FAIL',
-        Popup: true,
-        Type: NotificationType.Error
-      }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
     }
-  }, () => {
-    // TODO
+    onBatchCancel()
   })
 }
-
-const onCancel = () => {
-  showing.value = false
-  onMenuHide()
-}
-
 </script>
