@@ -53,6 +53,37 @@
           <q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' />
         </div>
       </q-card-section>
+      <q-card-section>
+        <div>
+          <div class='q-pa-md'>
+            <q-input filled v-model='date'>
+              <template #prepend>
+                <q-icon name='event' class='cursor-pointer'>
+                  <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+                    <q-date v-model='date' mask='YYYY-MM-DD HH:mm:ss'>
+                      <div class='row items-center justify-end'>
+                        <q-btn v-close-popup label='Close' color='primary' flat />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+
+              <template #append>
+                <q-icon name='access_time' class='cursor-pointer'>
+                  <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+                    <q-time v-model='date' mask='YYYY-MM-DD HH:mm:ss' format24h>
+                      <div class='row items-center justify-end'>
+                        <q-btn v-close-popup label='Close' color='primary' flat />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+        </div>
+      </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
@@ -80,6 +111,7 @@ const appGood = useAdminAppGoodStore()
 const appGoods = computed(() => appGood.AppGoods.AppGoods)
 
 const target = ref({} as AppGood)
+const date = ref('2019-02-01 12:44:59')
 
 const showing = ref(false)
 const updating = ref(false)
