@@ -229,6 +229,7 @@ const createMessage = (done: () => void) => {
 const updateTarget = computed(() => {
   return {
     ID: target?.value?.ID,
+    TargetLangID: target?.value?.LangID,
     Lang: target?.value?.Lang,
     MessageID: target?.value?.MessageID,
     Message: target?.value?.Message,
@@ -302,7 +303,6 @@ const uploadFile = (evt: Event) => {
 const importMessages = computed(() => {
   return Array.from(loadedMessages.value).map((el) => {
     return {
-      ID: el.ID,
       AppID: AppID,
       LangID: el.LangID,
       MessageID: el.MessageID,
