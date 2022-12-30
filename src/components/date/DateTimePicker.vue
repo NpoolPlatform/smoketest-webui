@@ -4,7 +4,7 @@
       {{ label }}:
     </div>
   </div>
-  <q-input filled v-model='target'>
+  <q-input filled v-model='target' :disable='disabled'>
     <template #prepend>
       <q-icon name='event' class='cursor-pointer'>
         <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
@@ -20,7 +20,9 @@
     <template #append>
       <q-icon name='access_time' class='cursor-pointer'>
         <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-          <q-time v-model='target' mask='YYYY-MM-DD HH:mm:ss' format24h color='orange'>
+          <q-time
+            v-model='target' mask='YYYY-MM-DD HH:mm:ss' format24h color='orange'
+          >
             <div class='row items-center justify-end'>
               <q-btn v-close-popup label='Close' color='primary' flat />
             </div>
@@ -38,11 +40,13 @@ import { defineProps, defineEmits, toRef, ref, onMounted, watch } from 'vue'
 interface Props {
   date: number
   label?: string
+  disabled?: boolean
 }
 
 const props = defineProps<Props>()
 const date = toRef(props, 'date')
 const label = toRef(props, 'label')
+const disabled = toRef(props, 'disabled')
 
 const target = ref('')
 
