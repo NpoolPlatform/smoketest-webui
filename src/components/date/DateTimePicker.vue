@@ -49,6 +49,10 @@ const target = ref('')
 const emit = defineEmits<{(e: 'update:date', target: number): void}>()
 
 watch(target, () => {
+  if (target.value.length === 0) {
+    emit('update:date', 0)
+    return
+  }
   emit('update:date', new Date(target.value).getTime() / 1000)
 })
 
