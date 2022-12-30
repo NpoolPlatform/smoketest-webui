@@ -67,8 +67,11 @@
         />
       </q-card-section>
       <q-card-section>
-        <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' /></div>
-        <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' /></div>
+        <div> <q-toggle dense v-model='openSaleActivity' :label='$t("MSG_OPEN_SALE")' /></div>
+      </q-card-section>
+      <q-card-section>
+        <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' :disabled='!openSaleActivity' /></div>
+        <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' :disabled='!openSaleActivity' /></div>
         <!-- <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div> -->
       </q-card-section>
       <q-card-section>
@@ -109,6 +112,8 @@ const appGoods = computed(() => appGood.AppGoods.AppGoods)
 
 const target = ref({} as AppGood)
 
+const openSaleActivity = ref(false)
+
 const showing = ref(false)
 const updating = ref(false)
 
@@ -123,6 +128,7 @@ const onCancel = () => {
 
 const onRowClick = (row: AppGood) => {
   target.value = { ...row }
+  openSaleActivity.value = target?.value?.SaleEndAt !== 0
   updating.value = true
   showing.value = true
 }
@@ -151,6 +157,10 @@ const updateTarget = computed(() => {
 })
 
 const updateAppGood = (done: () => void) => {
+  if (!openSaleActivity.value) {
+    target.value.SaleStartAt = 0
+    target.value.SaleEndAt = 0
+  }
   appGood.updateAppGood({
     ...updateTarget.value,
     Message: {
