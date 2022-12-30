@@ -143,8 +143,8 @@ const updateTarget = computed(() => {
     CommissionPercent: target.value.CommissionPercent,
     // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
     // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
-    SaleStartAt: target.value.SaleStartAt === 0 ? undefined as unknown as number : target.value.SaleStartAt,
-    SaleEndAt: target.value.SaleEndAt === 0 ? undefined as unknown as number : target.value.SaleEndAt,
+    SaleStartAt: target.value.SaleStartAt,
+    SaleEndAt: target.value.SaleEndAt,
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
     DailyRewardAmount: target.value?.DailyRewardAmount.length === 0 ? undefined as unknown as string : target.value?.DailyRewardAmount
   }
