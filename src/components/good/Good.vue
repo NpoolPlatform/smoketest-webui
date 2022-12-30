@@ -4,6 +4,7 @@
     flat
     :title='$t("MSG_COINS")'
     :rows='coins'
+    :columns='coinColumns'
     row-key='ID'
     :rows-per-page-options='[10]'
   />
@@ -92,7 +93,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
@@ -302,4 +303,101 @@ const appGoodsColumns = computed(() => [
   }
 ])
 
+const coinColumns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: AppCoin) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: AppCoin) => row.AppID
+  },
+  {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: AppCoin) => row.CoinTypeID
+  },
+  {
+    name: 'Name',
+    label: t('MSG_APP_COIN_NAME'),
+    field: (row: AppCoin) => row.Name
+  },
+  {
+    name: 'DisplayNames',
+    label: t('MSG_COIN_NAME'),
+    field: (row: AppCoin) => row.DisplayNames.join(',')
+  },
+  {
+    name: 'Logo',
+    label: t('MSG_LOGO'),
+    field: (row: AppCoin) => row.Logo
+  },
+  {
+    name: 'Unit',
+    label: t('MSG_UNIT'),
+    field: (row: AppCoin) => row.Unit
+  },
+  {
+    name: 'Presale',
+    label: t('MSG_PRESALE'),
+    field: (row: AppCoin) => row.Presale
+  },
+  {
+    name: 'ReservedAmount',
+    label: t('MSG_RESERVED_AMOUNT'),
+    field: (row: AppCoin) => row.ReservedAmount
+  },
+  {
+    name: 'ForPay',
+    label: t('MSG_FOR_PAY'),
+    field: (row: AppCoin) => row.ForPay
+  },
+  {
+    name: 'ProductPage',
+    label: t('MSG_PRODUCT_PAGE'),
+    field: (row: AppCoin) => row.ProductPage
+  },
+  {
+    name: 'ENV',
+    label: t('MSG_ENV'),
+    field: (row: AppCoin) => row.ENV
+  },
+  {
+    name: 'MarketValue',
+    label: t('MSG_MARKET_VALUE'),
+    field: (row: AppCoin) => row.MarketValue
+  },
+  {
+    name: 'SettleValue',
+    label: t('MSG_SETTLE_VALUE'),
+    field: (row: AppCoin) => row.SettleValue
+  },
+  {
+    name: 'SettlePercent',
+    label: t('MSG_SETTLE_PERCENT'),
+    field: (row: AppCoin) => row.SettlePercent
+  },
+  {
+    name: 'SettleTips',
+    label: t('MSG_SETTLE_TIPS'),
+    field: (row: AppCoin) => row.SettleTips.join(',')
+  },
+  {
+    name: 'DailyRewardAmount',
+    label: t('MSG_DAILY_REWARD_AMOUNT'),
+    field: (row: AppCoin) => row.DailyRewardAmount
+  },
+  {
+    name: 'Display',
+    label: t('MSG_DISPLAY'),
+    field: (row: AppCoin) => row.Display
+  },
+  {
+    name: 'DisplayIndex',
+    label: t('MSG_DISPLAY_INDEX'),
+    field: (row: AppCoin) => row.DisplayIndex
+  }
+])
 </script>
