@@ -21,7 +21,7 @@
   </q-select>
 </template>
 <script setup lang='ts'>
-import { useAdminAppLangStore, useLocaleStore } from 'npool-cli-v4'
+import { useAdminAppLangStore } from 'npool-cli-v4'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {
@@ -33,12 +33,13 @@ const props = defineProps<Props>()
 const language = toRef(props, 'language')
 const updating = toRef(props, 'updating')
 
-const _lang = ref(language.value)
+const lang = ref(language.value)
 
-const lang = useAdminAppLangStore()
-const languages = computed(() => Array.from(lang.AppLangs.AppLangs).map((el) => {
+const _lang = useAdminAppLangStore()
+const langs = computed(() => _lang.AppLangs.AppLangs)
+const languages = computed(() => Array.from(langs.value).map((el) => {
   return {
-    value: el.ID,
+    value: el.LangID,
     label: el.Name,
     icon: el.Logo
   }
@@ -46,14 +47,12 @@ const languages = computed(() => Array.from(lang.AppLangs.AppLangs).map((el) => 
 
 const emit = defineEmits<{(e: 'update:language', language: string): void}>()
 const onUpdate = () => {
-  emit('update:language', _lang.value)
+  emit('update:language', lang.value)
 }
 
-const locale = useLocaleStore()
 onMounted(() => {
   if (!language.value) {
-    _lang.value = locale.AppLang?.ID
-    emit('update:language', _lang.value)
+    emit('update:language', lang.value)
   }
 })
 </script>
