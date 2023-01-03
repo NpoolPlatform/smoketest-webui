@@ -6,6 +6,7 @@
     :rows='displayReviews'
     row-key='ID'
     :loading='reviewLoading'
+    :columns='columns'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as WithdrawReview)'
   />
@@ -49,7 +50,7 @@
 <script setup lang='ts'>
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { NotifyType, ReviewState, useAdminWithdrawReviewStore, useLocalUserStore, WithdrawReview, useLocaleStore } from 'npool-cli-v4'
+import { NotifyType, ReviewState, useAdminWithdrawReviewStore, useLocalUserStore, WithdrawReview, useLocaleStore, formatTime } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -58,7 +59,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 
 const review = useAdminWithdrawReviewStore()
 const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
-const displayReviews = computed(() => Array.from(review.WithdrawReviews.WithdrawReviews).map((el) => el))
+const displayReviews = ref(reviews.value.sort((a, b) => a.CreatedAt > b.CreatedAt ? -1 : 1))
 const reviewLoading = ref(false)
 
 const locale = useLocaleStore()
@@ -147,4 +148,82 @@ const getWithdrawReviews = (offset: number, limit: number) => {
     getWithdrawReviews(offset + limit, limit)
   })
 }
+
+const columns = computed(() => [
+  {
+    name: 'CoinName',
+    label: t('MSG_COIN_NAME'),
+    field: (row: WithdrawReview) => row.CoinName
+  },
+  {
+    name: 'CoinLogo',
+    label: t('MSG_COIN_LOGO'),
+    field: (row: WithdrawReview) => row.CoinLogo
+  },
+  {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: WithdrawReview) => row.CoinTypeID
+  },
+  {
+    name: 'Amount',
+    label: t('MSG_AMOUNT'),
+    field: (row: WithdrawReview) => row.Amount
+  },
+  {
+    name: 'Address',
+    label: t('MSG_ADDRESS'),
+    field: (row: WithdrawReview) => row.Address
+  },
+  {
+    name: 'WithdrawState',
+    label: t('MSG_WITHDRAW_STATE'),
+    field: (row: WithdrawReview) => row.WithdrawState
+  },
+  {
+    name: 'State',
+    label: t('MSG_STATE'),
+    field: (row: WithdrawReview) => row.State
+  },
+  {
+    name: 'Trigger',
+    label: t('MSG_TRIGGER'),
+    field: (row: WithdrawReview) => row.Trigger
+  },
+  {
+    name: 'Message',
+    label: t('MSG_MESSAGE'),
+    field: (row: WithdrawReview) => row.Message
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: WithdrawReview) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'UpdatedAt',
+    label: t('MSG_UPDATED_AT'),
+    field: (row: WithdrawReview) => formatTime(row.UpdatedAt)
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: WithdrawReview) => row.UserID
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: WithdrawReview) => row.EmailAddress
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: WithdrawReview) => row.PhoneNO
+  },
+  {
+    name: 'KycState',
+    label: t('MSG_KYC_STATE'),
+    field: (row: WithdrawReview) => row.KycState
+  }
+])
 </script>
