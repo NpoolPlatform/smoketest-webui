@@ -4,6 +4,7 @@
     flat
     :title='$t("MSG_COINS")'
     :rows='coins'
+    :columns='coinColumns'
     row-key='ID'
     :rows-per-page-options='[10]'
   />
@@ -44,6 +45,35 @@
           :min='0'
           suffix='%'
         />
+        <!-- <q-input
+          class='commission-percent'
+          v-model.number='target.TechnicalFeeRatio'
+          :label='$t("MSG_TECHNICALFEE_RATIO")'
+          type='number'
+          :min='0'
+        />
+        <q-input
+          class='commission-percent'
+          v-model.number='target.ElectricityFeeRatio'
+          :label='$t("MSG_ELECTRICITYFEE_RATIO")'
+          type='number'
+          :min='0'
+        /> -->
+        <!-- <q-input
+          class='commission-percent'
+          v-model='target.DailyRewardAmount'
+          :label='$t("MSG_DAILY_REWARD_AMOUNT")'
+          type='number'
+          :min='0'
+        /> -->
+      </q-card-section>
+      <q-card-section>
+        <div> <q-toggle dense v-model='openSaleActivity' :label='$t("MSG_OPEN_SALE")' /></div>
+      </q-card-section>
+      <q-card-section>
+        <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' :disabled='!openSaleActivity' /></div>
+        <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' :disabled='!openSaleActivity' /></div>
+        <!-- <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div> -->
       </q-card-section>
       <q-card-section>
         <div>
@@ -53,6 +83,7 @@
           <q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' />
         </div>
       </q-card-section>
+
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
@@ -62,7 +93,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
@@ -72,6 +103,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 
 const coin = useAdminAppCoinStore()
 const coins = computed(() => coin.AppCoins.AppCoins)
@@ -80,6 +112,8 @@ const appGood = useAdminAppGoodStore()
 const appGoods = computed(() => appGood.AppGoods.AppGoods)
 
 const target = ref({} as AppGood)
+
+const openSaleActivity = ref(false)
 
 const showing = ref(false)
 const updating = ref(false)
@@ -95,6 +129,7 @@ const onCancel = () => {
 
 const onRowClick = (row: AppGood) => {
   target.value = { ...row }
+  openSaleActivity.value = target?.value?.SaleEndAt !== 0
   updating.value = true
   showing.value = true
 }
@@ -112,11 +147,20 @@ const updateTarget = computed(() => {
     Price: target.value.Price,
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
-    CommissionPercent: target.value.CommissionPercent
+    CommissionPercent: target.value.CommissionPercent,
+    // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
+    // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
+    SaleStartAt: target.value.SaleStartAt,
+    SaleEndAt: target.value.SaleEndAt
+    // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
   }
 })
 
 const updateAppGood = (done: () => void) => {
+  if (!openSaleActivity.value) {
+    target.value.SaleStartAt = 0
+    target.value.SaleEndAt = 0
+  }
   appGood.updateAppGood({
     ...updateTarget.value,
     Message: {
@@ -236,7 +280,124 @@ const appGoodsColumns = computed(() => [
     name: 'STARTAT',
     label: t('MSG_STARTAT'),
     field: (row: AppGood) => formatTime(row.StartAt)
+  },
+  {
+    name: 'SaleStartAt',
+    label: t('MSG_SALE_START_AT'),
+    field: (row: AppGood) => formatTime(row?.SaleStartAt)
+  },
+  {
+    name: 'SaleEndAt',
+    label: t('MSG_SALE_END_AT'),
+    field: (row: AppGood) => formatTime(row?.SaleEndAt)
+  },
+  {
+    name: 'DailyRewardAmount',
+    label: t('MSG_DAILY_REWARD_AMOUNT'),
+    field: (row: AppGood) => row.DailyRewardAmount
+  },
+  {
+    name: 'ServiceStartAt',
+    label: t('MSG_SERVICE_START_AT'),
+    field: (row: AppGood) => formatTime(row?.ServiceStartAt)
   }
 ])
 
+const coinColumns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: AppCoin) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: AppCoin) => row.AppID
+  },
+  {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: AppCoin) => row.CoinTypeID
+  },
+  {
+    name: 'Name',
+    label: t('MSG_APP_COIN_NAME'),
+    field: (row: AppCoin) => row.Name
+  },
+  {
+    name: 'DisplayNames',
+    label: t('MSG_COIN_NAME'),
+    field: (row: AppCoin) => row.DisplayNames.join(',')
+  },
+  {
+    name: 'Logo',
+    label: t('MSG_LOGO'),
+    field: (row: AppCoin) => row.Logo
+  },
+  {
+    name: 'Unit',
+    label: t('MSG_UNIT'),
+    field: (row: AppCoin) => row.Unit
+  },
+  {
+    name: 'Presale',
+    label: t('MSG_PRESALE'),
+    field: (row: AppCoin) => row.Presale
+  },
+  {
+    name: 'ReservedAmount',
+    label: t('MSG_RESERVED_AMOUNT'),
+    field: (row: AppCoin) => row.ReservedAmount
+  },
+  {
+    name: 'ForPay',
+    label: t('MSG_FOR_PAY'),
+    field: (row: AppCoin) => row.ForPay
+  },
+  {
+    name: 'ProductPage',
+    label: t('MSG_PRODUCT_PAGE'),
+    field: (row: AppCoin) => row.ProductPage
+  },
+  {
+    name: 'ENV',
+    label: t('MSG_ENV'),
+    field: (row: AppCoin) => row.ENV
+  },
+  {
+    name: 'MarketValue',
+    label: t('MSG_MARKET_VALUE'),
+    field: (row: AppCoin) => row.MarketValue
+  },
+  {
+    name: 'SettleValue',
+    label: t('MSG_SETTLE_VALUE'),
+    field: (row: AppCoin) => row.SettleValue
+  },
+  {
+    name: 'SettlePercent',
+    label: t('MSG_SETTLE_PERCENT'),
+    field: (row: AppCoin) => row.SettlePercent
+  },
+  {
+    name: 'SettleTips',
+    label: t('MSG_SETTLE_TIPS'),
+    field: (row: AppCoin) => row.SettleTips.join(',')
+  },
+  {
+    name: 'DailyRewardAmount',
+    label: t('MSG_DAILY_REWARD_AMOUNT'),
+    field: (row: AppCoin) => row.DailyRewardAmount
+  },
+  {
+    name: 'Display',
+    label: t('MSG_DISPLAY'),
+    field: (row: AppCoin) => row.Display
+  },
+  {
+    name: 'DisplayIndex',
+    label: t('MSG_DISPLAY_INDEX'),
+    field: (row: AppCoin) => row.DisplayIndex
+  }
+])
 </script>
