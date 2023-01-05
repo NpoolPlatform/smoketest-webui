@@ -327,7 +327,7 @@ const coinColumns = computed(() => [
   {
     name: 'DisplayNames',
     label: t('MSG_COIN_NAME'),
-    field: (row: AppCoin) => row.DisplayNames.join(',')
+    field: (row: AppCoin) => row.DisplayNames?.join(',')
   },
   {
     name: 'Logo',
