@@ -382,7 +382,7 @@ const coinColumns = computed(() => [
   {
     name: 'SettleTips',
     label: t('MSG_SETTLE_TIPS'),
-    field: (row: AppCoin) => row.SettleTips.join(',')
+    field: (row: AppCoin) => row.SettleTips?.join(',')
   },
   {
     name: 'DailyRewardAmount',
