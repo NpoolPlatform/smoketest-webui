@@ -80,10 +80,8 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminUserStore, useFrontendUserStore, User } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminUserStore, useFrontendUserStore, User, useAdminInvitationCodeStore, InvitationCode } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
-import { useAdminInvitationCodeStore } from 'src/teststore/invitation/invitationcode'
-import { InvitationCode } from 'src/teststore/invitation/invitationcode/types'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

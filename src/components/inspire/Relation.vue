@@ -168,10 +168,8 @@
 import {
   PriceCoinName
 } from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement, useAdminRegistrationStore, Registration } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
-import { useAdminRegistrationStore } from 'src/teststore/invitation/registration'
-import { Registration } from 'src/teststore/invitation/registration/types'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method

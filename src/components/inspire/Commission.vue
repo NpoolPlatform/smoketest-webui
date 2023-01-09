@@ -38,9 +38,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, SettleType } from 'npool-cli-v4'
-import { useAdminCommissionStore } from 'src/teststore/commission'
-import { Commission } from 'src/teststore/commission/types'
+import { NotifyType, SettleType, useAdminCommissionStore, Commission } from 'npool-cli-v4'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method

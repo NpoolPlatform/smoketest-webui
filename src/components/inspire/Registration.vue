@@ -49,9 +49,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
-import { useAdminRegistrationStore } from 'src/teststore/invitation/registration'
-import { Registration } from 'src/teststore/invitation/registration/types'
+import { NotifyType, useAdminRegistrationStore, Registration } from 'npool-cli-v4'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppUserSelector from '../user/AppUserSelector.vue'
