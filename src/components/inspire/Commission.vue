@@ -7,11 +7,6 @@
     row-key='ID'
     :rows-per-page-options='[10]'
   />
-  <q-card>
-    <q-card-section class='bg-primary text-white'>
-      {{ $t('MSG_ADVERTISEMENT_POSITION') }}
-    </q-card-section>
-  </q-card>
   <q-dialog
     v-model='showing'
     @hide='onMenuHide'
@@ -43,7 +38,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, SettleType, SettleTypes } from 'npool-cli-v4'
+import { NotifyType, SettleType } from 'npool-cli-v4'
 import { useAdminCommissionStore } from 'src/teststore/commission'
 import { Commission } from 'src/teststore/commission/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
@@ -94,17 +89,15 @@ const onSubmit = (done: () => void) => {
 
 onMounted(() => {
   if (commission.Commissions.Commissions.length === 0) {
-    SettleTypes.forEach((type) => {
-      getAppCommissions(0, 500, type)
-    })
+    getAppCommissions(0, 500)
   }
 })
 
-const getAppCommissions = (offset: number, limit: number, settleType: SettleType) => {
+const getAppCommissions = (offset: number, limit: number) => {
   commission.getAppCommissions({
     Offset: offset,
     Limit: limit,
-    SettleType: settleType,
+    SettleType: SettleType.GoodOrderPercent,
     Message: {
       Error: {
         Title: t('MSG_GET_PURCHASE_AMOUNT_SETTINGS_FAIL'),
@@ -116,7 +109,7 @@ const getAppCommissions = (offset: number, limit: number, settleType: SettleType
     if (error || rows.length < limit) {
       return
     }
-    getAppCommissions(offset + limit, limit, settleType)
+    getAppCommissions(offset + limit, limit)
   })
 }
 </script>
