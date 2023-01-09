@@ -2,24 +2,8 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_COMMISSION_SETTING")'
-    :rows='setting'
-    row-key='ID'
-    :rows-per-page-options='[10]'
-  />
-  <q-table
-    dense
-    flat
-    :title='$t("MSG_COMMISSION_COIN_SETTINGS")'
-    :rows='coinSettings'
-    row-key='ID'
-    :rows-per-page-options='[10]'
-  />
-  <q-table
-    dense
-    flat
-    :title='$t("MSG_PURCHASE_AMOUNT_SETTINGS")'
-    :rows='amountSettings'
+    :title='$t("MSG_COMMISSION_SETTINGS")'
+    :rows='commissions'
     row-key='ID'
     :rows-per-page-options='[10]'
   >
@@ -47,23 +31,22 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_PURCHASE_AMOUNT_SETTING') }}</span>
+        <span>{{ $t('MSG_UPDATE_COMMISSION_SETTING') }}</span>
       </q-card-section>
       <q-card-section>
-        <AppUserSelector v-model:id='target.UserID' />
+        <!-- <AppUserSelector v-model:id='target.UserID' /> -->
       </q-card-section>
       <q-card-section>
-        <AppGoodSelector v-model:id='target.GoodID' />
-        <q-input type='number' v-model.number='target.Amount' :label='$t("MSG_AMOUNT")' />
+        <!-- <AppGoodSelector v-model:id='target.GoodID' /> -->
         <q-input type='number' v-model.number='target.Percent' :label='$t("MSG_PERCENT")' suffix='%' />
-        <q-input type='number' v-model='target.BadgeLarge' :label='$t("MSG_BADGE_LARGE")' />
-        <q-input type='number' v-model='target.BadgeSmall' :label='$t("MSG_BADGE_SMALL")' />
-        <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
-        <DatePicker v-model:date='target.Start' :label='$t("MSG_START")' />
-        <DatePicker v-model:date='target.End' :label='$t("MSG_END")' />
+        <!-- <q-input type='number' v-model='target.BadgeLarge' :label='$t("MSG_BADGE_LARGE")' /> -->
+        <!-- <q-input type='number' v-model='target.BadgeSmall' :label='$t("MSG_BADGE_SMALL")' /> -->
+        <!-- <q-input v-model='target.Title' :label='$t("MSG_TITLE")' /> -->
+        <DatePicker v-model:date='target.StartAt' :label='$t("MSG_START")' />
+        <!-- <DatePicker v-model:date='target.EndAt' :label='$t("MSG_END")' /> -->
       </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -71,140 +54,88 @@
 </template>
 
 <script setup lang='ts'>
-import {
-  NotificationType,
-  CommissionCoinSetting,
-  PurchaseAmountSetting,
-  useCommissionStore,
-  usePurchaseAmountSettingStore
-} from 'npool-cli-v2'
-import { InvalidID, useAdminAppCoinStore, useAdminAppGoodStore, useAdminUserStore } from 'npool-cli-v4'
-import { getCoins } from 'src/api/coin'
+import { NotifyType, SettleType, SettleTypes } from 'npool-cli-v4'
+import { useAdminCommissionStore } from 'src/teststore/commission'
+import { Commission } from 'src/teststore/commission/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const AppGoodSelector = defineAsyncComponent(() => import('src/components/good/AppGoodSelector.vue'))
-const AppUserSelector = defineAsyncComponent(() => import('src/components/user/AppUserSelector.vue'))
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DatePicker = defineAsyncComponent(() => import('src/components/date/DatePicker.vue'))
 
-interface CoinSetting extends CommissionCoinSetting {
-  CoinName: string
-}
+const commission = useAdminCommissionStore()
+const commissions = computed(() => commission.Commissions.Commissions)
 
-interface AmountSetting extends PurchaseAmountSetting {
-  EmailAddress: string
-  PhoneNO: string
-  GoodName: string
-}
-
-interface MyPurchaseAmountSetting extends PurchaseAmountSetting {
-  UserID: string; // Make UserID To Must From Optional
-}
-
-const coin = useAdminAppCoinStore()
-const user = useAdminUserStore()
-const good = useAdminAppGoodStore()
-
-const commission = useCommissionStore()
-const setting = computed(() => commission.CommissionSetting ? [commission.CommissionSetting] : [])
-const coinSettings = computed(() => Array.from(commission.CommissionCoinSettings).map((el) => {
-  const s = el as CoinSetting
-  s.CoinName = coin.getCoinByID(s.CoinTypeID)?.Name as string
-  return s
-}))
-
-const purchaseAmount = usePurchaseAmountSettingStore()
-const purchaseAmountSettings = computed(() => purchaseAmount.PurchaseAmountSettings)
-const amountSettings = computed(() => Array.from(purchaseAmountSettings.value).map((el) => {
-  const s = el as AmountSetting
-  s.EmailAddress = user.getUserByID(s.UserID as string)?.EmailAddress
-  s.PhoneNO = user.getUserByID(s.UserID as string)?.PhoneNO
-  s.GoodName = good.getGoodByID(el.GoodID)?.GoodName as string
-  return s
-}))
-
+const target = ref({} as Commission)
 const showing = ref(false)
-const target = ref({ UserID: InvalidID, GoodID: InvalidID } as MyPurchaseAmountSetting)
+const updating = ref(false)
 
 const onCreate = () => {
   showing.value = true
+  updating.value = false
 }
 
 const onMenuHide = () => {
   showing.value = false
-  target.value = { UserID: InvalidID, GoodID: InvalidID } as MyPurchaseAmountSetting
+  target.value = {} as Commission
 }
 
 const onCancel = () => {
   onMenuHide()
 }
 
-const onSubmit = () => {
-  if (target.value.Start <= 0) {
+const onSubmit = (done: () => void) => {
+  if (target.value.StartAt <= 0) {
     return
   }
-  purchaseAmount.createUserPurchaseAmountSetting({
-    TargetUserID: target.value.UserID,
-    Info: target.value,
+  commission.updateCommission({
+    ID: target.value.ID,
+    Value: `${target.value.Percent}`,
+    StartAt: Math.ceil(Date.now() / 1000),
     Message: {
       Error: {
         Title: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING'),
         Message: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING_FAIL'),
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
   })
-  onMenuHide()
 }
 
 onMounted(() => {
-  commission.getCommissionSetting({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_COMMISSION_SETTING'),
-        Message: t('MSG_GET_COMMISSION_SETTING_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  commission.getCommissionCoinSettings({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_COMMISSION_COIN_SETTING'),
-        Message: t('MSG_GET_COMMISSION_COIN_SETTING_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  purchaseAmount.getPurchaseAmountSettings({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_PURCHASE_AMOUNT_SETTING'),
-        Message: t('MSG_GET_PURCHASE_AMOUNT_SETTING_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-
-  if (coin.AppCoins.AppCoins.length === 0) {
-    getCoins(0, 100)
+  if (commission.Commissions.Commissions.length === 0) {
+    SettleTypes.forEach((type) => {
+      getCommissions(0, 500, type)
+    })
   }
 })
 
+const getCommissions = (offset: number, limit: number, settleType: SettleType) => {
+  commission.getCommissions({
+    Offset: offset,
+    Limit: limit,
+    SettleType: settleType,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_PURCHASE_AMOUNT_SETTINGS_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows: Array<Commission>) => {
+    if (error || rows.length < limit) {
+      return
+    }
+    getCommissions(offset + limit, limit, settleType)
+  })
+}
 </script>
