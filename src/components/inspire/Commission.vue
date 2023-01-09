@@ -6,19 +6,7 @@
     :rows='commissions'
     row-key='ID'
     :rows-per-page-options='[10]'
-  >
-    <template #top-right>
-      <div class='row indent flat'>
-        <q-btn
-          dense
-          flat
-          class='btn flat'
-          :label='$t("MSG_CREATE")'
-          @click='onCreate'
-        />
-      </div>
-    </template>
-  </q-table>
+  />
   <q-card>
     <q-card-section class='bg-primary text-white'>
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
@@ -70,12 +58,6 @@ const commissions = computed(() => commission.Commissions.Commissions)
 
 const target = ref({} as Commission)
 const showing = ref(false)
-const updating = ref(false)
-
-const onCreate = () => {
-  showing.value = true
-  updating.value = false
-}
 
 const onMenuHide = () => {
   showing.value = false
@@ -87,9 +69,6 @@ const onCancel = () => {
 }
 
 const onSubmit = (done: () => void) => {
-  if (target.value.StartAt <= 0) {
-    return
-  }
   commission.updateCommission({
     ID: target.value.ID,
     Value: `${target.value.Percent}`,
