@@ -163,6 +163,7 @@
       </q-tr>
     </template>
   </q-table>
+  <Registration />
 </template>
 <script setup lang='ts'>
 import {
@@ -171,10 +172,13 @@ import {
   PriceCoinName
 } from 'npool-cli-v2'
 import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement } from 'npool-cli-v4'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+
+const Registration = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
+
 const uColumns = computed(() => [
   {
     name: 'AppID',

@@ -1,6 +1,7 @@
 import { BaseRequest } from 'npool-cli-v4'
 
 export interface Registration {
+  ID: string;
   AppID: string;
   InviterID: string;
   InviterEmailAddress: string;
@@ -14,20 +15,6 @@ export interface Registration {
   CreatedAt: number;
   /** @format int64 */
   UpdatedAt: number;
-}
-
-export interface GetAppRegistrationsRequest extends BaseRequest {
-  TargetAppID: string;
-  /** @format int32 */
-  Offset: number;
-  /** @format int32 */
-  Limit: number;
-}
-
-export interface GetAppRegistrationsResponse {
-  Infos: Registration[];
-  /** @format int64 */
-  Total: number;
 }
 
 export interface GetRegistrationsRequest extends BaseRequest {
@@ -45,7 +32,6 @@ export interface GetRegistrationsResponse {
 
 export interface UpdateRegistrationRequest extends BaseRequest {
   ID: string;
-  AppID: string;
   InviterID: string;
 }
 
