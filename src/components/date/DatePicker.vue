@@ -23,12 +23,12 @@ const target = ref('')
 const emit = defineEmits<{(e: 'update:date', target: number): void}>()
 
 const onChange = () => {
-  emit('update:date', new Date(target.value + ' UTC').getTime() / 1000)
+  emit('update:date', new Date(target.value).getTime() / 1000)
 }
 
 onMounted(() => {
   if (date.value) {
-    target.value = formatTime(date.value + 60 * new Date().getTimezoneOffset(), false)?.replace(/\//g, '-')
+    target.value = formatTime(date.value, true)?.replace(/\//g, '-')
   }
 })
 </script>

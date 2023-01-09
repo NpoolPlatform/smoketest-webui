@@ -6,6 +6,7 @@
     :rows='commissions'
     row-key='ID'
     :rows-per-page-options='[10]'
+    @row-click='(evt, row, index) => onRowClick(row as Commission)'
   />
   <q-dialog
     v-model='showing'
@@ -25,7 +26,7 @@
         <!-- <q-input type='number' v-model='target.BadgeLarge' :label='$t("MSG_BADGE_LARGE")' /> -->
         <!-- <q-input type='number' v-model='target.BadgeSmall' :label='$t("MSG_BADGE_SMALL")' /> -->
         <!-- <q-input v-model='target.Title' :label='$t("MSG_TITLE")' /> -->
-        <DatePicker v-model:date='target.StartAt' :label='$t("MSG_START")' />
+        <DateTimePicker v-model:date='target.StartAt' label='MSG_START_AT' />
         <!-- <DatePicker v-model:date='target.EndAt' :label='$t("MSG_END")' /> -->
       </q-card-section>
       <q-item class='row'>
@@ -45,7 +46,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
-const DatePicker = defineAsyncComponent(() => import('src/components/date/DatePicker.vue'))
+const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
 
 const commission = useAdminCommissionStore()
@@ -53,6 +54,13 @@ const commissions = computed(() => commission.Commissions.Commissions)
 
 const target = ref({} as Commission)
 const showing = ref(false)
+const updating = ref(false)
+
+const onRowClick = (row: Commission) => {
+  target.value = { ...row }
+  showing.value = true
+  updating.value = true
+}
 
 const onMenuHide = () => {
   showing.value = false
@@ -68,6 +76,7 @@ const onSubmit = (done: () => void) => {
     ID: target.value.ID,
     Value: `${target.value.Percent}`,
     StartAt: target.value.StartAt,
+    SettleType: target.value.SettleType,
     Message: {
       Error: {
         Title: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING'),
