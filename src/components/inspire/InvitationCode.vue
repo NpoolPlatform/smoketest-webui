@@ -196,8 +196,9 @@ const getInvitationCodes = (offset: number, limit: number) => {
     Message: {}
   }, (error: boolean, rows: Array<InvitationCode>) => {
     if (error || rows.length < limit) {
-      getInvitationCodes(offset + limit, limit)
+      return
     }
+    getInvitationCodes(offset + limit, limit)
   })
 }
 const columns = computed(() => [
