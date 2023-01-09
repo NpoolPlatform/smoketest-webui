@@ -72,7 +72,7 @@ const onSubmit = (done: () => void) => {
   commission.updateCommission({
     ID: target.value.ID,
     Value: `${target.value.Percent}`,
-    StartAt: Math.ceil(Date.now() / 1000),
+    StartAt: target.value.StartAt,
     Message: {
       Error: {
         Title: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING'),
