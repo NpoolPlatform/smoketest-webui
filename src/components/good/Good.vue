@@ -73,7 +73,6 @@
           type='number'
           :min='0'
         /> -->
-        <q-select :options='SettleTypes' v-model='target.CommissionSettleType' :label='$t("MSG_COMMISSION_SETTLE_TYPE")' />
       </q-card-section>
       <q-card-section>
         <div> <q-toggle dense v-model='openSaleActivity' :label='$t("MSG_OPEN_SALE")' /></div>
@@ -101,7 +100,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin, SettleTypes } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
@@ -159,7 +158,6 @@ const updateTarget = computed(() => {
     // MaxAmountPerWithdraw: target.value.MaxAmountPerWithdraw,
     // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
     // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
-    CommissionSettleType: target.value.CommissionSettleType,
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
