@@ -6,6 +6,7 @@
     :rows='displayRegistrations'
     row-key='ID'
     :rows-per-page-options='[10]'
+    @row-click='(evt, row, index) => onRowClick(row as Registration)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -37,7 +38,7 @@
         <!-- <AppUserSelector v-model:id='target.UserID' /> -->
       </q-card-section>
       <q-card-section>
-        <AppUserSelector v-model:id='target.InviteeID' :label='$t("MSG_INVITER")' />
+        <AppUserSelector v-model:id='target.InviterID' :label='$t("MSG_INVITER")' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -70,7 +71,13 @@ const displayRegistrations = computed(() => registrations.value.filter((el) => {
 
 const target = ref({} as Registration)
 const showing = ref(false)
+const updating = ref(false)
 
+const onRowClick = (row: Registration) => {
+  target.value = { ...row }
+  showing.value = true
+  updating.value = true
+}
 const onMenuHide = () => {
   showing.value = false
   target.value = {} as Registration

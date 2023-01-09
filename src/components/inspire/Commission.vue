@@ -39,6 +39,7 @@
       </q-item>
     </q-card>
   </q-dialog>
+  <RegistrationCard />
 </template>
 
 <script setup lang='ts'>
@@ -52,6 +53,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DatePicker = defineAsyncComponent(() => import('src/components/date/DatePicker.vue'))
+const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
 
 const commission = useAdminCommissionStore()
 const commissions = computed(() => commission.Commissions.Commissions)
