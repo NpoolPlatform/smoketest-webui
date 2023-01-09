@@ -95,13 +95,13 @@ const onSubmit = (done: () => void) => {
 onMounted(() => {
   if (commission.Commissions.Commissions.length === 0) {
     SettleTypes.forEach((type) => {
-      getCommissions(0, 500, type)
+      getAppCommissions(0, 500, type)
     })
   }
 })
 
-const getCommissions = (offset: number, limit: number, settleType: SettleType) => {
-  commission.getCommissions({
+const getAppCommissions = (offset: number, limit: number, settleType: SettleType) => {
+  commission.getAppCommissions({
     Offset: offset,
     Limit: limit,
     SettleType: settleType,
@@ -116,7 +116,7 @@ const getCommissions = (offset: number, limit: number, settleType: SettleType) =
     if (error || rows.length < limit) {
       return
     }
-    getCommissions(offset + limit, limit, settleType)
+    getAppCommissions(offset + limit, limit, settleType)
   })
 }
 </script>

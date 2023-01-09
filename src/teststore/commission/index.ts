@@ -4,8 +4,8 @@ import {
   UpdateCommissionRequest,
   UpdateCommissionResponse,
   Commission,
-  GetCommissionsRequest,
-  GetCommissionsResponse
+  GetAppCommissionsRequest,
+  GetAppCommissionsResponse
 } from './types'
 import { doActionWithError } from 'npool-cli-v4'
 
@@ -19,12 +19,12 @@ export const useAdminCommissionStore = defineStore('admin-commission-v4', {
   getters: {
   },
   actions: {
-    getCommissions (req: GetCommissionsRequest, done: (error: boolean, rows: Array<Commission>) => void) {
-      doActionWithError<GetCommissionsRequest, GetCommissionsResponse>(
-        API.GET_COMMISSIONS,
+    getAppCommissions (req: GetAppCommissionsRequest, done: (error: boolean, rows: Array<Commission>) => void) {
+      doActionWithError<GetAppCommissionsRequest, GetAppCommissionsResponse>(
+        API.GET_APP_COMMISSIONS,
         req,
         req.Message,
-        (resp: GetCommissionsResponse): void => {
+        (resp: GetAppCommissionsResponse): void => {
           this.Commissions.Commissions.push(...resp.Infos)
           this.Commissions.Total = resp.Total
           done(false, resp.Infos)

@@ -79,3 +79,19 @@ export interface UpdateCommissionRequest extends BaseRequest {
 export interface UpdateCommissionResponse {
   Info: Commission;
 }
+
+export interface GetAppCommissionsRequest extends BaseRequest {
+  /** @format int64 */
+  EndAt?: number;
+  SettleType: SettleType;
+  /** @format int32 */
+  Offset: number;
+  /** @format int32 */
+  Limit: number;
+}
+
+export interface GetAppCommissionsResponse {
+  Infos: Commission[];
+  /** @format int64 */
+  Total: number;
+}
