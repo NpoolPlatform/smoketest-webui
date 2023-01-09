@@ -163,21 +163,22 @@
       </q-tr>
     </template>
   </q-table>
-  <Registration />
+  <RegistrationCard />
 </template>
 <script setup lang='ts'>
 import {
-  NotificationType,
-  useRegInvitationStore,
   PriceCoinName
 } from 'npool-cli-v2'
 import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement } from 'npool-cli-v4'
+import { getUsers } from 'src/api/user'
+import { useAdminRegistrationStore } from 'src/teststore/invitation/registration'
+import { Registration } from 'src/teststore/invitation/registration/types'
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const Registration = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
+const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
 
 const uColumns = computed(() => [
   {
@@ -235,7 +236,6 @@ const columns = [
   { name: 'TotalInvitees', label: 'TOTALINVITEES', field: 'TotalInvitees', align: 'center', sortable: true },
   { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
 ]
-const regInvitation = useRegInvitationStore()
 
 interface InvitationRelation {
   UserID: string
@@ -255,14 +255,17 @@ watch(curUserID, () => {
     getUserInviters(curUserID.value)
   }
 })
+
+const regInvitation = useAdminRegistrationStore()
+
 const getUserInvitees = (userID: string) => {
-  regInvitation.RegInvitations.filter(item => item.InviterID === userID).forEach((el) => {
+  regInvitation.Registrations.Registrations.filter(item => item.InviterID === userID).forEach((el) => {
     userInvitees.value.push({ UserID: el.InviteeID, InviterID: userID })
   })
   getUserArchivements(userInvitees.value.map((el) => el.UserID), 0, 100)
 }
 const getUserInviters = (userID: string) => {
-  const root = regInvitation.RegInvitations.find(item => item.InviteeID === userID)
+  const root = regInvitation.Registrations.Registrations.find(item => item.InviteeID === userID)
   if (!root) {
     if (userInviters.value.length === 0) {
       userInviters.value.push({ UserID: userID, InviterID: '' })
@@ -347,43 +350,34 @@ const inviteesArchivemnents = computed(() => {
 
 const loading = ref(false)
 
-const getUsers = (offset: number, limit: number) => {
-  user.getUsers({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_USERS',
-        Message: 'MSG_GET_USERS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (resp: Array<User>, error: boolean) => {
-    if (error || resp.length < limit) {
-      return
-    }
-    getUsers(offset + limit, limit)
-  })
-}
 onMounted(() => {
   if (user.Users.Users.length === 0) {
     getUsers(0, 500)
   }
-  regInvitation.getRegInvitations({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_USERS'),
-        Message: t('MSG_GET_USERS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
+  if (regInvitation.Registrations.Registrations.length === 0) {
+    getRegInvitations(0, 500)
+  }
 })
 
+const getRegInvitations = (offset: number, limit: number) => {
+  regInvitation.getRegistrations({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_REGISTRATIONS',
+        Message: 'MSG_GET_REGISTRATIONS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows: Array<Registration>) => {
+    if (error || rows.length < limit) {
+      return
+    }
+    getRegInvitations(offset + limit, limit)
+  })
+}
 </script>
 
 <style lang='sass' scoped>
