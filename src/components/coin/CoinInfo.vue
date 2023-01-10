@@ -37,21 +37,21 @@
         <q-input type='number' v-model='target.WithdrawAutoReviewAmount' :label='$t("MSG_WITHDRAW_AUTO_REVIEW_AMOUNT")' />
         <q-input type='number' v-model='target.MarketValue' :label='$t("MSG_COIN_MARKET_VALUE")' />
         <q-input type='number' v-model.number='target.SettlePercent' :label='$t("MSG_COIN_SETTLE_PERCENT")' />
+        <q-input v-model='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' />
         <q-input v-model='settleTips' :label='$t("MSG_SETTLE_TIPS")' />
         <q-input type='number' v-model='target.DailyRewardAmount' :label='$t("MSG_DAILY_REWARD_AMOUNT")' />
         <!-- <q-select dense :options='CoinEnvironments' v-model='target.ENV' :label='$t("MSG_COIN_ENVIRONMENT")' /> -->
-        <!-- <q-input
+        <q-input
           v-model='target.MaxAmountPerWithdraw'
           :label='$t("MSG_MAX_AMOUNT_PER_WITHDRAW")'
           type='number'
           :min='0'
-        /> -->
+        />
       </q-card-section>
       <q-card-section>
         <div><q-toggle dense v-model='target.ForPay' :label='$t("MSG_FOR_PAY")' /><span class='tip'>CoinForPay: {{ target.CoinForPay }}</span></div>
         <div><q-toggle dense v-model='target.Disabled' :label='$t("MSG_DISABLE")' /><span class='tip'>CoinDisabled: {{ target.CoinDisabled }}</span></div>
         <div><q-toggle dense v-model='target.Display' :label='$t("MSG_DISPLAY")' /></div>
-        <q-input v-model='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -221,7 +221,7 @@ const updateTarget = computed(() => {
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Disabled: target.value?.Disabled,
     Display: target.value?.Display,
-    // MaxAmountPerWithdraw: target.value.MaxAmountPerWithdraw,
+    MaxAmountPerWithdraw: target.value.MaxAmountPerWithdraw,
     DisplayIndex: target.value?.DisplayIndex
   }
 })
