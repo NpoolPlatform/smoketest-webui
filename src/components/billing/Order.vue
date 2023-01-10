@@ -114,7 +114,7 @@ const order = useAdminOrderStore()
 const selectedOrderType = ref('ALL')
 const displayOrders = computed(() => order.Orders.filter((el) => {
   const name = username.value?.toLowerCase()
-  let display = el.GoodID?.toLowerCase()?.includes(name) || el.EmailAddress?.toLowerCase().includes(name) || el.PhoneNO?.toLowerCase()?.includes(name)
+  let display = el.EmailAddress?.toLowerCase().includes(name) || el.PhoneNO?.toLowerCase()?.includes(name) || el.GoodID?.toLowerCase()?.includes(name) || el.ID?.toLowerCase()?.includes(name)
   if (start.value.length) {
     display = display && (el.CreatedAt >= new Date(start.value).getTime() / 1000)
   }
