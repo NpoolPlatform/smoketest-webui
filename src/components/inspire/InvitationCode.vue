@@ -59,6 +59,7 @@
     :rows='displayCodes'
     row-key='ID'
     :rows-per-page-options='[20]'
+    :columns='invitationCodeColumns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -221,6 +222,17 @@ const columns = computed(() => [
     field: (row: User) => row.PhoneNO
   },
   {
+    name: 'InvitationCode',
+    label: t('MSG_INVITATION_CODE'),
+    field: (row: User) => row.InvitationCode
+  },
+  {
+    name: 'KOL',
+    label: t('MSG_KOL'),
+    sortable: true,
+    field: (row: User) => row.Kol
+  },
+  {
     name: 'Roles',
     label: t('MSG_ROLES'),
     field: (row: User) => row.Roles?.join(',')
@@ -234,6 +246,54 @@ const columns = computed(() => [
     name: 'CreatedAt',
     label: t('MSG_CREATEDAT'),
     field: (row: User) => formatTime(row.CreatedAt)
+  }
+])
+
+const invitationCodeColumns = computed(() => [
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: InvitationCode) => row.AppID
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: InvitationCode) => row.UserID
+  },
+  {
+    name: 'Username',
+    label: t('MSG_USERNAME'),
+    field: (row: InvitationCode) => row.Username
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: InvitationCode) => row.EmailAddress
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: InvitationCode) => row.PhoneNO
+  },
+  {
+    name: 'InvitationCode',
+    label: t('MSG_INVITATION_CODE'),
+    field: (row: InvitationCode) => row.InvitationCode
+  },
+  {
+    name: 'Disabled',
+    label: t('MSG_DISABLED'),
+    field: (row: InvitationCode) => row.Disabled
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: InvitationCode) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'UpdatedAt',
+    label: t('MSG_UPDATED_AT'),
+    field: (row: InvitationCode) => formatTime(row.UpdatedAt)
   }
 ])
 </script>

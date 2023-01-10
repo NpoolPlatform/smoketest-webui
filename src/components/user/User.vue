@@ -70,15 +70,20 @@ const columns = computed(() => [
     field: (row: User) => row.PhoneNO
   },
   {
+    name: 'InvitationCode',
+    label: t('MSG_INVITATION_CODE'),
+    field: (row: User) => row.InvitationCode
+  },
+  {
+    name: 'KOL',
+    label: t('MSG_KOL'),
+    sortable: true,
+    field: (row: User) => row.Kol
+  },
+  {
     name: 'Roles',
     label: t('MSG_ROLES'),
     field: (row: User) => row.Roles?.join(',')
-  },
-  {
-    name: 'KYC_STATE',
-    label: t('MSG_KYC_STATE'),
-    sortable: true,
-    field: (row: User) => row.State
   },
   {
     name: 'IDNUMBER',
@@ -88,7 +93,6 @@ const columns = computed(() => [
   {
     name: 'CreatedAt',
     label: t('MSG_CREATEDAT'),
-    sortable: true,
     field: (row: User) => formatTime(row.CreatedAt)
   }
 ])
