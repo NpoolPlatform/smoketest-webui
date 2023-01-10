@@ -8,6 +8,9 @@
     :rows-per-page-options='[20]'
     :columns='columns'
   />
+  <q-card-section class='bg-primary text-white'>
+    {{ $t('MSG_ADVERTISEMENT_POSITION') }}
+  </q-card-section>
 </template>
 
 <script setup lang='ts'>
