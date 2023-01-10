@@ -169,7 +169,7 @@
 import {
   PriceCoinName
 } from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement, useAdminRegistrationStore, Registration } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement, useAdminRegistrationStore } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -351,30 +351,8 @@ onMounted(() => {
   if (user.Users.Users.length === 0) {
     getUsers(0, 500)
   }
-  if (regInvitation.Registrations.Registrations.length === 0) {
-    getRegInvitations(0, 500)
-  }
 })
 
-const getRegInvitations = (offset: number, limit: number) => {
-  regInvitation.getRegistrations({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_REGISTRATIONS',
-        Message: 'MSG_GET_REGISTRATIONS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (error: boolean, rows: Array<Registration>) => {
-    if (error || rows.length < limit) {
-      return
-    }
-    getRegInvitations(offset + limit, limit)
-  })
-}
 </script>
 
 <style lang='sass' scoped>
