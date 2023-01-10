@@ -39,6 +39,7 @@
       <q-card-section v-if='!updating'>
         <AppGoodSelector v-model:id='target.GoodID' />
         <AppUserSelector v-model:id='target.UserID' />
+        <q-select :options='SettleTypes' v-model='target.SettleType' :label='$t("MSG_COMMISSION_SETTLE_TYPE")' />
       </q-card-section>
       <q-card-section>
         <q-input type='number' v-model.number='target.Percent' :label='$t("MSG_PERCENT")' suffix='%' />
@@ -56,7 +57,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, SettleType, useAdminCommissionStore, Commission } from 'npool-cli-v4'
+import { NotifyType, SettleType, useAdminCommissionStore, Commission, SettleTypes } from 'npool-cli-v4'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -137,7 +138,7 @@ const createUserCommission = (done: () => void) => {
     StartAt: target.value.StartAt,
     GoodID: target.value.GoodID,
     SettleType: target.value.SettleType,
-    Value: target.value.Percent,
+    Value: `${target.value.Percent}`,
     Message: {
       Error: {
         Title: t('MSG_CREATE_USER_PURCHASE_AMOUNT_SETTING'),
