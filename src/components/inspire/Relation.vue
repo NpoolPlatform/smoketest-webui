@@ -163,6 +163,7 @@
       </q-tr>
     </template>
   </q-table>
+  <RegistrationCard />
 </template>
 <script setup lang='ts'>
 import {
@@ -170,10 +171,11 @@ import {
 } from 'npool-cli-v2'
 import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement, useAdminRegistrationStore, Registration } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
 
 const uColumns = computed(() => [
   {

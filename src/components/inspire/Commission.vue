@@ -53,7 +53,6 @@
       </q-item>
     </q-card>
   </q-dialog>
-  <RegistrationCard />
 </template>
 
 <script setup lang='ts'>
@@ -65,7 +64,6 @@ const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
-const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
 const AppGoodSelector = defineAsyncComponent(() => import('src/components/good/AppGoodSelector.vue'))
 const AppUserSelector = defineAsyncComponent(() => import('src/components/user/AppUserSelector.vue'))
 
