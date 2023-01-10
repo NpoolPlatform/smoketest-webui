@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminUserStore, useFrontendUserStore, User, useAdminInvitationCodeStore, InvitationCode } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminUserStore, User, useAdminInvitationCodeStore, InvitationCode } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -149,10 +149,10 @@ const addInvitationCode = (idx = 0) => {
   })
 }
 
-const _user = useFrontendUserStore()
+const _user = useAdminUserStore()
 const onSetKolClick = () => {
   selectedUser.value?.forEach((el) => {
-    _user.updateUserKol({
+    _user.updateAppUserKol({
       TargetUserID: el.ID,
       Kol: true,
       Message: {
