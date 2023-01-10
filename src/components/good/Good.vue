@@ -47,13 +47,6 @@
         />
         <!-- <q-input
           class='commission-percent'
-          v-model.number='target.MaxAmountPerWithdraw'
-          :label='$t("MSG_MAX_AMOUNT_PER_WITHDRAW")'
-          type='number'
-          :min='0'
-        /> -->
-        <!-- <q-input
-          class='commission-percent'
           v-model.number='target.TechnicalFeeRatio'
           :label='$t("MSG_TECHNICALFEE_RATIO")'
           type='number'
@@ -155,7 +148,6 @@ const updateTarget = computed(() => {
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
     CommissionPercent: target.value.CommissionPercent,
-    // MaxAmountPerWithdraw: target.value.MaxAmountPerWithdraw,
     // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
     // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
     SaleStartAt: target.value.SaleStartAt,

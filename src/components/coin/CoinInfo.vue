@@ -40,6 +40,12 @@
         <q-input v-model='settleTips' :label='$t("MSG_SETTLE_TIPS")' />
         <q-input type='number' v-model='target.DailyRewardAmount' :label='$t("MSG_DAILY_REWARD_AMOUNT")' />
         <!-- <q-select dense :options='CoinEnvironments' v-model='target.ENV' :label='$t("MSG_COIN_ENVIRONMENT")' /> -->
+        <!-- <q-input
+          v-model='target.MaxAmountPerWithdraw'
+          :label='$t("MSG_MAX_AMOUNT_PER_WITHDRAW")'
+          type='number'
+          :min='0'
+        /> -->
       </q-card-section>
       <q-card-section>
         <div><q-toggle dense v-model='target.ForPay' :label='$t("MSG_FOR_PAY")' /><span class='tip'>CoinForPay: {{ target.CoinForPay }}</span></div>
@@ -215,6 +221,7 @@ const updateTarget = computed(() => {
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string,
     Disabled: target.value?.Disabled,
     Display: target.value?.Display,
+    // MaxAmountPerWithdraw: target.value.MaxAmountPerWithdraw,
     DisplayIndex: target.value?.DisplayIndex
   }
 })
