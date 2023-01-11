@@ -207,17 +207,27 @@ const userInviters = computed(() => _userInviters.value)
 
 const archivement = useAdminArchivementStore()
 const archivements = computed(() => archivement.getArchivementByUserID(curUserID.value))
-const inviteeArchivements = computed(() => archivement.inviteeArchivements(curUserID.value))
+const inviteeArchivements = computed(() => {
+  let _data = archivement.inviteeArchivements(curUserID.value)
+  if (currentKolState.value.Label !== 'ALL') {
+    _data = _data.filter((el) => el.Kol === currentKolState.value.Value)
+  }
+  return _data
+})
+
 const _inviterArchivements = computed(() => archivement.inviterArchivements(curUserID.value))
 const inviterArchivements = computed(() => {
-  const archivements = [] as Array<UserArchivement>
+  let _data = [] as Array<UserArchivement>
   userInviters.value.forEach((ID) => {
     const data = _inviterArchivements.value.find((el) => el.UserID === ID)
     if (data) {
-      archivements.push(data)
+      _data.push(data)
     }
   })
-  return archivements
+  if (currentKolState.value.Label !== 'ALL') {
+    _data = _data.filter((el) => el.Kol === currentKolState.value.Value)
+  }
+  return _data
 })
 
 const loading = ref(false)
