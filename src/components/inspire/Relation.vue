@@ -29,7 +29,7 @@
     :rows-per-page-options='[10]'
     row-key='name'
     :columns='(columns as never)'
-    :rows='inviteesArchivemnents'
+    :rows='inviteeArchivements'
     :loading='loading'
   >
     <template #top-right>
@@ -103,7 +103,7 @@
     :title='$t("MSG_INVITERS")'
     row-key='ID'
     :rows-per-page-options='[10]'
-    :rows='invitersArchivemnents'
+    :rows='inviterArchivements'
     :columns='(columns as never)'
     :loading='loading'
   >
@@ -169,13 +169,118 @@
 import {
   PriceCoinName
 } from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, UserArchivement, useAdminRegistrationStore } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminArchivementStore, useAdminUserStore, User, useAdminRegistrationStore, InvalidID, UserArchivement } from 'npool-cli-v4'
 import { getUsers } from 'src/api/user'
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+
 const RegistrationCard = defineAsyncComponent(() => import('src/components/inspire/Registration.vue'))
+
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users)
+
+const username = ref('')
+const displayUsers = computed(() => users.value.filter((user) => {
+  return user.ID?.toLowerCase().includes(username.value.toLowerCase()) ||
+        user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
+        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
+}))
+
+const selectedUser = ref([] as Array<User>)
+const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : InvalidID)
+
+const regInvitation = useAdminRegistrationStore()
+const inviteeIDs = computed(() => regInvitation.inviteeIDs(curUserID.value))
+
+const _userInviters = ref([] as Array<string>)
+const getInviterIDs = (userID: string) => {
+  userInviters.value.push(userID)
+  const root = regInvitation.Registrations.Registrations.find(item => item.InviteeID === userID)
+  if (!root) {
+    return userInviters.value
+  }
+  getInviterIDs(root.InviterID)
+}
+const userInviters = computed(() => _userInviters.value)
+
+const archivement = useAdminArchivementStore()
+const archivements = computed(() => archivement.getArchivementByUserID(curUserID.value))
+const inviteeArchivements = computed(() => archivement.inviteeArchivements(curUserID.value))
+const _inviterArchivements = computed(() => archivement.inviterArchivements(curUserID.value))
+const inviterArchivements = computed(() => {
+  const archivements = [] as Array<UserArchivement>
+  userInviters.value.forEach((ID) => {
+    const data = _inviterArchivements.value.find((el) => el.UserID === ID)
+    if (data) {
+      archivements.push(data)
+    }
+  })
+  return archivements
+})
+
+const loading = ref(false)
+
+watch(curUserID, () => {
+  if (curUserID.value === InvalidID) {
+    return
+  }
+  _userInviters.value = []
+  getInviterIDs(curUserID.value)
+  if (archivements.value.length === 0) {
+    loading.value = true
+    getUserArchivements(0, 500, curUserID.value)
+  }
+})
+
+const getUserArchivements = (offset: number, limit: number, key: string) => {
+  archivement.getUserGoodArchivements({
+    UserIDs: inviteeIDs.value,
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_GOOD_ARCHIVEMENT_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, key, (error: boolean, rows: Array<UserArchivement>) => {
+    loading.value = false
+    if (error || rows.length < limit) {
+      return
+    }
+    getUserArchivements(offset + limit, limit, key)
+  })
+}
+
+interface KOLOption {
+  Label: string;
+  Value: boolean;
+}
+
+const KOLOptions = ref([
+  {
+    Label: 'ALL',
+    Value: true
+  },
+  {
+    Label: 'KOL',
+    Value: true
+  },
+  {
+    Label: 'NOT KOL',
+    Value: false
+  }
+] as Array<KOLOption>)
+const currentKolState = ref(KOLOptions.value[0])
+
+onMounted(() => {
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
+})
 
 const uColumns = computed(() => [
   {
@@ -214,15 +319,6 @@ const uColumns = computed(() => [
     field: (row: User) => formatTime(row.CreatedAt)
   }
 ])
-const user = useAdminUserStore()
-const users = computed(() => user.Users.Users)
-const selectedUser = ref([] as Array<User>)
-const username = ref('')
-const displayUsers = computed(() => users.value.filter((user) => {
-  return user.ID?.toLowerCase().includes(username.value.toLowerCase()) ||
-        user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
-        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
-}))
 
 const columns = [
   { name: 'UserID', label: 'USERID', field: 'UserID', align: 'center' },
@@ -233,126 +329,6 @@ const columns = [
   { name: 'TotalInvitees', label: 'TOTALINVITEES', field: 'TotalInvitees', align: 'center', sortable: true },
   { name: 'Archivements', label: 'PROFIT', field: 'Archivements', align: 'center' }
 ]
-
-interface InvitationRelation {
-  UserID: string
-  InviterID: string
-}
-
-const userInvitees = ref([] as Array<InvitationRelation>)// 用户邀请的人
-const userInviters = ref([] as Array<InvitationRelation>) // 邀请该用户的人
-const curUserID = computed(() => selectedUser.value.length ? selectedUser.value[0].ID : '')// 当前选择的用户
-
-watch(curUserID, () => {
-  userInvitees.value = [] // reset
-  userInviters.value = []
-  if (curUserID.value !== '' && curUserID.value !== undefined) {
-    loading.value = true
-    getUserInvitees(curUserID.value)
-    getUserInviters(curUserID.value)
-  }
-})
-
-const regInvitation = useAdminRegistrationStore()
-
-const getUserInvitees = (userID: string) => {
-  regInvitation.Registrations.Registrations.filter(item => item.InviterID === userID).forEach((el) => {
-    userInvitees.value.push({ UserID: el.InviteeID, InviterID: userID })
-  })
-  getUserArchivements(userInvitees.value.map((el) => el.UserID), 0, 100)
-}
-const getUserInviters = (userID: string) => {
-  const root = regInvitation.Registrations.Registrations.find(item => item.InviteeID === userID)
-  if (!root) {
-    if (userInviters.value.length === 0) {
-      userInviters.value.push({ UserID: userID, InviterID: '' })
-    } else {
-      userInviters.value.push({ UserID: userInviters.value[userInviters.value.length - 1].InviterID, InviterID: '' })
-    }
-    getUserArchivements(userInviters.value.map((el) => el.UserID), 0, 100)
-    return
-  }
-  userInviters.value.push({ UserID: userID, InviterID: root.InviterID })
-  getUserInviters(root.InviterID)
-}
-const getUserArchivements = (userIDs: Array<string>, offset: number, limit: number) => {
-  if (userIDs.length > 0) {
-    archivement.getUserGoodArchivements({
-      UserIDs: userIDs,
-      Offset: offset,
-      Limit: limit,
-      Message: {
-        Error: {
-          Title: t('MSG_GET_GOOD_ARCHIVEMENT_FAIL'),
-          Popup: true,
-          Type: NotifyType.Error
-        }
-      }
-    }, (error: boolean, rows: Array<UserArchivement>) => {
-      if (error || rows.length < limit) { // has error
-        loading.value = false
-        return
-      }
-      getUserArchivements(userIDs, offset + limit, limit)
-    })
-  }
-}
-
-const archivement = useAdminArchivementStore()
-
-interface UserGoodArchivements extends UserArchivement {
-  InviterID: string
-}
-
-const invitersArchivemnents = computed(() => {
-  const data = [] as Array<UserGoodArchivements>
-  userInviters.value.forEach((user) => {
-    const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
-    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
-  })
-  return data
-})
-interface KOLOption {
-  Label: string;
-  Value: boolean;
-}
-
-const KOLOptions = ref([
-  {
-    Label: 'ALL',
-    Value: true
-  },
-  {
-    Label: 'KOL',
-    Value: true
-  },
-  {
-    Label: 'NOT KOL',
-    Value: false
-  }
-] as Array<KOLOption>)
-const currentKolState = ref(KOLOptions.value[0])
-
-const inviteesArchivemnents = computed(() => {
-  let data = [] as Array<UserGoodArchivements>
-  userInvitees.value.forEach((user) => {
-    const userArchivements = archivement.Archivements.Archivements.get(user.UserID)
-    data.push({ ...userArchivements, ...{ InviterID: user.InviterID } } as UserGoodArchivements)
-  })
-  if (currentKolState.value.Label !== 'ALL') {
-    data = data.filter((el) => el.Kol === currentKolState.value.Value)
-  }
-  return data
-})
-
-const loading = ref(false)
-
-onMounted(() => {
-  if (user.Users.Users.length === 0) {
-    getUsers(0, 500)
-  }
-})
-
 </script>
 
 <style lang='sass' scoped>
