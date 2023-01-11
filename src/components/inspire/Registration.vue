@@ -74,17 +74,21 @@ const displayRegistrations = computed(() => registrations.value.filter((el) => {
   const _invitee = invitee.value.toLowerCase()
   const _inviter = inviter.value.toLowerCase()
   let display = true
-  if (_invitee.length > 0) {
-    display = el.InviteeEmailAddress.toLowerCase().includes(_invitee) || el.InviteePhoneNO.toLowerCase().includes(_invitee)
-  }
-  if (_inviter.length > 0) {
-    display = el.InviterEmailAddress.toLowerCase().includes(_inviter) || el.InviterPhoneNO.toLowerCase().includes(_inviter)
-  }
-
   if (_invitee.length > 0 && _invitee.length > 0) {
     display = (el.InviteeEmailAddress.toLowerCase().includes(_invitee) || el.InviteePhoneNO.toLowerCase().includes(_invitee)) &&
       (el.InviterEmailAddress.toLowerCase().includes(_inviter) || el.InviterPhoneNO.toLowerCase().includes(_inviter))
+    return display
   }
+
+  if (_invitee.length > 0) {
+    display = el.InviteeEmailAddress.toLowerCase().includes(_invitee) || el.InviteePhoneNO.toLowerCase().includes(_invitee)
+    return display
+  }
+  if (_inviter.length > 0) {
+    display = el.InviterEmailAddress.toLowerCase().includes(_inviter) || el.InviterPhoneNO.toLowerCase().includes(_inviter)
+    return display
+  }
+
   return display
 }))
 
