@@ -25,8 +25,8 @@
       <q-input
         dense
         class='small'
-        v-model='goodId'
-        :label='$t("MSG_GOOD_ID")'
+        v-model='username'
+        :label='$t("MSG_USERNAME")'
       />
       <q-input
         dense
@@ -105,14 +105,16 @@ import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
 import { getAppOrders } from 'src/api/order'
-const goodId = ref('')
+
+const username = ref('')
 const start = ref('')
 const end = ref('')
 
 const order = useAdminOrderStore()
 const selectedOrderType = ref('ALL')
 const displayOrders = computed(() => order.Orders.filter((el) => {
-  let display = el.GoodID.includes(goodId.value)
+  const name = username.value?.toLowerCase()
+  let display = el.EmailAddress?.toLowerCase().includes(name) || el.PhoneNO?.toLowerCase()?.includes(name) || el.GoodID?.toLowerCase()?.includes(name) || el.ID?.toLowerCase()?.includes(name)
   if (start.value.length) {
     display = display && (el.CreatedAt >= new Date(start.value).getTime() / 1000)
   }

@@ -6,7 +6,6 @@
     :rows='displayUsers'
     row-key='ID'
     selection='multiple'
-    :loading='userLoading'
     v-model:selected='selectedUser'
     :columns='columns'
     :rows-per-page-options='[10]'
@@ -38,8 +37,17 @@
           dense
           flat
           class='btn flat'
-          :label='$t("MSG_CREATE")'
+          :label='$t("MSG_CREATE_INVITATION_CODE")'
+          :disable='selectedUser.length === 0'
           @click='onCreateInvitationCodeClick'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_SET_KOL")'
+          :disable='selectedUser.length === 0'
+          @click='onSetKolClick'
         />
       </div>
     </template>
@@ -50,8 +58,8 @@
     :title='$t("MSG_INVITATION_CODES")'
     :rows='displayCodes'
     row-key='ID'
-    :loading='codeLoading'
     :rows-per-page-options='[20]'
+    :columns='invitationCodeColumns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -59,7 +67,7 @@
           dense
           flat
           class='small'
-          v-model='searchStr'
+          v-model='_code'
           :label='$t("MSG_SEARCH")'
         />
       </div>
@@ -73,13 +81,125 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, InvitationCode, useInvitationStore } from 'npool-cli-v2'
-import { formatTime, NotifyType, useAdminUserStore, User } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminUserStore, User, useAdminInvitationCodeStore, InvitationCode } from 'npool-cli-v4'
+import { getUsers } from 'src/api/user'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+
+const code = useAdminInvitationCodeStore()
+const codes = computed(() => code.InvitationCodes.InvitationCodes)
+
+const _code = ref('')
+const displayCodes = computed(() => codes.value.filter((el) => {
+  return el.EmailAddress?.includes(_code.value) || el.InvitationCode?.includes(_code.value) || el.PhoneNO?.includes(_code.value)
+}))
+
+const user = useAdminUserStore()
+const users = computed(() => user.Users.Users)
+
+const username = ref('')
+const start = ref('')
+const end = ref('')
+
+const displayUsers = computed(() => users.value.filter((user) => {
+  let display = user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
+        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
+  if (start.value.length) {
+    display = display && (user.CreatedAt >= new Date(start.value).getTime() / 1000)
+  }
+  if (end.value.length) {
+    display = display && (user.CreatedAt <= new Date(end.value).getTime() / 1000)
+  }
+  return display
+}))
+
+const selectedUser = ref([] as Array<User>)
+
+const onCreateInvitationCodeClick = () => {
+  addInvitationCode()
+}
+
+const counter = ref(0)
+const addInvitationCode = (idx = 0) => {
+  code.createInvitationCode({
+    TargetUserID: selectedUser.value[idx].ID,
+    Message: {
+      Error: {
+        Title: t('MSG_CREATE_INVITATION_CODE'),
+        Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_CREATE_INVITATION_CODE'),
+        Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, () => {
+    counter.value++
+    if (counter.value >= selectedUser.value.length) {
+      counter.value = 0
+      return
+    }
+    addInvitationCode(counter.value)
+  })
+}
+
+const _user = useAdminUserStore()
+const onSetKolClick = () => {
+  selectedUser.value?.forEach((el) => {
+    _user.updateAppUserKol({
+      TargetUserID: el.ID,
+      Kol: true,
+      Message: {
+        Error: {
+          Title: t('MSG_CREATE_INVITATION_CODE'),
+          Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
+          Popup: true,
+          Type: NotifyType.Error
+        },
+        Info: {
+          Title: t('MSG_CREATE_INVITATION_CODE'),
+          Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
+          Popup: true,
+          Type: NotifyType.Success
+        }
+      }
+    }, (error: boolean) => {
+      if (error) {
+        return
+      }
+      console.log()
+    })
+  })
+}
+
+onMounted(() => {
+  if (codes.value?.length === 0) {
+    getInvitationCodes(0, 500)
+  }
+  if (user.Users.Users.length === 0) {
+    getUsers(0, 500)
+  }
+})
+
+const getInvitationCodes = (offset: number, limit: number) => {
+  code.getInvitationCodes({
+    Offset: offset,
+    Limit: limit,
+    Message: {}
+  }, (error: boolean, rows: Array<InvitationCode>) => {
+    if (error || rows.length < limit) {
+      return
+    }
+    getInvitationCodes(offset + limit, limit)
+  })
+}
 const columns = computed(() => [
   {
     name: 'AppID',
@@ -102,6 +222,17 @@ const columns = computed(() => [
     field: (row: User) => row.PhoneNO
   },
   {
+    name: 'InvitationCode',
+    label: t('MSG_INVITATION_CODE'),
+    field: (row: User) => row.InvitationCode
+  },
+  {
+    name: 'KOL',
+    label: t('MSG_KOL'),
+    sortable: true,
+    field: (row: User) => row.Kol
+  },
+  {
     name: 'Roles',
     label: t('MSG_ROLES'),
     field: (row: User) => row.Roles?.join(',')
@@ -117,116 +248,52 @@ const columns = computed(() => [
     field: (row: User) => formatTime(row.CreatedAt)
   }
 ])
-const inspire = useInvitationStore()
-const codes = computed(() => inspire.InvitationCodes)
-const codeLoading = ref(false)
-const userLoading = ref(false)
 
-const start = ref('')
-const end = ref('')
-interface Code extends InvitationCode {
-  EmailAddress: string
-  PhoneNO: string
-}
-
-const user = useAdminUserStore()
-const ecodes = computed(() => Array.from(codes.value).map((code: InvitationCode) => {
-  const myCode = code as unknown as Code
-  myCode.EmailAddress = user.getUserByID(code.UserID as string)?.EmailAddress
-  myCode.PhoneNO = user.getUserByID(code.UserID as string)?.PhoneNO
-  return myCode
-}))
-
-const searchStr = ref('')
-const displayCodes = computed(() => ecodes.value.filter((el) => {
-  return el.EmailAddress?.includes(searchStr.value) || el.InvitationCode?.includes(searchStr.value) || el.PhoneNO?.includes(searchStr.value)
-}))
-
-const users = computed(() => Array.from(user.Users.Users.filter((el) => {
-  return codes.value.findIndex((code) => el.ID === code.UserID) < 0
-}).map((el) => el)))
-
-const selectedUser = ref([] as Array<User>)
-const username = ref('')
-const displayUsers = computed(() => users.value.filter((user) => {
-  let display = user.EmailAddress?.toLowerCase().includes(username.value.toLowerCase()) ||
-        user.PhoneNO?.toLowerCase().includes(username.value.toLowerCase())
-  if (start.value.length) {
-    display = display && (user.CreatedAt >= new Date(start.value).getTime() / 1000)
+const invitationCodeColumns = computed(() => [
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: InvitationCode) => row.AppID
+  },
+  {
+    name: 'UserID',
+    label: t('MSG_USER_ID'),
+    field: (row: InvitationCode) => row.UserID
+  },
+  {
+    name: 'Username',
+    label: t('MSG_USERNAME'),
+    field: (row: InvitationCode) => row.Username
+  },
+  {
+    name: 'EmailAddress',
+    label: t('MSG_EMAIL_ADDRESS'),
+    field: (row: InvitationCode) => row.EmailAddress
+  },
+  {
+    name: 'PhoneNO',
+    label: t('MSG_PHONE_NO'),
+    field: (row: InvitationCode) => row.PhoneNO
+  },
+  {
+    name: 'InvitationCode',
+    label: t('MSG_INVITATION_CODE'),
+    field: (row: InvitationCode) => row.InvitationCode
+  },
+  {
+    name: 'Disabled',
+    label: t('MSG_DISABLED'),
+    field: (row: InvitationCode) => row.Disabled
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: InvitationCode) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'UpdatedAt',
+    label: t('MSG_UPDATED_AT'),
+    field: (row: InvitationCode) => formatTime(row.UpdatedAt)
   }
-  if (end.value.length) {
-    display = display && (user.CreatedAt <= new Date(end.value).getTime() / 1000)
-  }
-  return display
-}))
-
-const getUsers = (offset: number, limit: number) => {
-  user.getUsers({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_USERS',
-        Message: 'MSG_GET_USERS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (resp: Array<User>, error: boolean) => {
-    if (error || resp.length < limit) {
-      userLoading.value = false
-      return
-    }
-    getUsers(offset + limit, limit)
-  })
-}
-onMounted(() => {
-  inspire.getInvitationCodes({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_INVITATION_CODES'),
-        Message: t('MSG_GET_INVITATION_CODES_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    codeLoading.value = false
-  })
-  if (user.Users.Users.length === 0) {
-    userLoading.value = true
-    getUsers(0, 500)
-  }
-})
-const counter = ref(0)
-const addInvitationCode = (idx = 0) => {
-  if (selectedUser.value.length === 0) {
-    return
-  }
-  inspire.createInvitationCode({
-    TargetUserID: selectedUser.value[idx].ID,
-    Info: {
-      UserID: selectedUser.value[idx].ID
-    },
-    Message: {
-      Error: {
-        Title: t('MSG_CREATE_INVITATION_CODE'),
-        Message: t('MSG_CREATE_INVITATION_CODE_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    counter.value++
-    if (counter.value >= selectedUser.value.length) {
-      counter.value = 0
-      return
-    }
-    addInvitationCode(counter.value)
-  })
-}
-const onCreateInvitationCodeClick = () => {
-  addInvitationCode()
-}
-
+])
 </script>

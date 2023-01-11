@@ -247,8 +247,8 @@ const MainDrawerMenus = [
     sectionBegin: false,
     children: [{
       menuId: uid(),
-      label: '邀请码',
-      caption: '管理用户邀请码',
+      label: '邀请码 | KOL',
+      caption: '邀请码 | KOL管理',
       icon: 'format_list_numbered',
       target: '/inspire/invitation/code',
       level: 1,
@@ -257,7 +257,7 @@ const MainDrawerMenus = [
     } as MenuItem, {
       menuId: uid(),
       label: '佣金设置',
-      caption: '管理邀请和购买佣金',
+      caption: '佣金管理',
       icon: 'format_list_numbered',
       target: '/inspire/commission',
       level: 1,

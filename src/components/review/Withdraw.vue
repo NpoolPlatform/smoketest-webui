@@ -9,7 +9,24 @@
     :columns='columns'
     :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as WithdrawReview)'
-  />
+  >
+    <template #top-right>
+      <q-input
+        dense
+        class='small'
+        v-model='username'
+        :label='$t("MSG_USERNAME")'
+      />
+      <q-btn
+        dense
+        flat
+        class='btn flat'
+        :label='$t("MSG_EXPORT")'
+        :disable='reviews.length === 0'
+        @click='onExport'
+      />
+    </template>
+  </q-table>
   <q-card>
     <q-card-section class='bg-primary text-white'>
       {{ $t('MSG_ADVERTISEMENT_POSITION') }}
@@ -51,6 +68,7 @@
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { NotifyType, ReviewState, useAdminWithdrawReviewStore, useLocalUserStore, WithdrawReview, useLocaleStore, formatTime } from 'npool-cli-v4'
+import saveAs from 'file-saver'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -58,8 +76,16 @@ const { t } = useI18n({ useScope: 'global' })
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 const review = useAdminWithdrawReviewStore()
-const reviews = computed(() => review.WithdrawReviews.WithdrawReviews)
-const displayReviews = ref(reviews.value.sort((a, b) => a.CreatedAt > b.CreatedAt ? -1 : 1))
+const reviews = computed(() => review.withdrawReviews)
+
+const username = ref('')
+const displayReviews = computed(() => {
+  return reviews.value.filter((el) => {
+    const _username = username.value.toLowerCase()
+    return el.EmailAddress.toLowerCase().includes(_username) || el.PhoneNO.toLowerCase().includes(_username)
+  })
+})
+
 const reviewLoading = ref(false)
 
 const locale = useLocaleStore()
@@ -121,6 +147,20 @@ const updateReview = (done: () => void) => {
   })
 }
 
+const onExport = () => {
+  let result = 'WithdrawID,WithdrawState,ReviewID,UserID,KycState,EmailAddress,PhoneNO,Reviewer,ObjectType,Domain,Message,State,Trigger,Amount,FeeAmount,CoinTypeID,CoinName,CoinLogo,CoinUnit,Address,PlatformTransactionID,ChainTransactionID,CreatedAt,UpdatedAt'
+  result += '\n'
+  reviews.value.forEach((val) => {
+    const { CreatedAt, UpdatedAt, ...values } = val
+    const _createdAt = formatTime(Number(CreatedAt))
+    const _updatedAt = formatTime(Number(UpdatedAt))
+    result += Object.values(values).join(',') + `,${_createdAt}` + `,${_updatedAt}\n`
+  })
+  const blob = new Blob([result], { type: 'text/plain;charset=utf-8' })
+  const filename = 'withdraw-reviews-' + formatTime(new Date().getTime() / 1000) + '.csv'
+  saveAs(blob, filename)
+}
+
 onMounted(() => {
   if (reviews.value.length === 0) {
     reviewLoading.value = true
@@ -151,19 +191,20 @@ const getWithdrawReviews = (offset: number, limit: number) => {
 
 const columns = computed(() => [
   {
+    name: 'CoinTypeID',
+    label: t('MSG_COIN_TYPE_ID'),
+    field: (row: WithdrawReview) => row.CoinTypeID
+  },
+  {
     name: 'CoinName',
     label: t('MSG_COIN_NAME'),
+    sortable: true,
     field: (row: WithdrawReview) => row.CoinName
   },
   {
     name: 'CoinLogo',
     label: t('MSG_COIN_LOGO'),
     field: (row: WithdrawReview) => row.CoinLogo
-  },
-  {
-    name: 'CoinTypeID',
-    label: t('MSG_COIN_TYPE_ID'),
-    field: (row: WithdrawReview) => row.CoinTypeID
   },
   {
     name: 'Amount',
@@ -178,16 +219,19 @@ const columns = computed(() => [
   {
     name: 'WithdrawState',
     label: t('MSG_WITHDRAW_STATE'),
+    sortable: true,
     field: (row: WithdrawReview) => row.WithdrawState
   },
   {
     name: 'State',
     label: t('MSG_STATE'),
+    sortable: true,
     field: (row: WithdrawReview) => row.State
   },
   {
     name: 'Trigger',
     label: t('MSG_TRIGGER'),
+    sortable: true,
     field: (row: WithdrawReview) => row.Trigger
   },
   {
@@ -198,6 +242,7 @@ const columns = computed(() => [
   {
     name: 'CreatedAt',
     label: t('MSG_CREATED_AT'),
+    sortable: true,
     field: (row: WithdrawReview) => formatTime(row.CreatedAt)
   },
   {
@@ -223,6 +268,7 @@ const columns = computed(() => [
   {
     name: 'KycState',
     label: t('MSG_KYC_STATE'),
+    sortable: true,
     field: (row: WithdrawReview) => row.KycState
   }
 ])
