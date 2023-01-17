@@ -38,6 +38,7 @@
         <q-input v-model.number='target.PurchaseLimit' :label='$t("MSG_PURCHASE_LIMIT")' type='number' :min='0' />
         <q-input v-model.number='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' type='number' :min='0' />
         <q-input v-model='descriptions' :label='$t("MSG_DESCRIPTIONS")' />
+        <q-input v-model='target.GoodBanner' :label='$t("MSG_GOOD_BANNER")' />
         <q-input
           class='commission-percent'
           v-model.number='target.CommissionPercent'
@@ -157,7 +158,8 @@ const updateTarget = computed(() => {
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt,
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
-    Descriptions: descriptions.value.split(',')
+    Descriptions: descriptions.value?.split(','),
+    GoodBanner: target.value?.GoodBanner
   }
 })
 
