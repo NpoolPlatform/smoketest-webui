@@ -37,6 +37,7 @@
         <q-input v-model='target.Price' :label='$t("MSG_PRICE")' type='number' :min='0' />
         <q-input v-model.number='target.PurchaseLimit' :label='$t("MSG_PURCHASE_LIMIT")' type='number' :min='0' />
         <q-input v-model.number='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' type='number' :min='0' />
+        <q-input v-model='descriptions' :label='$t("MSG_DESCRIPTIONS")' />
         <q-input
           class='commission-percent'
           v-model.number='target.CommissionPercent'
@@ -127,9 +128,12 @@ const onCancel = () => {
   onMenuHide()
 }
 
+const descriptions = ref('')
+
 const onRowClick = (row: AppGood) => {
   target.value = { ...row }
   openSaleActivity.value = target?.value?.SaleEndAt !== 0
+  descriptions.value = target?.value?.Descriptions?.join(',')
   updating.value = true
   showing.value = true
 }
@@ -151,8 +155,9 @@ const updateTarget = computed(() => {
     // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
     // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
     SaleStartAt: target.value.SaleStartAt,
-    SaleEndAt: target.value.SaleEndAt
+    SaleEndAt: target.value.SaleEndAt,
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
+    Descriptions: descriptions.value.split(',')
   }
 })
 
