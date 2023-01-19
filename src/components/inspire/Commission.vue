@@ -24,13 +24,13 @@
           :label='$t("MSG_CREATE")'
           @click='onCreate'
         />
-        <q-btn
+        <!-- <q-btn
           dense
           flat
           class='btn flat'
           :label='$t("MSG_CLONE")'
           @click='onClone'
-        />
+        /> -->
       </div>
     </template>
   </q-table>
@@ -197,6 +197,7 @@ const onMenuHide1 = () => {
   showing1.value = false
   cloneCommission.value = {} as CloneCommission
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onClone = () => {
   showing1.value = true
   cloneCommission.value = {} as CloneCommission
