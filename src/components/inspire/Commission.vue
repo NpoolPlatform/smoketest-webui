@@ -24,6 +24,13 @@
           :label='$t("MSG_CREATE")'
           @click='onCreate'
         />
+        <!-- <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_CLONE")'
+          @click='onClone'
+        /> -->
       </div>
     </template>
   </q-table>
@@ -50,6 +57,26 @@
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog
+    v-model='showing1'
+    @hide='onMenuHide1'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_CLONE_COMMISSION_SETTING') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <AppGoodSelector v-model:id='cloneCommission.FromGoodID' />
+        <AppGoodSelector v-model:id='cloneCommission.ToGoodID' />
+      </q-card-section>
+      <q-item class='row'>
+        <LoadingButton loading :label='$t("MSG_CLONE")' @click='onSubmit1' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel1' />
       </q-item>
     </q-card>
   </q-dialog>
@@ -157,6 +184,52 @@ const createUserCommission = (done: () => void) => {
       return
     }
     onMenuHide()
+  })
+}
+interface CloneCommission {
+  FromGoodID: string;
+  ToGoodID: string;
+}
+const cloneCommission = ref({} as CloneCommission)
+const showing1 = ref(false)
+
+const onMenuHide1 = () => {
+  showing1.value = false
+  cloneCommission.value = {} as CloneCommission
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const onClone = () => {
+  showing1.value = true
+  cloneCommission.value = {} as CloneCommission
+}
+
+const onCancel1 = () => {
+  onMenuHide()
+}
+
+const onSubmit1 = (done: () => void) => {
+  commission.cloneCommissions({
+    ...cloneCommission.value,
+    Message: {
+      Error: {
+        Title: t('MSG_CLONE_PURCHASE_AMOUNT_SETTING'),
+        Message: t('MSG_CLONE_PURCHASE_AMOUNT_SETTING_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_CLONE_PURCHASE_AMOUNT_SETTING'),
+        Message: t('MSG_CLONE_PURCHASE_AMOUNT_SETTING_FAIL'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide1()
   })
 }
 onMounted(() => {

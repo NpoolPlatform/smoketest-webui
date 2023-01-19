@@ -38,6 +38,7 @@
         <q-input v-model.number='target.PurchaseLimit' :label='$t("MSG_PURCHASE_LIMIT")' type='number' :min='0' />
         <q-input v-model.number='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' type='number' :min='0' />
         <q-input v-model='descriptions' :label='$t("MSG_DESCRIPTIONS")' />
+        <q-input v-model='displayNames' :label='$t("MSG_DISPLAY_NAMES")' />
         <q-input v-model='target.GoodBanner' :label='$t("MSG_GOOD_BANNER")' />
         <q-input
           class='commission-percent'
@@ -130,11 +131,13 @@ const onCancel = () => {
 }
 
 const descriptions = ref('')
+const displayNames = ref('')
 
 const onRowClick = (row: AppGood) => {
   target.value = { ...row }
   openSaleActivity.value = target?.value?.SaleEndAt !== 0
   descriptions.value = target?.value?.Descriptions?.join(',')
+  displayNames.value = target?.value?.DisplayNames?.join(',')
   updating.value = true
   showing.value = true
 }
@@ -159,6 +162,7 @@ const updateTarget = computed(() => {
     SaleEndAt: target.value.SaleEndAt,
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
     Descriptions: descriptions.value?.split(','),
+    DisplayNames: displayNames.value?.split(','),
     GoodBanner: target.value?.GoodBanner
   }
 })
