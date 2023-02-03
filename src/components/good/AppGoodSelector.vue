@@ -1,12 +1,14 @@
 <template>
   <q-select
     v-model='target'
-    :options='goods'
+    :options='displayGoods'
     options-selected-class='text-deep-orange'
     emit-value
     label='MSG_APP_GOODS'
     map-options
     @update:model-value='onUpdate'
+    use-input
+    @filter='onFilter'
   >
     <template #option='scope'>
       <q-item v-bind='scope.itemProps'>
@@ -19,8 +21,7 @@
 </template>
 <script setup lang='ts'>
 import { useAdminAppGoodStore } from 'npool-cli-v4'
-import { getAppGoods } from 'src/api/good'
-import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
+import { computed, defineEmits, defineProps, toRef, ref } from 'vue'
 
 interface Props {
   id: string
@@ -39,19 +40,19 @@ const goods = computed(() => Array.from(appGoods.value, (el) => {
     label: `${el.GoodName} | ${el.GoodID}`
   }
 }))
+const displayGoods = ref(goods.value)
+
+const onFilter = (val: string, doneFn: (callbackFn: () => void) => void) => {
+  doneFn(() => {
+    displayGoods.value = goods.value.filter((el) => {
+      return el?.label?.toLowerCase().includes(val.toLowerCase())
+    })
+  })
+}
 
 const emit = defineEmits<{(e: 'update:id', id: string): void}>()
 const onUpdate = () => {
   emit('update:id', target.value)
 }
 
-onMounted(() => {
-  prepare()
-})
-
-const prepare = () => {
-  if (appGoods.value.length === 0) {
-    getAppGoods(0, 500)
-  }
-}
 </script>
