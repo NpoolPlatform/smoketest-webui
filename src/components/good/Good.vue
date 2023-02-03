@@ -98,7 +98,6 @@
 <script setup lang='ts'>
 import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
-import { getAppGoods } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -202,10 +201,6 @@ const createAppGood = (done: () => void) => {
 }
 
 onMounted(() => {
-  if (appGoods.value.length === 0) {
-    getAppGoods(0, 500)
-  }
-
   if (coins.value?.length === 0) {
     getCoins(0, 500)
   }

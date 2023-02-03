@@ -66,7 +66,7 @@
 
 <script setup lang='ts'>
 import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminPromotionStore, Promotion } from 'npool-cli-v4'
-import { getAppGoods, getPromotions } from 'src/api/good'
+import { getPromotions } from 'src/api/good'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -167,9 +167,6 @@ const updateAppPromotion = (done: () => void) => {
 onMounted(() => {
   if (promotions.value.length === 0) {
     getPromotions(0, 500)
-  }
-  if (appGoods.value.length === 0) {
-    getAppGoods(0, 500)
   }
 })
 
