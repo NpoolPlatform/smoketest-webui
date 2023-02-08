@@ -153,7 +153,6 @@ const updateAnnouncement = (done: () => void) => {
 const createAnnouncement = (done: () => void) => {
   announcement.createAnnouncement({
     ...target.value,
-    Channels: [],
     Message: {
       Error: {
         Title: 'MSG_CREATE_ANNOUNCEMENT',
