@@ -62,13 +62,13 @@
           type='number'
           :min='0'
         /> -->
-        <!-- <q-input
+        <q-input
           class='commission-percent'
           v-model='target.DailyRewardAmount'
           :label='$t("MSG_DAILY_REWARD_AMOUNT")'
           type='number'
           :min='0'
-        /> -->
+        />
       </q-card-section>
       <q-card-section>
         <div> <q-toggle dense v-model='openSaleActivity' :label='$t("MSG_OPEN_SALE")' /></div>
@@ -162,7 +162,8 @@ const updateTarget = computed(() => {
     // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
     Descriptions: descriptions.value?.split(','),
     DisplayNames: displayNames.value?.split(','),
-    GoodBanner: target.value?.GoodBanner
+    GoodBanner: target.value?.GoodBanner,
+    DailyRewardAmount: target.value?.DailyRewardAmount
   }
 })
 
