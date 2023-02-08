@@ -67,6 +67,15 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
+      } as MenuItem, {
+        menuId: uid(),
+        label: '事件通知模版',
+        caption: '管理事件通知模版',
+        icon: 'perm_identity',
+        target: '/notif/template',
+        level: 1,
+        sectionBegin: false,
+        children: []
       } as MenuItem
     ]
   } as MenuItem, {

@@ -57,7 +57,7 @@ export interface GetNotifTemplateResponse {
 }
 
 export interface GetNotifTemplatesRequest extends BaseRequest {
-  AppID: string;
+  AppID?: string;
   /** @format int32 */
   Offset: number;
   /** @format int32 */
