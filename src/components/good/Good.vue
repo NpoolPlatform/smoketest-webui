@@ -163,7 +163,7 @@ const updateTarget = computed(() => {
     Descriptions: descriptions.value?.split(','),
     DisplayNames: displayNames.value?.split(','),
     GoodBanner: target.value?.GoodBanner,
-    DailyRewardAmount: target.value?.DailyRewardAmount
+    DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string
   }
 })
 
