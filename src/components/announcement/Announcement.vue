@@ -56,8 +56,8 @@
 
 <script setup lang='ts'>
 import { NotifyType } from 'npool-cli-v4'
-import { useAdminAnnouncementStore } from 'src/teststore/announcement/announcement'
-import { Announcement, NotifChannels } from 'src/teststore/announcement/announcement/types'
+import { useAdminAnnouncementStore } from 'src/teststore/notif/announcement'
+import { Announcement, NotifChannels } from 'src/teststore/notif/announcement/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
