@@ -7,6 +7,8 @@
     row-key='ID'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as Announcement)'
+    selection='single'
+    v-model:selected='selectedAnnouncements'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -16,6 +18,14 @@
           class='btn flat'
           :label='$t("MSG_CREATE")'
           @click='onCreate'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_DELETE")'
+          :disable='selectedAnnouncements?.length === 0'
+          @click='onDelete(selectedAnnouncements?.[0])'
         />
       </div>
     </template>
@@ -176,4 +186,26 @@ const createAnnouncement = (done: () => void) => {
   })
 }
 
+const selectedAnnouncements = ref([] as Array<Announcement>)
+const onDelete = (row: Announcement) => {
+  announcement.deleteAnnouncement({
+    ID: row.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_ANNOUNCEMENT',
+        Message: 'MSG_DELETE_ANNOUNCEMENT_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_DELETE_ANNOUNCEMENT',
+        Message: 'MSG_DELETE_ANNOUNCEMENT_SUCCESS',
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
 </script>
