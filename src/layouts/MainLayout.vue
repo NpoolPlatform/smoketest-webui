@@ -4,7 +4,7 @@
     <MainDrawer />
 
     <q-page-container>
-      <Announcement />
+      <!-- <Announcement /> -->
       <MainBreadcrumbs />
       <router-view />
     </q-page-container>
@@ -30,7 +30,7 @@ import { useRouter } from 'vue-router'
 
 const MainHeader = defineAsyncComponent(() => import('src/components/header/MainHeader.vue'))
 const Footer = defineAsyncComponent(() => import('src/components/footer/Footer.vue'))
-const Announcement = defineAsyncComponent(() => import('src/components/announcement/Announcement.vue'))
+// const Announcement = defineAsyncComponent(() => import('src/components/announcement/Announcement.vue'))
 const LangLoader = defineAsyncComponent(() => import('src/components/lang/LangLoader.vue'))
 const MainBreadcrumbs = defineAsyncComponent(() => import('src/components/breadcrumbs/MainBreadcrumbs.vue'))
 const MainDrawer = defineAsyncComponent(() => import('src/components/drawer/MainDrawer.vue'))

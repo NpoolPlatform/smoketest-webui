@@ -5,7 +5,6 @@
     :title='$t("MSG_ANNOUNCEMENTS")'
     :rows='announcements'
     row-key='ID'
-    :loading='loading'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as Announcement)'
   >
@@ -28,14 +27,20 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_COUNTRY') }}</span>
+        <span>{{ $t('MSG_CREATE_ANNOUNCEMENT') }}</span>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
         <q-input v-model='target.Content' :label='$t("MSG_CONTENT")' />
       </q-card-section>
+      <q-card-section>
+        <q-select dense :options='NotifChannels' v-model='target.SendChannel' :label='$t("MSG_CHANNEL")' />
+      </q-card-section>
+      <q-card-section>
+        <div> <DateTimePicker v-model:date='target.EndAt' label='MSG_END_AT' /></div>
+      </q-card-section>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -43,95 +48,128 @@
 </template>
 
 <script setup lang='ts'>
-import { NotificationType, Announcement, useAdminMailboxStore, useMailboxStore } from 'npool-cli-v2'
-import { computed, onMounted, ref } from 'vue'
+import { NotifyType } from 'npool-cli-v4'
+import { useAdminAnnouncementStore } from 'src/teststore/announcement/announcement'
+import { Announcement, NotifChannels } from 'src/teststore/announcement/announcement/types'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const mailbox = useAdminMailboxStore()
-const fmailbox = useMailboxStore()
-const announcements = computed(() => fmailbox.Announcements)
-const loading = ref(true)
+const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
+const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 
-const prepare = () => {
-  loading.value = true
-  fmailbox.getAnnouncements({
-    Message: {
-      Error: {
-        Title: t('MSG_GET_ANNOUNCEMENTS'),
-        Message: t('MSG_GET_ANNOUNCEMENTS_FAIL'),
-        Popup: true,
-        Type: NotificationType.Error
-      }
-    }
-  }, () => {
-    loading.value = false
-  })
-}
+const announcement = useAdminAnnouncementStore()
+const announcements = computed(() => announcement.Announcements.Announcements)
 
-onMounted(() => {
-  prepare()
-})
+const target = ref({} as Announcement)
 
 const showing = ref(false)
 const updating = ref(false)
-const target = ref({} as unknown as Announcement)
 
 const onCreate = () => {
   showing.value = true
   updating.value = false
 }
 
-const onRowClick = (announcement: Announcement) => {
-  showing.value = true
-  updating.value = true
-  target.value = announcement
-}
-
 const onMenuHide = () => {
+  target.value = {} as Announcement
   showing.value = false
-  target.value = {} as unknown as Announcement
 }
 
-const onSubmit = () => {
-  showing.value = false
+const onCancel = () => {
+  onMenuHide()
+}
 
-  if (updating.value) {
-    mailbox.updateAnnouncement({
-      Info: target.value,
-      Message: {
-        Error: {
-          Title: 'MSG_UPDATE_ANNOUNCEMENT',
-          Message: 'MSG_UPDATE_ANNOUNCEMENT_FAIL',
-          Popup: true,
-          Type: NotificationType.Error
-        }
-      }
-    }, () => {
-      // TODO
-    })
-    return
+onMounted(() => {
+  if (announcements.value?.length === 0) {
+    getAppAnnouncements(0, 100)
   }
+})
 
-  mailbox.createAnnouncement({
-    Info: target.value,
+const getAppAnnouncements = (offset: number, limit: number) => {
+  announcement.getAppAnnouncements({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: t('MSG_GET_ANNOUNCEMENTS'),
+        Message: t('MSG_GET_ANNOUNCEMENTS_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows: Array<Announcement>) => {
+    if (error || rows.length < limit) {
+      return
+    }
+    getAppAnnouncements(offset + limit, limit)
+  })
+}
+
+const onSubmit = (done: () => void) => {
+  updating.value ? updateAnnouncement(done) : createAnnouncement(done)
+}
+
+const onRowClick = (row: Announcement) => {
+  target.value = { ...row }
+  updating.value = true
+  showing.value = true
+}
+
+const updateAnnouncement = (done: () => void) => {
+  announcement.updateAnnouncement({
+    ...target.value,
+    Channels: [],
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_ANNOUNCEMENT',
+        Message: 'MSG_UPDATE_ANNOUNCEMENT_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_UPDATE_ANNOUNCEMENT',
+        Message: 'MSG_UPDATE_ANNOUNCEMENT_SUCCESS',
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const createAnnouncement = (done: () => void) => {
+  announcement.createAnnouncement({
+    ...target.value,
+    Channels: [],
     Message: {
       Error: {
         Title: 'MSG_CREATE_ANNOUNCEMENT',
         Message: 'MSG_CREATE_ANNOUNCEMENT_FAIL',
         Popup: true,
-        Type: NotificationType.Error
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: 'MSG_CREATE_ANNOUNCEMENT',
+        Message: 'MSG_CREATE_ANNOUNCEMENT_SUCCESS',
+        Popup: true,
+        Type: NotifyType.Success
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
   })
-}
-
-const onCancel = () => {
-  showing.value = false
 }
 
 </script>

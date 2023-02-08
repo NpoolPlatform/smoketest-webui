@@ -362,7 +362,7 @@ const routes: RouteRecordRaw[] = [
         }
       }, {
         path: 'announcement',
-        component: () => import('pages/mailbox/Announcement.vue'),
+        component: () => import('pages/announcement/Announcement.vue'),
         meta: {
           ShowHeaderAnnouncement: true,
           ShowMainHeader: false,
