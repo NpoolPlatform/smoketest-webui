@@ -7,7 +7,7 @@ import {
 } from './types'
 import { doActionWithError } from 'npool-cli-v4'
 
-export const useAdminSendStateStore = defineStore('admin-readstate-v4', {
+export const useAdminSendStateStore = defineStore('admin-sendstate-v4', {
   state: () => ({
     SendStates: {
       SendStates: [] as Array<SendState>,

@@ -25,7 +25,6 @@ export interface CreateReadStateResponse {
 }
 
 export interface GetAppReadStatesRequest extends BaseRequest {
-  AppID: string;
   /** @format int64 */
   Offset: number;
   /** @format int64 */

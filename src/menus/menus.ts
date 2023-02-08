@@ -22,8 +22,8 @@ const MainDrawerMenus = [
         children: []
       } as MenuItem, {
         menuId: uid(),
-        label: '公告阅读状态',
-        caption: '管理公告阅读状态',
+        label: '公告状态',
+        caption: '管理公告状态',
         icon: 'perm_identity',
         target: '/announcement/state',
         level: 1,

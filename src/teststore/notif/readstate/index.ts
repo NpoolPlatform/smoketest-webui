@@ -17,6 +17,15 @@ export const useAdminReadStateStore = defineStore('admin-readstate-v4', {
     }
   }),
   getters: {
+    getStatesByID () {
+      return (id: string) => {
+        return this.ReadStates.ReadStates.filter((el) =>
+          el.AnnouncementID?.toLowerCase().includes(id) ||
+          el.EmailAddress?.toLowerCase().includes(id) ||
+          el.PhoneNO?.toLowerCase().includes(id)
+        )
+      }
+    }
   },
   actions: {
     getAppReadStates (req: GetAppReadStatesRequest, done: (error: boolean, rows: Array<ReadState>) => void) {
