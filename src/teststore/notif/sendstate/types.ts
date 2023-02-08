@@ -23,7 +23,7 @@ export interface SendState {
 }
 
 export interface GetAppSendStatesRequest extends BaseRequest {
-  AppID: string;
+  AppID?: string;
   Channel: NotifChannel;
   /** @format int64 */
   Offset: number;
