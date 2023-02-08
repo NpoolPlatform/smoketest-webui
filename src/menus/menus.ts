@@ -20,6 +20,15 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
+      } as MenuItem, {
+        menuId: uid(),
+        label: '公告阅读状态',
+        caption: '管理公告阅读状态',
+        icon: 'perm_identity',
+        target: '/announcement/state',
+        level: 1,
+        sectionBegin: false,
+        children: []
       } as MenuItem
     ]
   } as MenuItem, {
