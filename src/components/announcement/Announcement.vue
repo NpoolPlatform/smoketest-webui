@@ -35,7 +35,6 @@
       </q-card-section>
       <q-card-section>
         <q-select
-          v-if='!updating'
           dense
           :options='NotifChannels'
           v-model='target.Channels'
