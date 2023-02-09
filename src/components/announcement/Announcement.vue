@@ -238,7 +238,7 @@ const columns = computed(() => [
   },
   {
     name: 'SendChannel',
-    label: t('MSG_CHANNELS'),
+    label: t('MSG_SEND_CHANNEL'),
     field: (row: Announcement) => row.SendChannel
   },
   {
