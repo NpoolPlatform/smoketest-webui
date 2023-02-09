@@ -6,6 +6,7 @@
     :rows='notifTemplates'
     row-key='ID'
     :rows-per-page-options='[20]'
+    :columns='columns'
     @row-click='(evt, row, index) => onRowClick(row as NotifTemplate)'
   >
     <template #top-right>
@@ -48,9 +49,12 @@
 
 <script setup lang='ts'>
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
-import { NotifyType } from 'npool-cli-v4'
+import { formatTime, NotifyType } from 'npool-cli-v4'
 import { useAdminNotifTemplateStore } from 'src/teststore/third/notif'
 import { EventTypes, NotifTemplate } from 'src/teststore/third/notif/types'
+import { useI18n } from 'vue-i18n'
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const LanguagePicker = defineAsyncComponent(() => import('src/components/lang/LanguagePicker.vue'))
@@ -150,4 +154,47 @@ const updateNotifTemplate = (done: () => void) => {
     }
   })
 }
+
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: NotifTemplate) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: NotifTemplate) => row.AppID
+  },
+  {
+    name: 'Title',
+    label: t('MSG_TITLE'),
+    field: (row: NotifTemplate) => row.Title
+  },
+  {
+    name: 'Content',
+    label: t('MSG_CONTENT'),
+    field: (row: NotifTemplate) => row.Content
+  },
+  {
+    name: 'Sender',
+    label: t('MSG_SENDER'),
+    field: (row: NotifTemplate) => row.Sender
+  },
+  {
+    name: 'UsedFor',
+    label: t('MSG_USED_FOR'),
+    field: (row: NotifTemplate) => row.UsedFor
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: NotifTemplate) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'UpdatedAt',
+    label: t('MSG_UPDATED_AT'),
+    field: (row: NotifTemplate) => formatTime(row.UpdatedAt)
+  }
+])
 </script>
