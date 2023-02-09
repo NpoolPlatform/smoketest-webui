@@ -27,16 +27,16 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_NOTIF_TEMPLATE') }}</span>
-      </q-card-section>
-      <q-card-section>
-        <LanguagePicker v-model:language='target.LangID' :updating='updating' />
+        <span>{{ $t('MSG_NOTIF_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
         <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
-        <q-input v-model='target.Content' :label='$t("MSG_CONTENT")' type='textarea' />
         <q-select :options='EventTypes' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_EVENT_TYPES")' />
+        <LanguagePicker v-model:language='target.LangID' :updating='updating' />
+      </q-card-section>
+      <q-card-section>
+        <q-input v-model='target.Content' :label='$t("MSG_CONTENT")' type='textarea' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton :loading='true' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
