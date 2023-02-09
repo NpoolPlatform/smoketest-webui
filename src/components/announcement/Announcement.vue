@@ -9,6 +9,7 @@
     @row-click='(evt, row, index) => onRowClick(row as Announcement)'
     selection='single'
     v-model:selected='selectedAnnouncements'
+    :columns='columns'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -64,7 +65,7 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
+import { formatTime, NotifyType } from 'npool-cli-v4'
 import { useAdminAnnouncementStore } from 'src/teststore/notif/announcement'
 import { Announcement, NotifChannels } from 'src/teststore/notif/announcement/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
@@ -130,6 +131,7 @@ const onSubmit = (done: () => void) => {
 
 const onRowClick = (row: Announcement) => {
   target.value = { ...row }
+  console.log('target: ', target.value.Channels)
   updating.value = true
   showing.value = true
 }
@@ -208,4 +210,47 @@ const onDelete = (row: Announcement) => {
     // TODO
   })
 }
+
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: Announcement) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: Announcement) => row.AppID
+  },
+  {
+    name: 'Title',
+    label: t('MSG_TITLE'),
+    field: (row: Announcement) => row.Title
+  },
+  {
+    name: 'Content',
+    label: t('MSG_CONTENT'),
+    field: (row: Announcement) => row.Content
+  },
+  {
+    name: 'Channels',
+    label: t('MSG_CHANNELS'),
+    field: (row: Announcement) => row.Channels?.join(',')
+  },
+  {
+    name: 'SendChannel',
+    label: t('MSG_CHANNELS'),
+    field: (row: Announcement) => row.SendChannel
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    field: (row: Announcement) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'END_AT',
+    label: t('MSG_END_AT'),
+    field: (row: Announcement) => formatTime(row.EndAt)
+  }
+])
 </script>
