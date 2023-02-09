@@ -131,7 +131,6 @@ const onSubmit = (done: () => void) => {
 
 const onRowClick = (row: Announcement) => {
   target.value = { ...row }
-  console.log('target: ', target.value.Channels)
   updating.value = true
   showing.value = true
 }
