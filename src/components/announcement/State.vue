@@ -67,12 +67,12 @@ const displayReadStates = computed(() => read.getStatesByID(username1.value?.toL
 
 onMounted(() => {
   if (sendStates.value?.length === 0) {
-    getAppSendStates(0, 100, NotifChannel.ChannelSMS)
-    getAppSendStates(0, 100, NotifChannel.ChannelEmail)
+    getAppSendStates(0, 500, NotifChannel.ChannelSMS)
+    getAppSendStates(0, 500, NotifChannel.ChannelEmail)
   }
 
   if (readStates.value?.length === 0) {
-    getAppReadStates(0, 100)
+    getAppReadStates(0, 500)
   }
 })
 
