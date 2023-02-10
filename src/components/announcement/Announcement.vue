@@ -173,10 +173,8 @@ const updateAnnouncement = (done: () => void) => {
 }
 
 const createAnnouncement = (done: () => void) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { LangID, ...el } = target.value
   announcement.createAnnouncement({
-    ...el,
+    ...target.value,
     TargetLangID: target.value?.LangID,
     Message: {
       Error: {
@@ -234,6 +232,11 @@ const columns = computed(() => [
     name: 'AppID',
     label: t('MSG_APP_ID'),
     field: (row: Announcement) => row.AppID
+  },
+  {
+    name: 'LangID',
+    label: t('MSG_LANG_ID'),
+    field: (row: Announcement) => row.LangID
   },
   {
     name: 'Title',

@@ -33,8 +33,8 @@ const MainDrawerMenus = [
     ]
   } as MenuItem, {
     menuId: uid(),
-    label: '应用',
-    caption: '管理应用',
+    label: '模版',
+    caption: '管理应用模版',
     icon: 'pending',
     target: '/application',
     level: 0,
