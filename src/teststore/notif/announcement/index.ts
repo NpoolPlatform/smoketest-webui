@@ -21,6 +21,11 @@ export const useAdminAnnouncementStore = defineStore('admin-announcement-v4', {
     }
   }),
   getters: {
+    getAnnouncementByID () {
+      return (id: string) => {
+        return this.Announcements.Announcements.find((el) => el.ID === id)
+      }
+    }
   },
   actions: {
     getAppAnnouncements (req: GetAppAnnouncementsRequest, done: (error: boolean, rows: Array<Announcement>) => void) {

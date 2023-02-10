@@ -1,4 +1,5 @@
 import { BaseRequest } from 'npool-cli-v4'
+import { AnnouncementType } from '../user/types'
 
 /** @default "DefaultChannel" */
 export enum NotifChannel {
@@ -29,6 +30,7 @@ export interface Announcement {
   /** if AlreadySend = true SendChannel valid */
   SendChannel: NotifChannel;
   Channels: NotifChannel[];
+  AnnouncementType: AnnouncementType
   /** @format int64 */
   EndAt: number;
 }
@@ -38,6 +40,7 @@ export interface CreateAnnouncementRequest extends BaseRequest {
   TargetLangID: string;
   Title: string;
   Content: string;
+  AnnouncementType: AnnouncementType;
   Channels: NotifChannel[];
   /** @format int64 */
   EndAt: number;
@@ -110,6 +113,7 @@ export interface UpdateAnnouncementRequest extends BaseRequest {
   Title: string;
   Content: string;
   Channels: NotifChannel[];
+  AnnouncementType: AnnouncementType;
   /** @format int64 */
   EndAt: number;
 }

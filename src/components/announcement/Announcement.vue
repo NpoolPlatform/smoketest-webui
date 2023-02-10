@@ -43,11 +43,15 @@
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
         <q-input v-model='target.Content' :label='$t("MSG_CONTENT")' />
+        <q-select
+          :options='AnnouncementTypes'
+          v-model='target.AnnouncementType'
+          :label='$t("MSG_ANNOUNCEMENT_TYPE")'
+        />
         <AppLanguagePicker v-model:id='target.LangID' :updating='updating' label='MSG_LANGUAGE' />
       </q-card-section>
       <q-card-section>
         <q-select
-          dense
           :options='NotifChannels'
           v-model='target.Channels'
           multiple
@@ -63,12 +67,14 @@
       </q-item>
     </q-card>
   </q-dialog>
+  <AnnouncementUser />
 </template>
 
 <script setup lang='ts'>
 import { formatTime, NotifyType } from 'npool-cli-v4'
 import { useAdminAnnouncementStore } from 'src/teststore/notif/announcement'
 import { Announcement, NotifChannels } from 'src/teststore/notif/announcement/types'
+import { AnnouncementTypes } from 'src/teststore/notif/user/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -78,6 +84,7 @@ const { t } = useI18n({ useScope: 'global' })
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
+const AnnouncementUser = defineAsyncComponent(() => import('src/components/announcement/AnnouncementUser.vue'))
 
 const announcement = useAdminAnnouncementStore()
 const announcements = computed(() => announcement.Announcements.Announcements)
@@ -230,6 +237,11 @@ const columns = computed(() => [
     name: 'Title',
     label: t('MSG_TITLE'),
     field: (row: Announcement) => row.Title
+  },
+  {
+    name: 'Type',
+    label: t('MSG_TYPE'),
+    field: (row: Announcement) => row.AnnouncementType
   },
   {
     name: 'Content',
