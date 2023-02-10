@@ -49,9 +49,7 @@
 
 <script setup lang='ts'>
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
-import { formatTime, NotifyType } from 'npool-cli-v4'
-import { useAdminNotifTemplateStore } from 'src/teststore/third/notif'
-import { EventTypes, NotifTemplate } from 'src/teststore/third/notif/types'
+import { formatTime, NotifyType, useAdminNotifTemplateStore, EventTypes, NotifTemplate } from 'npool-cli-v4'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })

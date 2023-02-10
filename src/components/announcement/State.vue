@@ -42,13 +42,8 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType } from 'npool-cli-v4'
-import { useAdminSendStateStore } from 'src/teststore/notif/sendstate'
+import { formatTime, NotifyType, useAdminSendStateStore, SendState, NotifChannel, useAdminReadStateStore, ReadState } from 'npool-cli-v4'
 import { computed, onMounted, ref } from 'vue'
-import { SendState } from 'src/teststore/notif/sendstate/types'
-import { NotifChannel } from 'src/teststore/notif/announcement/types'
-import { useAdminReadStateStore } from 'src/teststore/notif/readstate'
-import { ReadState } from 'src/teststore/notif/readstate/types'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })

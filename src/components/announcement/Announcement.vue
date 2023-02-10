@@ -69,10 +69,14 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType } from 'npool-cli-v4'
-import { useAdminAnnouncementStore } from 'src/teststore/notif/announcement'
-import { Announcement, NotifChannels } from 'src/teststore/notif/announcement/types'
-import { AnnouncementTypes } from 'src/teststore/notif/user/types'
+import {
+  formatTime,
+  NotifyType,
+  useAdminAnnouncementStore,
+  Announcement,
+  NotifChannels,
+  AnnouncementTypes
+} from 'npool-cli-v4'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

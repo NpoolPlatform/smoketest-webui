@@ -21,8 +21,7 @@
   </q-select>
 </template>
 <script setup lang='ts'>
-import { useAdminAnnouncementStore } from 'src/teststore/notif/announcement'
-import { Announcement } from 'src/teststore/notif/announcement/types'
+import { useAdminAnnouncementStore, Announcement } from 'npool-cli-v4'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {
