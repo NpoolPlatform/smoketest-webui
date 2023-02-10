@@ -107,7 +107,6 @@ export interface GetNAppAnnouncementsResponse {
 
 export interface UpdateAnnouncementRequest extends BaseRequest {
   ID: string;
-  TargetLangID: string;
   Title: string;
   Content: string;
   Channels: NotifChannel[];

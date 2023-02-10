@@ -140,7 +140,6 @@ const onRowClick = (row: Announcement) => {
 const updateAnnouncement = (done: () => void) => {
   announcement.updateAnnouncement({
     ...target.value,
-    TargetLangID: target.value?.LangID,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_ANNOUNCEMENT',
