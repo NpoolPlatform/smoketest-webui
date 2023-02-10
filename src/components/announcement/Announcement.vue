@@ -49,8 +49,6 @@
           :label='$t("MSG_ANNOUNCEMENT_TYPE")'
         />
         <AppLanguagePicker v-model:id='target.LangID' :updating='updating' label='MSG_LANGUAGE' />
-      </q-card-section>
-      <q-card-section>
         <q-select
           :options='NotifChannels'
           v-model='target.Channels'
