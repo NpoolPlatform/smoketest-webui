@@ -164,8 +164,10 @@ const updateAnnouncement = (done: () => void) => {
 }
 
 const createAnnouncement = (done: () => void) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { LangID, ...el } = target.value
   announcement.createAnnouncement({
-    ...target.value,
+    ...el,
     TargetLangID: target.value?.LangID,
     Message: {
       Error: {
