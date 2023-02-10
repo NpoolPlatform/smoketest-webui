@@ -15,6 +15,7 @@ export interface Announcement {
   ID: string;
   AppID: string;
   AppName: string;
+  LangID: string;
   UserID: string;
   EmailAddress: string;
   PhoneNO: string;
@@ -34,6 +35,7 @@ export interface Announcement {
 
 export interface CreateAnnouncementRequest extends BaseRequest {
   AppID: string;
+  TargetLangID: string;
   Title: string;
   Content: string;
   Channels: NotifChannel[];
@@ -105,6 +107,7 @@ export interface GetNAppAnnouncementsResponse {
 
 export interface UpdateAnnouncementRequest extends BaseRequest {
   ID: string;
+  TargetLangID: string;
   Title: string;
   Content: string;
   Channels: NotifChannel[];

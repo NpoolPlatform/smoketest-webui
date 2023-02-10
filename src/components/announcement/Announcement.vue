@@ -43,6 +43,7 @@
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
         <q-input v-model='target.Content' :label='$t("MSG_CONTENT")' />
+        <AppLanguagePicker v-model:id='target.LangID' :updating='updating' label='MSG_LANGUAGE' />
       </q-card-section>
       <q-card-section>
         <q-select
@@ -76,6 +77,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
+const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
 
 const announcement = useAdminAnnouncementStore()
 const announcements = computed(() => announcement.Announcements.Announcements)
@@ -138,6 +140,7 @@ const onRowClick = (row: Announcement) => {
 const updateAnnouncement = (done: () => void) => {
   announcement.updateAnnouncement({
     ...target.value,
+    TargetLangID: target.value?.LangID,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_ANNOUNCEMENT',
@@ -164,6 +167,7 @@ const updateAnnouncement = (done: () => void) => {
 const createAnnouncement = (done: () => void) => {
   announcement.createAnnouncement({
     ...target.value,
+    TargetLangID: target.value?.LangID,
     Message: {
       Error: {
         Title: 'MSG_CREATE_ANNOUNCEMENT',
