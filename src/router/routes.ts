@@ -73,6 +73,18 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
+        path: 'notif/template',
+        component: () => import('pages/template/Notif.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
+      }, {
         path: 'app/languages',
         component: () => import('pages/internationalization/Language.vue'),
         meta: {
@@ -362,7 +374,19 @@ const routes: RouteRecordRaw[] = [
         }
       }, {
         path: 'announcement',
-        component: () => import('pages/mailbox/Announcement.vue'),
+        component: () => import('pages/announcement/Announcement.vue'),
+        meta: {
+          ShowHeaderAnnouncement: true,
+          ShowMainHeader: false,
+          ShowBigLogo: true,
+          ShowFooterTop: true,
+          ShowSignHelper: true,
+          ShowTopTip: false,
+          NeedLogined: true
+        }
+      }, {
+        path: 'announcement/state',
+        component: () => import('pages/announcement/State.vue'),
         meta: {
           ShowHeaderAnnouncement: true,
           ShowMainHeader: false,

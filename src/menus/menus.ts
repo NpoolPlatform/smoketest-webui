@@ -20,12 +20,21 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
+      } as MenuItem, {
+        menuId: uid(),
+        label: '通知',
+        caption: '管理通知',
+        icon: 'perm_identity',
+        target: '/announcement/state',
+        level: 1,
+        sectionBegin: false,
+        children: []
       } as MenuItem
     ]
   } as MenuItem, {
     menuId: uid(),
-    label: '应用',
-    caption: '管理应用',
+    label: '模版',
+    caption: '管理应用模版',
     icon: 'pending',
     target: '/application',
     level: 0,
@@ -55,6 +64,15 @@ const MainDrawerMenus = [
         caption: '管理应用内联系地址',
         icon: 'perm_identity',
         target: '/contact/template',
+        level: 1,
+        sectionBegin: false,
+        children: []
+      } as MenuItem, {
+        menuId: uid(),
+        label: '事件通知模版',
+        caption: '管理事件通知模版',
+        icon: 'perm_identity',
+        target: '/notif/template',
         level: 1,
         sectionBegin: false,
         children: []
