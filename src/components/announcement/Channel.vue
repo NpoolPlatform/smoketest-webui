@@ -79,7 +79,10 @@ const { t } = useI18n({ useScope: 'global' })
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 
 const channel = useAdminNotifChannelStore()
-const channels = computed(() => channel.NotifChannels.NotifChannels)
+const channels = computed(() => {
+  const rows = channel.NotifChannels.NotifChannels
+  return rows.sort((a, b) => a.EventType.localeCompare(b.EventType, 'zh-CN'))
+})
 
 interface MyNotifChannel extends NotifChannel {
   EventTypes: UsedFor[]
