@@ -2,7 +2,7 @@
   <q-table
     dense
     flat
-    :title='$t("MSG_ANNOUNCEMENTS")'
+    :title='$t("MSG_CHANNELS")'
     :rows='channels'
     row-key='ID'
     :rows-per-page-options='[10]'
@@ -37,19 +37,19 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_ANNOUNCEMENT') }}</span>
+        <span>{{ $t('MSG_CHANNEL') }}</span>
       </q-card-section>
       <q-card-section>
         <q-select
           :options='NotifChannels'
           v-model='target.Channel'
-          :label='$t("MSG_ANNOUNCEMENT_TYPE")'
+          :label='$t("MSG_CHANNEL_TYPE")'
         />
         <q-select
           :options='UsedFors'
           v-model='target.EventTypes'
           multiple
-          :label='$t("MSG_CHANNEL")'
+          :label='$t("MSG_USED_FOR")'
         />
       </q-card-section>
       <q-item class='row'>
@@ -116,8 +116,8 @@ const getAppNotifChannels = (offset: number, limit: number) => {
     Limit: limit,
     Message: {
       Error: {
-        Title: t('MSG_GET_ANNOUNCEMENTS'),
-        Message: t('MSG_GET_ANNOUNCEMENTS_FAIL'),
+        Title: t('MSG_GET_CHANNELS'),
+        Message: t('MSG_GET_CHANNELS_FAIL'),
         Popup: true,
         Type: NotifyType.Error
       }
@@ -166,14 +166,14 @@ const onDelete = (row: NotifChannel) => {
     ID: row.ID,
     Message: {
       Error: {
-        Title: 'MSG_DELETE_ANNOUNCEMENT',
-        Message: 'MSG_DELETE_ANNOUNCEMENT_FAIL',
+        Title: 'MSG_DELETE_CHANNEL',
+        Message: 'MSG_DELETE_CHANNEL_FAIL',
         Popup: true,
         Type: NotifyType.Error
       },
       Info: {
-        Title: 'MSG_DELETE_ANNOUNCEMENT',
-        Message: 'MSG_DELETE_ANNOUNCEMENT_SUCCESS',
+        Title: 'MSG_DELETE_CHANNEL',
+        Message: 'MSG_DELETE_CHANNEL_SUCCESS',
         Popup: true,
         Type: NotifyType.Success
       }
