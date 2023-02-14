@@ -28,7 +28,7 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_NOTIF_TEMPLATE') }}</span>
+        <span>{{ $t('MSG_FRONTEND_TEMPLATE') }}</span>
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
@@ -103,8 +103,8 @@ const getFrontendTemplate = (offset: number, limit: number) => {
     Limit: limit,
     Message: {
       Error: {
-        Title: 'MSG_GET_NOTIF_TEMPLATES',
-        Message: 'MSG_GET_NOTIF_TEMPLATES_FAIL',
+        Title: 'MSG_GET_FRONTEND_TEMPLATES',
+        Message: 'MSG_GET_FRONTEND_TEMPLATES_FAIL',
         Popup: true,
         Type: NotifyType.Error
       }
@@ -123,8 +123,8 @@ const createFrontendTemplate = (done: () => void) => {
     TargetLangID: target.value.LangID,
     Message: {
       Error: {
-        Title: 'MSG_CREATE_NOTIF_TEMPLATE',
-        Message: 'MSG_CREATE_NOTIF_TEMPLATE_FAIL',
+        Title: 'MSG_CREATE_FRONTEND_TEMPLATE',
+        Message: 'MSG_CREATE_FRONTEND_TEMPLATE_FAIL',
         Popup: true,
         Type: NotifyType.Error
       }
@@ -143,8 +143,8 @@ const updateFrontendTemplate = (done: () => void) => {
     TargetLangID: target.value.LangID,
     Message: {
       Error: {
-        Title: 'MSG_UPDATE_NOTIF_TEMPLATE',
-        Message: 'MSG_UPDATE_NOTIF_TEMPLATE_FAIL',
+        Title: 'MSG_UPDATE_FRONTEND_TEMPLATE',
+        Message: 'MSG_UPDATE_FRONTEND_TEMPLATE_FAIL',
         Popup: true,
         Type: NotifyType.Error
       }
