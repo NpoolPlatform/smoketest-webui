@@ -49,7 +49,7 @@
 
 <script setup lang='ts'>
 import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
-import { formatTime, NotifyType, useAdminFrontendTemplateStore, FrontendTemplate, UsedFors, EventType } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminFrontendTemplateStore, FrontendTemplate, UsedFors } from 'npool-cli-v4'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -141,7 +141,6 @@ const updateFrontendTemplate = (done: () => void) => {
   notif.updateFrontendTemplate({
     ...target.value,
     TargetLangID: target.value.LangID,
-    UsedFor: target.value.UsedFor as unknown as EventType,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_NOTIF_TEMPLATE',
