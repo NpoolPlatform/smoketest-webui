@@ -51,8 +51,7 @@
         <AppLanguagePicker v-model:id='target.LangID' :updating='updating' label='MSG_LANGUAGE' />
         <q-select
           :options='NotifChannels'
-          v-model='target.Channels'
-          multiple
+          v-model='target.Channel'
           :label='$t("MSG_CHANNEL")'
         />
       </q-card-section>
@@ -254,9 +253,9 @@ const columns = computed(() => [
     field: (row: Announcement) => row.Content
   },
   {
-    name: 'Channels',
-    label: t('MSG_CHANNELS'),
-    field: (row: Announcement) => row.Channels?.join(',')
+    name: 'Channel',
+    label: t('MSG_CHANNEL'),
+    field: (row: Announcement) => row.Channel
   },
   {
     name: 'SendChannel',
