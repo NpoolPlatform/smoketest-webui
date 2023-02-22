@@ -66,6 +66,7 @@
     </q-card>
   </q-dialog>
   <AnnouncementUser />
+  <State />
 </template>
 
 <script setup lang='ts'>
@@ -87,6 +88,7 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
 const AnnouncementUser = defineAsyncComponent(() => import('src/components/announcement/AnnouncementUser.vue'))
+const State = defineAsyncComponent(() => import('src/components/announcement/State.vue'))
 
 const announcement = useAdminAnnouncementStore()
 const announcements = computed(() => announcement.announcements)

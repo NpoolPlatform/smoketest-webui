@@ -47,7 +47,7 @@
       </q-card-section>
       <q-card-section>
         <AnnouncementPicker v-model:id='target.AnnouncementID' label='MSG_ANNOUNCEMENT' />
-        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.Broadcast' v-model:ids='target.UserIDs' label='MSG_USERS' />
+        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.Multicast' v-model:ids='target.UserIDs' label='MSG_USERS' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
