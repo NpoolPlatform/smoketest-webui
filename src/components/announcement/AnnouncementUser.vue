@@ -47,7 +47,7 @@
       </q-card-section>
       <q-card-section>
         <AnnouncementPicker v-model:id='target.AnnouncementID' label='MSG_ANNOUNCEMENT' />
-        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.AppointUsers' v-model:ids='target.UserIDs' label='MSG_USERS' />
+        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.Broadcast' v-model:ids='target.UserIDs' label='MSG_USERS' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -254,7 +254,7 @@ const columns = computed(() => [
     field: (row: AnnouncementUser) => formatTime(row.CreatedAt)
   },
   {
-    name: 'UpdatedAT',
+    name: 'UpdatedAt',
     label: t('MSG_UPDATED_AT'),
     field: (row: AnnouncementUser) => formatTime(row.UpdatedAt)
   }

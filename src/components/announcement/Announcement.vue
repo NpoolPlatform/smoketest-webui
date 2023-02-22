@@ -89,7 +89,7 @@ const AppLanguagePicker = defineAsyncComponent(() => import('src/components/inte
 const AnnouncementUser = defineAsyncComponent(() => import('src/components/announcement/AnnouncementUser.vue'))
 
 const announcement = useAdminAnnouncementStore()
-const announcements = computed(() => announcement.Announcements.Announcements)
+const announcements = computed(() => announcement.announcements)
 
 const target = ref({} as Announcement)
 
@@ -261,11 +261,13 @@ const columns = computed(() => [
   {
     name: 'CreatedAt',
     label: t('MSG_CREATED_AT'),
+    sortable: true,
     field: (row: Announcement) => formatTime(row.CreatedAt)
   },
   {
     name: 'END_AT',
     label: t('MSG_END_AT'),
+    sortable: true,
     field: (row: Announcement) => formatTime(row.EndAt)
   }
 ])
