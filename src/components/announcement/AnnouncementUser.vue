@@ -3,7 +3,7 @@
     dense
     flat
     :title='$t("MSG_ANNOUNCEMENT_USERS")'
-    :rows='announcementUsers'
+    :rows='displayAnnouncementUsers'
     row-key='ID'
     :rows-per-page-options='[10]'
     selection='single'
@@ -12,6 +12,12 @@
   >
     <template #top-right>
       <div class='row indent flat'>
+        <q-input
+          dense
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
         <q-btn
           dense
           flat
@@ -72,6 +78,12 @@ const AppUsersSelector = defineAsyncComponent(() => import('src/components/user/
 
 const announcementUser = useAdminAnnouncementUserStore()
 const announcementUsers = computed(() => announcementUser.AnnouncementUsers.AnnouncementUsers)
+
+const username = ref('')
+const displayAnnouncementUsers = computed(() => announcementUsers.value?.filter((el) => el.EmailAddress.toLocaleLowerCase()?.includes(username.value?.toLowerCase()) ||
+    el.PhoneNO.toLocaleLowerCase()?.includes(username.value?.toLowerCase()) ||
+    el.UserID.toLocaleLowerCase()?.includes(username.value?.toLowerCase())
+))
 
 const announcement = useAdminAnnouncementStore()
 const targetAnnouncement = computed(() => announcement.getAnnouncementByID(target.value?.AnnouncementID))
