@@ -53,6 +53,7 @@
           :options='NotifChannels'
           v-model='target.Channel'
           :label='$t("MSG_CHANNEL")'
+          :disable='updating'
         />
       </q-card-section>
       <q-card-section>
@@ -256,11 +257,6 @@ const columns = computed(() => [
     name: 'Channel',
     label: t('MSG_CHANNEL'),
     field: (row: Announcement) => row.Channel
-  },
-  {
-    name: 'SendChannel',
-    label: t('MSG_SEND_CHANNEL'),
-    field: (row: Announcement) => row.SendChannel
   },
   {
     name: 'CreatedAt',
