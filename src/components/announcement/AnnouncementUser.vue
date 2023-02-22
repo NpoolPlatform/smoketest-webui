@@ -207,6 +207,26 @@ const columns = computed(() => [
     field: (row: AnnouncementUser) => row.AnnouncementType
   },
   {
+    name: 'UserID',
+    label: t('USER_ID'),
+    field: (row: AnnouncementUser) => row.UserID
+  },
+  {
+    name: 'EmailAddress',
+    label: t('EMAIL_ADDRESS'),
+    field: (row: AnnouncementUser) => row.EmailAddress
+  },
+  {
+    name: 'Username',
+    label: t('USERNAME'),
+    field: (row: AnnouncementUser) => row.Username
+  },
+  {
+    name: 'PhoneNO',
+    label: t('PHONE_NO'),
+    field: (row: AnnouncementUser) => row.PhoneNO
+  },
+  {
     name: 'Title',
     label: t('MSG_TITLE'),
     field: (row: AnnouncementUser) => row.Title
