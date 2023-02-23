@@ -20,16 +20,16 @@ const MainDrawerMenus = [
         level: 1,
         sectionBegin: false,
         children: []
-      } as MenuItem, /* {
+      } as MenuItem, {
         menuId: uid(),
         label: '通知',
         caption: '管理通知',
         icon: 'perm_identity',
-        target: '/announcement/state',
+        target: '/notif',
         level: 1,
         sectionBegin: false,
         children: []
-      } as MenuItem, */ {
+      } as MenuItem, {
         menuId: uid(),
         label: '渠道',
         caption: '管理通知渠道',
