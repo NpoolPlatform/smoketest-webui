@@ -385,8 +385,8 @@ const routes: RouteRecordRaw[] = [
           NeedLogined: true
         }
       }, {
-        path: 'announcement/state',
-        component: () => import('pages/announcement/State.vue'),
+        path: 'notif',
+        component: () => import('pages/announcement/Notif.vue'),
         meta: {
           ShowHeaderAnnouncement: true,
           ShowMainHeader: false,
