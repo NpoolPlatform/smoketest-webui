@@ -32,7 +32,6 @@
       </q-card-section>
       <q-card-section>
         <q-input v-model='target.Title' :label='$t("MSG_TITLE")' />
-        <q-input v-model='target.Sender' :label='$t("MSG_SENDER")' />
         <q-select :options='UsedFors' v-model='target.UsedFor' :disable='updating' :label='$t("MSG_USED_FOR")' />
         <LanguagePicker v-model:language='target.LangID' :updating='updating' />
       </q-card-section>
@@ -182,11 +181,6 @@ const columns = computed(() => [
     name: 'Content',
     label: t('MSG_CONTENT'),
     field: (row: FrontendTemplate) => row.Content
-  },
-  {
-    name: 'Sender',
-    label: t('MSG_SENDER'),
-    field: (row: FrontendTemplate) => row.Sender
   },
   {
     name: 'UsedFor',

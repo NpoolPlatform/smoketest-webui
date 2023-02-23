@@ -51,9 +51,9 @@
         <AppLanguagePicker v-model:id='target.LangID' :updating='updating' label='MSG_LANGUAGE' />
         <q-select
           :options='NotifChannels'
-          v-model='target.Channels'
-          multiple
+          v-model='target.Channel'
           :label='$t("MSG_CHANNEL")'
+          :disable='updating'
         />
       </q-card-section>
       <q-card-section>
@@ -66,6 +66,7 @@
     </q-card>
   </q-dialog>
   <AnnouncementUser />
+  <State />
 </template>
 
 <script setup lang='ts'>
@@ -87,9 +88,10 @@ const LoadingButton = defineAsyncComponent(() => import('src/components/button/L
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 const AppLanguagePicker = defineAsyncComponent(() => import('src/components/internationalization/AppLanguagePicker.vue'))
 const AnnouncementUser = defineAsyncComponent(() => import('src/components/announcement/AnnouncementUser.vue'))
+const State = defineAsyncComponent(() => import('src/components/announcement/State.vue'))
 
 const announcement = useAdminAnnouncementStore()
-const announcements = computed(() => announcement.Announcements.Announcements)
+const announcements = computed(() => announcement.announcements)
 
 const target = ref({} as Announcement)
 
@@ -254,23 +256,20 @@ const columns = computed(() => [
     field: (row: Announcement) => row.Content
   },
   {
-    name: 'Channels',
-    label: t('MSG_CHANNELS'),
-    field: (row: Announcement) => row.Channels?.join(',')
-  },
-  {
-    name: 'SendChannel',
-    label: t('MSG_SEND_CHANNEL'),
-    field: (row: Announcement) => row.SendChannel
+    name: 'Channel',
+    label: t('MSG_CHANNEL'),
+    field: (row: Announcement) => row.Channel
   },
   {
     name: 'CreatedAt',
     label: t('MSG_CREATED_AT'),
+    sortable: true,
     field: (row: Announcement) => formatTime(row.CreatedAt)
   },
   {
     name: 'END_AT',
     label: t('MSG_END_AT'),
+    sortable: true,
     field: (row: Announcement) => formatTime(row.EndAt)
   }
 ])

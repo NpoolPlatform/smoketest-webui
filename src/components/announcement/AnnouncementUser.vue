@@ -3,7 +3,7 @@
     dense
     flat
     :title='$t("MSG_ANNOUNCEMENT_USERS")'
-    :rows='announcementUsers'
+    :rows='displayAnnouncementUsers'
     row-key='ID'
     :rows-per-page-options='[10]'
     selection='single'
@@ -12,6 +12,12 @@
   >
     <template #top-right>
       <div class='row indent flat'>
+        <q-input
+          dense
+          class='small'
+          v-model='username'
+          :label='$t("MSG_USERNAME")'
+        />
         <q-btn
           dense
           flat
@@ -41,7 +47,7 @@
       </q-card-section>
       <q-card-section>
         <AnnouncementPicker v-model:id='target.AnnouncementID' label='MSG_ANNOUNCEMENT' />
-        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.AppointUsers' v-model:ids='target.UserIDs' label='MSG_USERS' />
+        <AppUsersSelector v-if='targetAnnouncement?.AnnouncementType === AnnouncementType.Multicast' v-model:ids='target.UserIDs' label='MSG_USERS' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -72,6 +78,12 @@ const AppUsersSelector = defineAsyncComponent(() => import('src/components/user/
 
 const announcementUser = useAdminAnnouncementUserStore()
 const announcementUsers = computed(() => announcementUser.AnnouncementUsers.AnnouncementUsers)
+
+const username = ref('')
+const displayAnnouncementUsers = computed(() => announcementUsers.value?.filter((el) => el.EmailAddress.toLocaleLowerCase()?.includes(username.value?.toLowerCase()) ||
+    el.PhoneNO.toLocaleLowerCase()?.includes(username.value?.toLowerCase()) ||
+    el.UserID.toLocaleLowerCase()?.includes(username.value?.toLowerCase())
+))
 
 const announcement = useAdminAnnouncementStore()
 const targetAnnouncement = computed(() => announcement.getAnnouncementByID(target.value?.AnnouncementID))
@@ -207,6 +219,26 @@ const columns = computed(() => [
     field: (row: AnnouncementUser) => row.AnnouncementType
   },
   {
+    name: 'UserID',
+    label: t('USER_ID'),
+    field: (row: AnnouncementUser) => row.UserID
+  },
+  {
+    name: 'EmailAddress',
+    label: t('EMAIL_ADDRESS'),
+    field: (row: AnnouncementUser) => row.EmailAddress
+  },
+  {
+    name: 'Username',
+    label: t('USERNAME'),
+    field: (row: AnnouncementUser) => row.Username
+  },
+  {
+    name: 'PhoneNO',
+    label: t('PHONE_NO'),
+    field: (row: AnnouncementUser) => row.PhoneNO
+  },
+  {
     name: 'Title',
     label: t('MSG_TITLE'),
     field: (row: AnnouncementUser) => row.Title
@@ -222,7 +254,7 @@ const columns = computed(() => [
     field: (row: AnnouncementUser) => formatTime(row.CreatedAt)
   },
   {
-    name: 'UpdatedAT',
+    name: 'UpdatedAt',
     label: t('MSG_UPDATED_AT'),
     field: (row: AnnouncementUser) => formatTime(row.UpdatedAt)
   }
