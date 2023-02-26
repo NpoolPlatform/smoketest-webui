@@ -66,11 +66,11 @@ const coin = useAdminAppCoinStore()
 
 const appGood = useAdminAppGoodStore()
 const good = computed(() => appGood.getGoodByID(target.value?.GoodID))
-const maxUnits = computed(() => !good.value ? 0 : (good.value.Total - good.value.Locked - good.value.InService))
+const maxUnits = computed(() => !good.value ? 0 : (Number(good.value.Total) - Number(good.value.Locked) - Number(good.value.InService)))
 
 const target = ref({
   OrderType: OrderType.Offline,
-  Units: 1
+  Units: '1'
 } as CreateUserOrderRequest)
 
 const showing = ref(false)
@@ -83,7 +83,7 @@ const onMenuHide = () => {
   showing.value = false
   target.value = {
     OrderType: OrderType.Offline,
-    Units: 1
+    Units: '1'
   } as CreateUserOrderRequest
 }
 
@@ -93,7 +93,7 @@ const onCancel = () => {
 
 const order = useAdminOrderStore()
 const onSubmit = (done: ()=> void) => {
-  if (target.value?.Units > maxUnits.value) {
+  if (Number(target.value?.Units) > maxUnits.value) {
     console.log('purchase units', target.value?.Units, 'max units', maxUnits.value)
     done()
     return
