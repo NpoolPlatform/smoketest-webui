@@ -5,18 +5,19 @@
     :title='$t("MSG_EVENT_INSPIRE")'
     :rows='displayEvents'
     row-key='ID'
+    :columns='columns'
     :rows-per-page-options='[10]'
     @row-click='(evt, row, index) => onRowClick(row as EventInspire)'
   >
     <template #top-right>
       <div class='row indent flat'>
-        <q-input
+        <!-- <q-input
           dense
           flat
           class='small'
           v-model='username'
           :label='$t("MSG_USERNAME")'
-        />
+        /> -->
         <q-btn
           dense
           flat
@@ -36,9 +37,11 @@
       <q-card-section>
         <span>{{ $t('MSG_EVENT_INSPIRE') }}</span>
       </q-card-section>
-      <q-card-section v-if='!updating'>
-        <AppGoodSelector v-model:id='target.GoodID' />
-        <q-select :options='UsedFors' v-model='target.EventType' :label='$t("MSG_EVENT_YPE")' />
+      <q-card-section>
+        <q-select :disable='updating' :options='UsedFors' v-model='target.EventType' :label='$t("MSG_EVENT_YPE")' />
+      </q-card-section>
+      <q-card-section v-if='target.EventType === UsedFor.AffiliatePurchase || target.EventType === UsedFor.Purchase'>
+        <AppGoodSelector v-model:id='target.GoodID' v-if='!updating' />
         <CouponSelector v-model:ids='target.Coupons' />
       </q-card-section>
       <q-card-section>
@@ -58,9 +61,9 @@
 </template>
 
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
+import { formatTime, NotifyType } from 'npool-cli-v4'
 import { useAdminEventInspireStore } from 'src/teststore/coupon/event'
-import { EventInspire, UsedFors } from 'src/teststore/coupon/event/types'
+import { EventInspire, UsedFor, UsedFors } from 'src/teststore/coupon/event/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -71,11 +74,10 @@ const AppGoodSelector = defineAsyncComponent(() => import('src/components/good/A
 const CouponSelector = defineAsyncComponent(() => import('src/components/inspire/CouponSelector.vue'))
 
 const inspire = useAdminEventInspireStore()
-const events = computed(() => inspire.EventInspires.EventInspires)
+const events = computed(() => inspire.eventInspires)
 
-const username = ref('')
+// const username = ref('')
 const displayEvents = computed(() => events.value.filter((el) => {
-  // const name = username.value.toLowerCase()
   return el
 }))
 
@@ -84,7 +86,7 @@ const showing = ref(false)
 const updating = ref(false)
 
 const onCreate = () => {
-  target.value = {} as EventInspire
+  target.value = { MaxConsecutive: 1, InviterLayers: 0 } as EventInspire
   showing.value = true
   updating.value = false
 }
@@ -181,4 +183,74 @@ const getEventInspires = (offset: number, limit: number) => {
     getEventInspires(offset + limit, limit)
   })
 }
+
+const columns = computed(() => [
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    field: (row: EventInspire) => row.ID
+  },
+  {
+    name: 'AppID',
+    label: t('MSG_APP_ID'),
+    field: (row: EventInspire) => row.AppID
+  },
+  {
+    name: 'AppName',
+    label: t('MSG_APP_NAME'),
+    field: (row: EventInspire) => row.AppName
+  },
+  {
+    name: 'EventType',
+    label: t('MSG_EVENT_TYPE'),
+    field: (row: EventInspire) => row.EventType
+  },
+  {
+    name: 'Coupons',
+    label: t('MSG_COUPONS'),
+    field: (row: EventInspire) => Array.from(row.Coupons).map((el) => el.ID).join(',')
+  },
+  {
+    name: 'Credits',
+    label: t('MSG_CREDITS'),
+    field: (row: EventInspire) => row.Credits
+  },
+  {
+    name: 'CreditsPerUSD',
+    label: t('MSG_CREDITS_PERUSD'),
+    field: (row: EventInspire) => row.CreditsPerUSD
+  },
+  {
+    name: 'MaxConsecutive',
+    label: t('MSG_MAX_CONSECUTIVE'),
+    field: (row: EventInspire) => row.MaxConsecutive
+  },
+  {
+    name: 'GoodID',
+    label: t('MSG_GOOD_ID'),
+    field: (row: EventInspire) => row.GoodID
+  },
+  {
+    name: 'GoodName',
+    label: t('MSG_GOOD_NAME'),
+    field: (row: EventInspire) => row.GoodName
+  },
+  {
+    name: 'InviterLayers',
+    label: t('MSG_INVITER_LAYERS'),
+    field: (row: EventInspire) => row.InviterLayers
+  },
+  {
+    name: 'CreatedAt',
+    label: t('MSG_CREATED_AT'),
+    sortable: true,
+    field: (row: EventInspire) => formatTime(row.CreatedAt)
+  },
+  {
+    name: 'UpdatedAt',
+    label: t('MSG_UPDATED_AT'),
+    sortable: true,
+    field: (row: EventInspire) => formatTime(row.UpdatedAt)
+  }
+])
 </script>

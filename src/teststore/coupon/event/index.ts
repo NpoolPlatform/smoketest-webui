@@ -19,6 +19,9 @@ export const useAdminEventInspireStore = defineStore('admin-eventinspire-v4', {
     }
   }),
   getters: {
+    eventInspires: (state) : Array<EventInspire> => {
+      return state.EventInspires.EventInspires.sort((a, b) => a.EventType.localeCompare(b.EventType, 'zh-CN'))
+    }
   },
   actions: {
     getEventInspires (req: GetEventInspiresRequest, done: (error: boolean, rows: Array<EventInspire>) => void) {
