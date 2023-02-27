@@ -63,12 +63,12 @@ const onUpdate = () => {
 onMounted(() => {
   if (coupons.value.length === 0) {
     CouponTypes.forEach((type) => {
-      getCoupons(0, 500, type)
+      getCouponPools(0, 500, type)
     })
   }
 })
 
-const getCoupons = (offset: number, limit: number, type: CouponType) => {
+const getCouponPools = (offset: number, limit: number, type: CouponType) => {
   inspire.getCouponPools({
     Offset: offset,
     Limit: limit,
@@ -85,7 +85,7 @@ const getCoupons = (offset: number, limit: number, type: CouponType) => {
     if (error || resp.length < limit) {
       return
     }
-    getCoupons(offset + limit, limit, type)
+    getCouponPools(offset + limit, limit, type)
   })
 }
 </script>
