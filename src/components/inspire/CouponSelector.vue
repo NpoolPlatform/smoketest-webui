@@ -42,7 +42,7 @@ const inspire = useAdminCouponStore()
 const coupons = computed(() => Array.from(inspire.CouponPools.CouponPools).map((el) => {
   return {
     value: { ID: el.ID, CouponType: el.CouponType },
-    label: `${el.CouponType} | ${el.Value} | ${el.Message} | ${el.DurationDays}`
+    label: ` ${el.ID} | ${el.CouponType} | ${el.Value} |${el.DurationDays}`
   }
 }))
 const displayCoupons = ref(coupons.value)
