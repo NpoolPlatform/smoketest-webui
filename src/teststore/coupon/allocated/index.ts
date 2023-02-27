@@ -11,7 +11,7 @@ import {
 } from './types'
 import { doActionWithError } from 'npool-cli-v4'
 
-export const useChurchAllocatedCouponStore = defineStore('church-allocatedcoupon-v4', {
+export const useAdminAllocatedCouponStore = defineStore('admin-allocatedcoupon-v4', {
   state: () => ({
     AllocatedCoupons: {
       AllocatedCoupons: [] as Array<Coupon>,

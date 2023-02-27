@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import { API } from './const'
 import {
-  GetAppCouponPoolsRequest,
-  GetAppCouponPoolsResponse,
   CreateCouponPoolRequest,
   CreateCouponPoolResponse,
   Coupon,
@@ -13,7 +11,7 @@ import {
 } from './types'
 import { doActionWithError } from 'npool-cli-v4'
 
-export const useChurchCouponStore = defineStore('church-coupon-v4', {
+export const useAdminCouponStore = defineStore('admin-coupon-v4', {
   state: () => ({
     CouponPools: {
       CouponPools: [] as Array<Coupon>,
@@ -23,20 +21,6 @@ export const useChurchCouponStore = defineStore('church-coupon-v4', {
   getters: {
   },
   actions: {
-    getAppCouponPools (req: GetAppCouponPoolsRequest, done: (error: boolean, rows: Array<Coupon>) => void) {
-      doActionWithError<GetAppCouponPoolsRequest, GetAppCouponPoolsResponse>(
-        API.GET_APP_COUPONPOOLS,
-        req,
-        req.Message,
-        (resp: GetAppCouponPoolsResponse): void => {
-          this.CouponPools.CouponPools.push(...resp.Infos)
-          this.CouponPools.Total = resp.Total
-          done(false, resp.Infos)
-        }, () => {
-          done(true, [] as Array<Coupon>)
-        }
-      )
-    },
     getCouponPools (req: GetCouponPoolsRequest, done: (error: boolean, rows: Array<Coupon>) => void) {
       doActionWithError<GetCouponPoolsRequest, GetCouponPoolsResponse>(
         API.GET_COUPONPOOLS,
