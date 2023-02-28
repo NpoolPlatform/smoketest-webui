@@ -73,6 +73,7 @@
       <q-card-section>
         <AppGoodSelector v-model:id='cloneCommission.FromGoodID' />
         <AppGoodSelector v-model:id='cloneCommission.ToGoodID' />
+        <q-input type='number' v-model='cloneCommission.Value' :label='$t("MSG_SCALE")' suffix='%' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_CLONE")' @click='onSubmit1' />
@@ -189,6 +190,7 @@ const createUserCommission = (done: () => void) => {
 interface CloneCommission {
   FromGoodID: string;
   ToGoodID: string;
+  Value: string;
 }
 const cloneCommission = ref({} as CloneCommission)
 const showing1 = ref(false)
