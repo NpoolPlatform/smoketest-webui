@@ -6,7 +6,7 @@
     :rows='displayEvents'
     row-key='ID'
     :columns='columns'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[50]'
     @row-click='(evt, row, index) => onRowClick(row as EventInspire)'
   >
     <template #top-right>
@@ -62,8 +62,11 @@
 
 <script setup lang='ts'>
 import { formatTime, NotifyType } from 'npool-cli-v4'
+import { getCouponPools } from 'src/api/inspire'
+import { useAdminCouponStore } from 'src/teststore/coupon/coupon'
+import { CouponTypes } from 'src/teststore/coupon/coupon/types'
 import { useAdminEventInspireStore } from 'src/teststore/coupon/event'
-import { EventInspire, UsedFor, UsedFors } from 'src/teststore/coupon/event/types'
+import { EventInspire, MyCoupon, UsedFor, UsedFors } from 'src/teststore/coupon/event/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -72,6 +75,8 @@ const { t } = useI18n({ useScope: 'global' })
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const AppGoodSelector = defineAsyncComponent(() => import('src/components/good/AppGoodSelector.vue'))
 const CouponSelector = defineAsyncComponent(() => import('src/components/inspire/CouponSelector.vue'))
+
+const coupon = useAdminCouponStore()
 
 const inspire = useAdminEventInspireStore()
 const events = computed(() => inspire.eventInspires)
@@ -163,6 +168,11 @@ onMounted(() => {
   if (inspire.EventInspires.EventInspires.length === 0) {
     getEventInspires(0, 500)
   }
+  if (coupon.CouponPools.CouponPools.length === 0) {
+    CouponTypes.forEach((type) => {
+      getCouponPools(0, 500, type)
+    })
+  }
 })
 
 const getEventInspires = (offset: number, limit: number) => {
@@ -183,6 +193,14 @@ const getEventInspires = (offset: number, limit: number) => {
     getEventInspires(offset + limit, limit)
   })
 }
+
+const getCouponString = computed(() => (rows: MyCoupon[]) => {
+  let str = ''
+  rows.forEach((el) => {
+    str += `${el.ID}|${el.CouponType}|${el.Name}|${el.Value}  ;  `
+  })
+  return str
+})
 
 const columns = computed(() => [
   {
@@ -208,7 +226,7 @@ const columns = computed(() => [
   {
     name: 'Coupons',
     label: t('MSG_COUPONS'),
-    field: (row: EventInspire) => Array.from(row.Coupons).map((el) => el.ID).join(',')
+    field: (row: EventInspire) => getCouponString.value(row.Coupons)
   },
   {
     name: 'Credits',

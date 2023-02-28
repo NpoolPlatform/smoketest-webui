@@ -61,8 +61,8 @@ export const UsedFors = [
 export interface MyCoupon {
   ID: string;
   CouponType: CouponType;
-  Value?: string;
-  Name?: string;
+  Value: string;
+  Name: string;
 }
 
 export interface EventInspire {

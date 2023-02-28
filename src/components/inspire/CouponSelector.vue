@@ -22,11 +22,11 @@
   </q-select>
 </template>
 <script setup lang='ts'>
-import { NotifyType } from 'npool-cli-v4'
 import { useAdminCouponStore } from 'src/teststore/coupon/coupon'
 import { CouponType, MyCoupon } from 'src/teststore/coupon/event/types'
-import { Coupon, CouponTypes } from 'src/teststore/coupon/coupon/types'
+import { CouponTypes } from 'src/teststore/coupon/coupon/types'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
+import { getCouponPools } from 'src/api/inspire'
 
 interface Props {
   ids: MyCoupon[]
@@ -38,13 +38,23 @@ const ids = toRef(props, 'ids')
 const updating = toRef(props, 'updating')
 const target = ref(ids.value)
 
-const inspire = useAdminCouponStore()
-const coupons = computed(() => Array.from(inspire.CouponPools.CouponPools).map((el) => {
+const coupon = useAdminCouponStore()
+const myCoupons = computed(() => coupon.CouponPools.CouponPools.filter((el) => el.CouponType !== CouponType.SpecialOffer).map((el) => {
   return {
-    value: { ID: el.ID, CouponType: el.CouponType },
-    label: ` ${el.ID} | ${el.CouponType} | ${el.Value} |${el.DurationDays}`
+    ID: el.ID,
+    Name: el.Name,
+    CouponType: el.CouponType,
+    Value: el.Value
+  } as MyCoupon
+}))
+
+const coupons = computed(() => myCoupons.value.map((el) => {
+  return {
+    value: el,
+    label: `${el.ID} | ${el.Name} | ${el.CouponType} | ${el.Value}`
   }
 }))
+
 const displayCoupons = ref(coupons.value)
 
 const onFilter = (val: string, doneFn: (callbackFn: () => void) => void) => {
@@ -67,25 +77,4 @@ onMounted(() => {
     })
   }
 })
-
-const getCouponPools = (offset: number, limit: number, type: CouponType) => {
-  inspire.getCouponPools({
-    Offset: offset,
-    Limit: limit,
-    CouponType: type,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_COUPONS',
-        Message: 'MSG_GET_COUPONS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (error: boolean, resp: Array<Coupon>) => {
-    if (error || resp.length < limit) {
-      return
-    }
-    getCouponPools(offset + limit, limit, type)
-  })
-}
 </script>
