@@ -6,7 +6,7 @@
     :rows='appGoods'
     :columns='appGoodsColumns'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
     selection='single'
     v-model:selected='selectedGood'
   />
@@ -17,7 +17,7 @@
     :title='$t("MSG_APP_GOOD_RECOMMENDS")'
     :rows='recommends'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as Recommend)'
   >
     <template #top-right>

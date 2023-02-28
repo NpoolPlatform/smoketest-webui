@@ -6,7 +6,7 @@
     :rows='coins'
     :columns='coinColumns'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
   />
   <q-table
     dense
@@ -15,8 +15,7 @@
     :rows='appGoods'
     :columns='appGoodsColumns'
     row-key='ID'
-    selection='single'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as AppGood)'
   />
   <q-card>
@@ -36,6 +35,7 @@
       <q-card-section>
         <q-input v-model='target.Price' :label='$t("MSG_PRICE")' type='number' :min='0' />
         <q-input v-model.number='target.PurchaseLimit' :label='$t("MSG_PURCHASE_LIMIT")' type='number' :min='0' />
+        <q-input v-model.number='target.UserPurchaseLimit' :label='$t("MSG_USER_TOTAL_PURCHASE_LIMIT")' type='number' :min='0' />
         <q-input v-model.number='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' type='number' :min='0' />
         <q-input v-model='descriptions' :label='$t("MSG_DESCRIPTIONS")' />
         <q-input v-model='displayNames' :label='$t("MSG_DISPLAY_NAMES")' />
@@ -76,17 +76,22 @@
       <q-card-section>
         <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' :disabled='!openSaleActivity' /></div>
         <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' :disabled='!openSaleActivity' /></div>
-        <!-- <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div> -->
       </q-card-section>
       <q-card-section>
-        <div>
-          <q-toggle dense v-model='target.Visible' :label='$t("MSG_VISIBLE")' />
-        </div>
-        <div>
-          <q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' />
-        </div>
+        <q-toggle dense v-model='target.EnableCancel' :label='$t("MSG_ENABLE_CANCEL")' />
+        <q-select
+          :disable='!target.EnableCancel'
+          :options='CancelModes'
+          v-model='target.CancelMode'
+          :label='$t("MSG_CANCEL_MODE")'
+        />
       </q-card-section>
-
+      <q-card-section>
+        <div><q-toggle dense v-model='target.EnablePurchase' :label='$t("MSG_ENABLE_PURCHASE")' /></div>
+        <div><q-toggle dense v-model='target.EnableProductPage' :label='$t("MSG_ENABLE_PRODUCT_PAGE")' /></div>
+        <div><q-toggle dense v-model='target.Visible' :label='$t("MSG_VISIBLE")' /></div>
+        <div><q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' /></div>
+      </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
@@ -96,7 +101,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin, CancelModes } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
