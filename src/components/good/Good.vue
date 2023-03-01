@@ -78,9 +78,7 @@
         <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' :disabled='!openSaleActivity' /></div>
       </q-card-section>
       <q-card-section>
-        <q-toggle dense v-model='target.EnableCancel' :label='$t("MSG_ENABLE_CANCEL")' />
         <q-select
-          :disable='!target.EnableCancel'
           :options='CancelModes'
           v-model='target.CancelMode'
           :label='$t("MSG_CANCEL_MODE")'
