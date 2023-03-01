@@ -301,6 +301,15 @@ const MainDrawerMenus = [
       children: []
     } as MenuItem, {
       menuId: uid(),
+      label: '事件激励',
+      caption: '管理事件激励',
+      icon: 'format_list_numbered',
+      target: '/inspire/event',
+      level: 1,
+      sectionBegin: false,
+      children: []
+    } as MenuItem, {
+      menuId: uid(),
       label: '定额券',
       caption: '管理定额代金券',
       icon: 'format_list_numbered',

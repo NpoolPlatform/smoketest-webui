@@ -14,6 +14,18 @@ export enum CouponType {
   GoodThresholdDiscount = 'GoodThresholdDiscount',
 }
 
+export const CouponTypes = [
+  CouponType.FixAmount,
+  CouponType.Discount,
+  CouponType.SpecialOffer
+  // CouponType.GoodThresholdFixAmount,
+  // CouponType.GoodThresholdDiscount,
+  // CouponType.GoodFixAmount,
+  // CouponType.GoodDiscount,
+  // CouponType.GoodThresholdFixAmount
+  // CouponType.GoodThresholdDiscount
+]
+
 export interface Coupon {
   ID: string;
   CouponType: CouponType;
