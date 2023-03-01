@@ -38,7 +38,7 @@
         <span>{{ $t('MSG_EVENT_INSPIRE') }}</span>
       </q-card-section>
       <q-card-section>
-        <q-select :disable='updating' :options='UsedFors' v-model='target.EventType' :label='$t("MSG_EVENT_YPE")' />
+        <q-select :disable='updating' :options='[UsedFor.AffiliatePurchase, UsedFor.Purchase]' v-model='target.EventType' :label='$t("MSG_EVENT_YPE")' />
       </q-card-section>
       <q-card-section v-if='target.EventType === UsedFor.AffiliatePurchase || target.EventType === UsedFor.Purchase'>
         <AppGoodSelector v-model:id='target.GoodID' v-if='!updating' />
@@ -66,7 +66,7 @@ import { getCouponPools } from 'src/api/inspire'
 import { useAdminCouponStore } from 'src/teststore/coupon/coupon'
 import { CouponTypes } from 'src/teststore/coupon/coupon/types'
 import { useAdminEventInspireStore } from 'src/teststore/coupon/event'
-import { EventInspire, MyCoupon, UsedFor, UsedFors } from 'src/teststore/coupon/event/types'
+import { EventInspire, MyCoupon, UsedFor } from 'src/teststore/coupon/event/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -91,7 +91,7 @@ const showing = ref(false)
 const updating = ref(false)
 
 const onCreate = () => {
-  target.value = { MaxConsecutive: 1, InviterLayers: 0 } as EventInspire
+  target.value = { MaxConsecutive: 1, InviterLayers: 1 } as EventInspire
   showing.value = true
   updating.value = false
 }
