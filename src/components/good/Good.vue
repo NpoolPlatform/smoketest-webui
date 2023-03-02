@@ -50,20 +50,6 @@
           :min='0'
           suffix='%'
         />
-        <!-- <q-input
-          class='commission-percent'
-          v-model.number='target.TechnicalFeeRatio'
-          :label='$t("MSG_TECHNICALFEE_RATIO")'
-          type='number'
-          :min='0'
-        />
-        <q-input
-          class='commission-percent'
-          v-model.number='target.ElectricityFeeRatio'
-          :label='$t("MSG_ELECTRICITYFEE_RATIO")'
-          type='number'
-          :min='0'
-        /> -->
         <q-input
           class='commission-percent'
           v-model='target.DailyRewardAmount'
@@ -85,6 +71,14 @@
           v-model='target.CancelMode'
           :label='$t("MSG_CANCEL_MODE")'
         />
+        <q-input
+          v-model.number='target.CancellableBeforeStart'
+          :label='$t("MSG_CANCELLABLE_BEFORE_START")'
+          type='number'
+          :min='0'
+          suffix='h'
+          :disable='target.CancelMode === CancelMode.UnCancellable'
+        />
       </q-card-section>
       <q-card-section>
         <div><q-toggle dense v-model='target.EnablePurchase' :label='$t("MSG_ENABLE_PURCHASE")' /></div>
@@ -101,7 +95,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin, CancelModes } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin, CancelModes, CancelMode } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -162,16 +156,15 @@ const updateTarget = computed(() => {
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
     CommissionPercent: target.value.CommissionPercent,
-    // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
-    // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt,
-    // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
     Descriptions: descriptions.value?.split(','),
     DisplayNames: displayNames.value?.split(','),
     DisplayColors: displayColors.value?.split(','),
     GoodBanner: target.value?.GoodBanner,
     ProductPage: target.value?.ProductPage,
+    CancelMode: target.value?.CancelMode,
+    CancellableBeforeStart: target.value?.CancellableBeforeStart,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string
   }
 })
