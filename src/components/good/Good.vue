@@ -155,7 +155,7 @@ const updateTarget = computed(() => {
     Price: target.value.Price,
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
-    UserPurchaseLimit: target.value.UserPurchaseLimit,
+    UserPurchaseLimit: `${target.value.UserPurchaseLimit}`,
     CommissionPercent: target.value.CommissionPercent,
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt,
