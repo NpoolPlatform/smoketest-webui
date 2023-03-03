@@ -244,6 +244,16 @@ const appGoodsColumns = computed(() => [
     field: (row: AppGood) => row.Visible
   },
   {
+    name: 'PurchaseLimit',
+    label: t('MSG_PURCHASE_LIMIT'),
+    field: (row: AppGood) => row.PurchaseLimit
+  },
+  {
+    name: 'UserPurchaseLimit',
+    label: t('MSG_USER_PURCHASE_LIMIT'),
+    field: (row: AppGood) => row.UserPurchaseLimit
+  },
+  {
     name: 'GOODPRICE',
     label: t('MSG_GOOD_PRICE'),
     field: (row: AppGood) => row.Price
