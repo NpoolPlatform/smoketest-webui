@@ -6,7 +6,7 @@
     :rows='coins'
     :columns='coinColumns'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
   />
   <q-table
     dense
@@ -15,8 +15,7 @@
     :rows='appGoods'
     :columns='appGoodsColumns'
     row-key='ID'
-    selection='single'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[20]'
     @row-click='(evt, row, index) => onRowClick(row as AppGood)'
   />
   <q-card>
@@ -36,10 +35,13 @@
       <q-card-section>
         <q-input v-model='target.Price' :label='$t("MSG_PRICE")' type='number' :min='0' />
         <q-input v-model.number='target.PurchaseLimit' :label='$t("MSG_PURCHASE_LIMIT")' type='number' :min='0' />
+        <q-input v-model.number='target.UserPurchaseLimit' :label='$t("MSG_USER_PURCHASE_LIMIT")' type='number' :min='0' />
         <q-input v-model.number='target.DisplayIndex' :label='$t("MSG_DISPLAY_INDEX")' type='number' :min='0' />
         <q-input v-model='descriptions' :label='$t("MSG_DESCRIPTIONS")' />
         <q-input v-model='displayNames' :label='$t("MSG_DISPLAY_NAMES")' />
+        <q-input v-model='displayColors' :label='$t("MSG_DISPLAY_COLORS")' />
         <q-input v-model='target.GoodBanner' :label='$t("MSG_GOOD_BANNER")' />
+        <q-input v-model='target.ProductPage' :label='$t("MSG_PRODUCT_PAGE")' />
         <q-input
           class='commission-percent'
           v-model.number='target.CommissionPercent'
@@ -48,20 +50,6 @@
           :min='0'
           suffix='%'
         />
-        <!-- <q-input
-          class='commission-percent'
-          v-model.number='target.TechnicalFeeRatio'
-          :label='$t("MSG_TECHNICALFEE_RATIO")'
-          type='number'
-          :min='0'
-        />
-        <q-input
-          class='commission-percent'
-          v-model.number='target.ElectricityFeeRatio'
-          :label='$t("MSG_ELECTRICITYFEE_RATIO")'
-          type='number'
-          :min='0'
-        /> -->
         <q-input
           class='commission-percent'
           v-model='target.DailyRewardAmount'
@@ -76,17 +64,29 @@
       <q-card-section>
         <div> <DateTimePicker v-model:date='target.SaleStartAt' label='MSG_SALE_START_AT' :disabled='!openSaleActivity' /></div>
         <div> <DateTimePicker v-model:date='target.SaleEndAt' label='MSG_SALE_END_AT' :disabled='!openSaleActivity' /></div>
-        <!-- <div> <DateTimePicker v-model:date='target.ServiceStartAt' label='MSG_SERVICE_START_AT' /></div> -->
       </q-card-section>
       <q-card-section>
-        <div>
-          <q-toggle dense v-model='target.Visible' :label='$t("MSG_VISIBLE")' />
-        </div>
-        <div>
-          <q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' />
-        </div>
+        <q-select
+          :options='CancelModes'
+          v-model='target.CancelMode'
+          :label='$t("MSG_CANCEL_MODE")'
+        />
+        <q-input
+          v-model.number='target.CancellableBeforeStart'
+          :label='$t("MSG_CANCELLABLE_BEFORE_START")'
+          type='number'
+          :min='0'
+          suffix='h'
+          :disable='target.CancelMode === CancelMode.UnCancellable'
+        />
       </q-card-section>
-
+      <q-card-section>
+        <div><q-toggle dense v-model='target.EnableSetCommission' :label='$t("MSG_ENABLE_SET_COMMISSION")' /></div>
+        <div><q-toggle dense v-model='target.EnablePurchase' :label='$t("MSG_ENABLE_PURCHASE")' /></div>
+        <div><q-toggle dense v-model='target.EnableProductPage' :label='$t("MSG_ENABLE_PRODUCT_PAGE")' /></div>
+        <div><q-toggle dense v-model='target.Visible' :label='$t("MSG_VISIBLE")' /></div>
+        <div><q-toggle dense v-model='target.Online' :label='$t("MSG_ONLINE")' /></div>
+      </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang='ts'>
-import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin } from 'npool-cli-v4'
+import { formatTime, NotifyType, useAdminAppGoodStore, AppGood, useAdminAppCoinStore, AppCoin, CancelModes, CancelMode } from 'npool-cli-v4'
 import { getCoins } from 'src/api/coin'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -131,12 +131,14 @@ const onCancel = () => {
 
 const descriptions = ref('')
 const displayNames = ref('')
+const displayColors = ref('')
 
 const onRowClick = (row: AppGood) => {
   target.value = { ...row }
   openSaleActivity.value = target?.value?.SaleEndAt !== 0
   descriptions.value = target?.value?.Descriptions?.join(',')
   displayNames.value = target?.value?.DisplayNames?.join(',')
+  displayColors.value = target?.value?.DisplayColors?.join(',')
   updating.value = true
   showing.value = true
 }
@@ -154,15 +156,20 @@ const updateTarget = computed(() => {
     Price: target.value.Price,
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
+    UserPurchaseLimit: `${target.value.UserPurchaseLimit}`,
     CommissionPercent: target.value.CommissionPercent,
-    // TechnicalFeeRatio: target.value.TechnicalFeeRatio === 0 ? undefined as unknown as number : target.value.TechnicalFeeRatio,
-    // ElectricityFeeRatio: target.value.ElectricityFeeRatio === 0 ? undefined as unknown as number : target.value.ElectricityFeeRatio,
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt,
-    // ServiceStartAt: target.value.ServiceStartAt === 0 ? undefined as unknown as number : target.value.ServiceStartAt,
     Descriptions: descriptions.value?.split(','),
     DisplayNames: displayNames.value?.split(','),
+    DisplayColors: displayColors.value?.split(','),
     GoodBanner: target.value?.GoodBanner,
+    ProductPage: target.value?.ProductPage,
+    EnableProductPage: target.value?.EnableProductPage,
+    EnablePurchase: target.value?.EnablePurchase,
+    EnableSetCommission: target.value?.EnableSetCommission,
+    CancelMode: target.value?.CancelMode,
+    CancellableBeforeStart: target.value?.CancellableBeforeStart,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string
   }
 })
@@ -237,6 +244,16 @@ const appGoodsColumns = computed(() => [
     name: 'VISIBLE',
     label: t('MSG_VISIBLE'),
     field: (row: AppGood) => row.Visible
+  },
+  {
+    name: 'PurchaseLimit',
+    label: t('MSG_PURCHASE_LIMIT'),
+    field: (row: AppGood) => row.PurchaseLimit
+  },
+  {
+    name: 'UserPurchaseLimit',
+    label: t('MSG_USER_PURCHASE_LIMIT'),
+    field: (row: AppGood) => row.UserPurchaseLimit
   },
   {
     name: 'GOODPRICE',
