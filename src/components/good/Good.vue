@@ -155,6 +155,7 @@ const updateTarget = computed(() => {
     Price: target.value.Price,
     DisplayIndex: target.value.DisplayIndex,
     PurchaseLimit: target.value.PurchaseLimit,
+    UserPurchaseLimit: target.value.UserPurchaseLimit,
     CommissionPercent: target.value.CommissionPercent,
     SaleStartAt: target.value.SaleStartAt,
     SaleEndAt: target.value.SaleEndAt,
@@ -163,6 +164,8 @@ const updateTarget = computed(() => {
     DisplayColors: displayColors.value?.split(','),
     GoodBanner: target.value?.GoodBanner,
     ProductPage: target.value?.ProductPage,
+    EnableProductPage: target.value?.EnableProductPage,
+    EnablePurchase: target.value?.EnablePurchase,
     CancelMode: target.value?.CancelMode,
     CancellableBeforeStart: target.value?.CancellableBeforeStart,
     DailyRewardAmount: target.value?.DailyRewardAmount?.length > 0 ? target.value?.DailyRewardAmount : undefined as unknown as string
