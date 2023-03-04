@@ -86,10 +86,10 @@
         <q-item-label>{{ $t('MSG_ORDER_STATE') }}: {{ currentOrder?.State }}</q-item-label>
       </q-item>
       <q-item class='row'>
-        <q-item-label> <span class='cancel-order-tip' v-if='currentOrder.OrderType !== OrderType.Offline'>Only Paid offline orders can be Canceled!</span></q-item-label>
+        <!-- <q-item-label> <span class='cancel-order-tip' v-if='currentOrder.OrderType !== OrderType.Offline'>Only Paid offline orders can be Canceled!</span></q-item-label> -->
       </q-item>
       <q-item class='row'>
-        <q-btn class='btn round alt' :label='$t("MSG_CANCEL_ORDER")' @click='cancelOrder' :disable='currentOrder.OrderType !== OrderType.Offline || currentOrder.State !== OrderState.PAID' />
+        <q-btn class='btn round alt' :label='$t("MSG_CANCEL_ORDER")' @click='cancelOrder' :disable='good.getGoodByID(currentOrder.GoodID)?.CancelMode === CancelMode.UnCancellable' />
         <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
       </q-item>
     </q-card>
@@ -100,7 +100,7 @@
 import {
   PriceCoinName
 } from 'npool-cli-v2'
-import { NotifyType, Order, OrderState, useAdminOrderStore, OrderType, OrderTypes, useFrontendAppStore, formatTime } from 'npool-cli-v4'
+import { NotifyType, Order, OrderState, useAdminOrderStore, OrderTypes, useFrontendAppStore, formatTime, useAdminAppGoodStore, CancelMode } from 'npool-cli-v4'
 import { onMounted, ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import { AppID } from 'src/const/const'
@@ -147,6 +147,8 @@ const orderUsers = computed(() => {
 })
 
 const orderLoading = ref(false)
+
+const good = useAdminAppGoodStore()
 
 onMounted(() => {
   if (order.Orders.length === 0) {
