@@ -263,7 +263,7 @@ const appGoodsColumns = computed(() => [
   {
     name: 'GOODUNIT',
     label: t('MSG_GOOD_UNIT'),
-    field: (row: AppGood) => row.Unit
+    field: (row: AppGood) => t(row.Unit)
   },
   {
     name: 'GOODTOTAL',
