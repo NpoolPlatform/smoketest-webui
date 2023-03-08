@@ -286,6 +286,11 @@ const appGoodsColumns = computed(() => [
     field: (row: AppGood) => row.InService
   },
   {
+    name: 'WaitStart',
+    label: t('MSG_GOOD_WAITSTART'),
+    field: (row: AppGood) => row.WaitStart
+  },
+  {
     name: 'COINTYPEID',
     label: t('MSG_COIN_TYPE_ID'),
     field: (row: AppGood) => row.CoinTypeID
