@@ -93,6 +93,8 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <AppDefaultGood />
 </template>
 
 <script setup lang='ts'>
@@ -104,6 +106,7 @@ import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
+const AppDefaultGood = defineAsyncComponent(() => import('src/components/good/AppDefaultGood.vue'))
 const LoadingButton = defineAsyncComponent(() => import('src/components/button/LoadingButton.vue'))
 const DateTimePicker = defineAsyncComponent(() => import('src/components/date/DateTimePicker.vue'))
 
