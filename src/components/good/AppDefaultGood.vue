@@ -9,7 +9,6 @@
     row-key='ID'
     selection='single'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(row as AppDefaultGood)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -91,6 +90,7 @@ const onCancel = () => {
   onMenuHide()
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onRowClick = (row: AppDefaultGood) => {
   target.value = { ...row }
   updating.value = true
