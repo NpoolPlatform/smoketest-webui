@@ -78,6 +78,7 @@ const columns = computed(() => [
   },
   {
     name: 'Content',
+    align: 'left',
     label: t('MSG_CONTENT'),
     field: (row: Notif) => row.Content
   },
