@@ -5,7 +5,7 @@
     :title='$t("MSG_COMMISSION_SETTINGS")'
     :rows='displayCommissions'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[50]'
     @row-click='(evt, row, index) => onRowClick(row as Commission)'
   >
     <template #top-right>
@@ -100,7 +100,7 @@
         <span>{{ $t('MSG_RECONCILE') }}</span>
       </q-card-section>
       <q-card-section>
-        <AppUserSelector v-model:id='reconcileRequest.UserID' />
+        <AppUserSelector v-model:id='reconcileRequest.TargetUserID' />
         <AppGoodSelector v-model:id='reconcileRequest.GoodID' />
       </q-card-section>
       <q-item class='row'>
