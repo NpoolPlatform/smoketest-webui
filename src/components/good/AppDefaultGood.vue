@@ -9,6 +9,7 @@
     row-key='ID'
     selection='single'
     :rows-per-page-options='[20]'
+    @row-click='(evt, row, index) => onRowClick(row as AppDefaultGood)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -41,7 +42,7 @@
       </q-card-section>
       <q-card-section>
         <AppGoodSelector v-model:id='target.GoodID' />
-        <CoinPicker v-model:id='target.CoinTypeID' />
+        <CoinPicker v-model:id='target.CoinTypeID' v-model:updating='updating' />
       </q-card-section>
       <q-item class='row'>
         <LoadingButton loading :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -90,7 +91,6 @@ const onCancel = () => {
   onMenuHide()
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onRowClick = (row: AppDefaultGood) => {
   target.value = { ...row }
   updating.value = true
@@ -98,7 +98,7 @@ const onRowClick = (row: AppDefaultGood) => {
 }
 
 const onSubmit = (done: () => void) => {
-  createAppDefaultGood(done)
+  updating.value ? updateAppDefaultGood(done) : createAppDefaultGood(done)
 }
 
 const createAppDefaultGood = (done: () => void) => {
@@ -114,6 +114,33 @@ const createAppDefaultGood = (done: () => void) => {
       Info: {
         Title: t('MSG_CREATE_APP_DEFAULT_GOOD'),
         Message: t('MSG_CREATE_APP_DEFAULT_GOOD_SUCCESS'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (row: AppDefaultGood, error: boolean) => {
+    console.log('row: ', row.ID)
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide()
+  })
+}
+
+const updateAppDefaultGood = (done: () => void) => {
+  appDefaultGood.updateAppDefaultGood({
+    ...target.value,
+    Message: {
+      Error: {
+        Title: t('MSG_UPDATE_APP_DEFAULT_GOOD'),
+        Message: t('MSG_UPDATE_APP_DEFAULT_GOOD_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_UPDATE_APP_DEFAULT_GOOD'),
+        Message: t('MSG_UPDATE_APP_DEFAULT_GOOD_SUCCESS'),
         Popup: true,
         Type: NotifyType.Success
       }

@@ -46,7 +46,7 @@ const coins = computed(() => {
   return Array.from(items).map((el) => {
     return {
       value: el.CoinTypeID,
-      label: `${el.Name} | ${el.CoinTypeID}`
+      label: `${el.Name} | ${el.CoinTypeID} | ${el.Unit}`
     }
   })
 })
