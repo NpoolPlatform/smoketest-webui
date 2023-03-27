@@ -73,6 +73,7 @@
       <q-card-section>
         <AppGoodSelector v-model:id='cloneCommission.FromGoodID' />
         <AppGoodSelector v-model:id='cloneCommission.ToGoodID' />
+        <q-select :options='SettleTypes' v-model='cloneCommission.SettleType' :label='$t("MSG_COMMISSION_SETTLE_TYPE")' />
         <q-input type='number' v-model='cloneCommission.Value' :label='$t("MSG_SCALE")' suffix='%' />
       </q-card-section>
       <q-item class='row'>
@@ -191,7 +192,9 @@ interface CloneCommission {
   FromGoodID: string;
   ToGoodID: string;
   Value: string;
+  SettleType: SettleType;
 }
+
 const cloneCommission = ref({} as CloneCommission)
 const showing1 = ref(false)
 
