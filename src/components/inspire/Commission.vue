@@ -5,7 +5,7 @@
     :title='$t("MSG_COMMISSION_SETTINGS")'
     :rows='displayCommissions'
     row-key='ID'
-    :rows-per-page-options='[10]'
+    :rows-per-page-options='[50]'
     @row-click='(evt, row, index) => onRowClick(row as Commission)'
   >
     <template #top-right>
@@ -30,6 +30,13 @@
           class='btn flat'
           :label='$t("MSG_CLONE")'
           @click='onClone'
+        />
+        <q-btn
+          dense
+          flat
+          class='btn flat'
+          :label='$t("MSG_RECONCILE")'
+          @click='onReconcile'
         />
       </div>
     </template>
@@ -81,10 +88,32 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <!-- reconcile -->
+  <q-dialog
+    v-model='showing2'
+    @hide='onMenuHide2'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_RECONCILE') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <AppUserSelector v-model:id='reconcileRequest.TargetUserID' />
+        <AppGoodSelector v-model:id='reconcileRequest.GoodID' />
+      </q-card-section>
+      <q-item class='row'>
+        <LoadingButton loading :label='$t("MSG_RECONCILE")' @click='onSubmit2' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel2' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
-import { NotifyType, SettleType, useAdminCommissionStore, Commission, SettleTypes } from 'npool-cli-v4'
+import { NotifyType, SettleType, useAdminCommissionStore, Commission, SettleTypes, useAdminReconcileStore } from 'npool-cli-v4'
+import { ReconcileRequest } from 'npool-cli-v4/dist/store/admin/inspire/reconcile/types'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -192,6 +221,7 @@ interface CloneCommission {
   ToGoodID: string;
   Value: string;
 }
+
 const cloneCommission = ref({} as CloneCommission)
 const showing1 = ref(false)
 
@@ -234,6 +264,50 @@ const onSubmit1 = (done: () => void) => {
     onMenuHide1()
   })
 }
+
+const reconcileRequest = ref({} as ReconcileRequest)
+const showing2 = ref(false)
+
+const onMenuHide2 = () => {
+  showing2.value = false
+  reconcileRequest.value = {} as ReconcileRequest
+}
+
+const onCancel2 = () => {
+  onMenuHide2()
+}
+const onReconcile = () => {
+  showing2.value = true
+  reconcileRequest.value = {} as ReconcileRequest
+}
+
+const reconcile = useAdminReconcileStore()
+const onSubmit2 = (done: () => void) => {
+  reconcile.reconcile({
+    ...reconcileRequest.value,
+    Message: {
+      Error: {
+        Title: t('MSG_RECONCILE'),
+        Message: t('MSG_RECONCILE_FAIL'),
+        Popup: true,
+        Type: NotifyType.Error
+      },
+      Info: {
+        Title: t('MSG_RECONCILE'),
+        Message: t('MSG_RECONCILE_FAIL'),
+        Popup: true,
+        Type: NotifyType.Success
+      }
+    }
+  }, (error: boolean) => {
+    done()
+    if (error) {
+      return
+    }
+    onMenuHide2()
+  })
+}
+
 onMounted(() => {
   if (commission.Commissions.Commissions.length === 0) {
     getAppCommissions(0, 500)
