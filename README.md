@@ -1,6 +1,6 @@
-<a href="https://github.com/NpoolPlatform/smoketest-v1/actions/workflows/ci.yml"><img src="https://github.com/NpoolPlatform/smoketest-v1/workflows/test/badge.svg" alt="build status"></a>
+<a href="https://github.com/NpoolPlatform/smoketest-webui/actions/workflows/ci.yml"><img src="https://github.com/NpoolPlatform/smoketest-webui/workflows/test/badge.svg" alt="build status"></a>
 
-# app dashboard v3 (smoketest-v1)
+# smoketest webui v1 (smoketest-webui-v1)
 
 vue3 framework use quasar ui and pinia manage store
 

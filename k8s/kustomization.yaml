@@ -1,6 +1,6 @@
 commonLabels:
-  # app: smoketest-v1
+  # app: smoketest-webui-v1
 
 resources:
-  - 01-smoketest-v1.yaml
+  - 01-smoketest-webui-v1.yaml
   - 02-traefik-ingress.yaml
