@@ -1,9 +1,9 @@
 {
-  "name": "app-dashboard-v2",
+  "name": "smoketest-webui-v1",
   "version": "0.0.1",
   "description": "vue3 framework use quasar ui and pinia manage store",
-  "productName": "Dashboard V3",
-  "author": "Entropy Pool Team <kikakkz@hotmail.com>",
+  "productName": "Smoketest V1",
+  "author": "WebeEye Team <kikakkz@hotmail.com>",
   "private": true,
   "scripts": {
     "start": "quasar dev",

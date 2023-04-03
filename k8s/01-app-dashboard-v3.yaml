@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-dashboard-v3
+  name: smoketest-v1
   namespace: kube-system
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app-dashboard-v3
+      app: smoketest-v1
   template:
     metadata:
       labels:
-        app: app-dashboard-v3
+        app: smoketest-v1
     spec:
       containers:
-        - name: app-dashboard-v3
-          image: uhub.service.ucloud.cn/entropypool/app-dashboard-v3:latest
+        - name: smoketest-v1
+          image: uhub.service.ucloud.cn/entropypool/smoketest-v1:latest
           imagePullPolicy: Always
           env:
             - name: ENV_ENVIRONMENT_TARGET
@@ -42,7 +42,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-dashboard-v3
+  name: smoketest-v1
   namespace: kube-system
 spec:
   ports:
@@ -50,4 +50,4 @@ spec:
       port: 80
       targetPort: 80
   selector:
-    app: app-dashboard-v3
+    app: smoketest-v1

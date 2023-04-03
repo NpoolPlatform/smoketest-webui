@@ -45,7 +45,7 @@ pipeline {
         expression { BUILD_TARGET == 'true' }
       }
       steps {
-        sh 'docker build -t $DOCKER_REGISTRY/entropypool/app-dashboard-v3:latest .'
+        sh 'docker build -t $DOCKER_REGISTRY/entropypool/smoketest-v1:latest .'
       }
     }
 
@@ -170,7 +170,7 @@ pipeline {
           fi
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin yarn install --registry https://registry.npm.taobao.org/
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin quasar build
-          docker build -t $DOCKER_REGISTRY/entropypool/app-dashboard-v3:$tag .
+          docker build -t $DOCKER_REGISTRY/entropypool/smoketest-v1:$tag .
         '''.stripIndent())
       }
     }
@@ -180,9 +180,9 @@ pipeline {
         expression { RELEASE_TARGET == 'true' }
       }
       steps {
-        sh 'docker push $DOCKER_REGISTRY/entropypool/app-dashboard-v3:latest'
+        sh 'docker push $DOCKER_REGISTRY/entropypool/smoketest-v1:latest'
         sh(returnStdout: true, script: '''
-          images=`docker images | grep entropypool | grep app-dashboard-v3 | grep none | awk '{ print $3 }'`
+          images=`docker images | grep entropypool | grep smoketest-v1 | grep none | awk '{ print $3 }'`
           for image in $images; do
             docker rmi $image -f
           done
@@ -200,11 +200,11 @@ pipeline {
           tag=`git describe --tags $revlist`
 
           set +e
-          docker images | grep app-dashboard-v3 | grep $tag
+          docker images | grep smoketest-v1 | grep $tag
           rc=$?
           set -e
           if [ 0 -eq $rc ]; then
-            docker push $DOCKER_REGISTRY/entropypool/app-dashboard-v3:$tag
+            docker push $DOCKER_REGISTRY/entropypool/smoketest-v1:$tag
           fi
         '''.stripIndent())
       }
@@ -227,11 +227,11 @@ pipeline {
           tag=$major.$minor.$patch
 
           set +e
-          docker images | grep app-dashboard-v3 | grep $tag
+          docker images | grep smoketest-v1 | grep $tag
           rc=$?
           set -e
           if [ 0 -eq $rc ]; then
-            docker push $DOCKER_REGISTRY/entropypool/app-dashboard-v3:$tag
+            docker push $DOCKER_REGISTRY/entropypool/smoketest-v1:$tag
           fi
         '''.stripIndent())
       }
@@ -247,11 +247,11 @@ pipeline {
         sh(returnStdout: false, script: '''
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/smoketest-v1-treafik/smoketest-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
         '''.stripIndent())
         sh 'sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml'
 
-        sh 'sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-app-dashboard-v3.yaml'
+        sh 'sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-v1.yaml'
         sh 'kubectl apply -k k8s'
       }
     }
@@ -272,11 +272,11 @@ pipeline {
           sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/smoketest-v1-treafik/smoketest-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
 
-          sed -i "s/app-dashboard-v3:latest/app-dashboard-v3:$tag/g" k8s/01-app-dashboard-v3.yaml
-          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-app-dashboard-v3.yaml
+          sed -i "s/smoketest-v1:latest/smoketest-v1:$tag/g" k8s/01-smoketest-v1.yaml
+          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-v1.yaml
           kubectl apply -k k8s
         '''.stripIndent())
       }
@@ -304,11 +304,11 @@ pipeline {
           sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
           sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
           sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/app-dashboard-v3-treafik/app-dashboard-v3-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
+          sed -i "s/smoketest-v1-treafik/smoketest-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
           sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
 
-          sed -i "s/app-dashboard-v3:latest/app-dashboard-v3:$tag/g" k8s/01-app-dashboard-v3.yaml
-          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-app-dashboard-v3.yaml
+          sed -i "s/smoketest-v1:latest/smoketest-v1:$tag/g" k8s/01-smoketest-v1.yaml
+          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-v1.yaml
           kubectl apply -k k8s
         '''.stripIndent())
       }

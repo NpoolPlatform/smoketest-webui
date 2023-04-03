@@ -1,6 +1,6 @@
 commonLabels:
-  # app: app-dashboard-v3
+  # app: smoketest-v1
 
 resources:
-  - 01-app-dashboard-v3.yaml
+  - 01-smoketest-v1.yaml
   - 02-traefik-ingress.yaml

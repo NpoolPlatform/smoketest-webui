@@ -158,8 +158,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: 'dashboard V3',
-        short_name: 'Dashboard V3',
+        name: 'Smoketest V1',
+        short_name: 'Smoketest V1',
         description: 'vue3 framework use quasar ui and pinia manage store',
         display: 'standalone',
         orientation: 'portrait',
@@ -225,7 +225,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'APP-dashboard-v3'
+        appId: 'Smoketest-V1'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

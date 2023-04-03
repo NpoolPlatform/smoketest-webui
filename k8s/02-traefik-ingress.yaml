@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: app-dashboard-v3-treafik-ingress
+  name: smoketest-v1-treafik-ingress
   namespace: kube-system
   annotations:
-    k8s.kuboard.cn/displayName: app-dashboard-v3-treafik
-    k8s.kuboard.cn/workload: app-dashboard-v3-treafik
+    k8s.kuboard.cn/displayName: smoketest-v1-treafik
+    k8s.kuboard.cn/workload: smoketest-v1-treafik
     kubernetes.io/ingress.class: "traefik-internet"
     traefik.ingress.kubernetes.io/router.entrypoints: websecure, web
     traefik.ingress.kubernetes.io/router.middlewares: kube-system-http-redirect-https@kubernetescrd,
@@ -24,5 +24,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: app-dashboard-v3
+              serviceName: smoketest-v1
               servicePort: 80
