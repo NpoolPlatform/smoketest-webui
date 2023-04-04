@@ -6,6 +6,7 @@
       :title='$t("MSG_TEST_CASE")'
       row-key='ID'
       :rows='testCases'
+      :columns='columns'
     >
       <template #header='props'>
         <q-tr :props='props'>
@@ -100,12 +101,35 @@
 
 <script setup lang='ts'>
 import { uid } from 'quasar'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { TestCase } from 'src/types/types'
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { t } = useI18n({ useScope: 'global' })
 
 const uid1 = ref(uid())
 const uid2 = ref(uid())
 
 const testCases = [
+  {
+    Name: '为其他应用创建用户',
+    ID: uid(),
+    Path: '/v1/create/app/user',
+    Domain: 'good-manager.npool.top',
+    Arguments: {
+      AAA: 'string',
+      BBB: 'number'
+    },
+    PreConditions: [
+      uid1,
+      uid2
+    ],
+    Cleaners: [
+      uid1,
+      uid2
+    ]
+  },
   {
     Name: '创建用户',
     ID: uid1,
@@ -139,6 +163,33 @@ const testCases = [
     ]
   }
 ]
+
+const columns = computed(() => [
+  {
+    name: 'Name',
+    label: t('MSG_NAME'),
+    align: 'left',
+    field: (row: TestCase) => row.Name
+  },
+  {
+    name: 'ID',
+    label: t('MSG_ID'),
+    align: 'left',
+    field: (row: TestCase) => row.ID
+  },
+  {
+    name: 'Path',
+    label: t('MSG_PATH'),
+    align: 'left',
+    field: (row: TestCase) => row.Path
+  },
+  {
+    name: 'Domain',
+    label: t('MSG_DOMAIN'),
+    align: 'left',
+    field: (row: TestCase) => row.Domain
+  }
+])
 
 </script>
 
