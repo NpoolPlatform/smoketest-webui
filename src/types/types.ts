@@ -9,6 +9,6 @@ export interface TestCase {
   Path: string
   Name: string
   Args: Array<Arg>
-  PreCondition: Array<string>
-  Cleaner: Array<string>
+  PreConditions: Array<string>
+  Cleaners: Array<string>
 }

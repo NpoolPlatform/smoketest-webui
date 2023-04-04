@@ -51,14 +51,30 @@
         </q-tr>
         <q-tr :props='props'>
           <q-td auto-width />
-          <q-td colspan='100%'>
+          <q-td>
             <div>PreConditions</div>
+          </q-td>
+          <q-td colspan='100%'>
+            <div
+              v-for='cond in props.row.PreConditions'
+              :key='cond'
+            >
+              {{ cond }}
+            </div>
           </q-td>
         </q-tr>
         <q-tr :props='props'>
           <q-td auto-width />
-          <q-td colspan='100%'>
+          <q-td>
             <div>Cleaners</div>
+          </q-td>
+          <q-td colspan='100%'>
+            <div
+              v-for='cond in props.row.Cleaners'
+              :key='cond'
+            >
+              {{ cond }}
+            </div>
           </q-td>
         </q-tr>
       </template>
@@ -68,11 +84,15 @@
 
 <script setup lang='ts'>
 import { uid } from 'quasar'
+import { ref } from 'vue'
+
+const uid1 = ref(uid())
+const uid2 = ref(uid())
 
 const testCases = [
   {
     Name: '创建用户',
-    ID: uid(),
+    ID: uid1,
     Path: '/v1/create/user',
     Domain: 'good-manager.npool.top',
     Arguments: {
@@ -81,9 +101,26 @@ const testCases = [
     }
   }, {
     Name: '创建应用',
-    ID: uid(),
+    ID: uid2,
     Path: '/v1/create/app',
     Domain: 'good-manager.npool.top'
+  }, {
+    Name: '为其他应用创建用户',
+    ID: uid(),
+    Path: '/v1/create/app/user',
+    Domain: 'good-manager.npool.top',
+    Arguments: {
+      AAA: 'string',
+      BBB: 'number'
+    },
+    PreConditions: [
+      uid1,
+      uid2
+    ],
+    Cleaners: [
+      uid1,
+      uid2
+    ]
   }
 ]
 
