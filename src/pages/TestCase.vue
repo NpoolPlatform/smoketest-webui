@@ -54,12 +54,20 @@
           <q-td>
             <div>PreConditions</div>
           </q-td>
-          <q-td colspan='100%'>
+          <q-td colspan='80%'>
             <div
               v-for='cond in props.row.PreConditions'
               :key='cond'
             >
               {{ cond }}
+            </div>
+          </q-td>
+          <q-td>
+            <div>
+              <q-btn>编辑</q-btn>
+            </div>
+            <div>
+              <q-btn>保存</q-btn>
             </div>
           </q-td>
         </q-tr>
@@ -68,12 +76,20 @@
           <q-td>
             <div>Cleaners</div>
           </q-td>
-          <q-td colspan='100%'>
+          <q-td colspan='80%'>
             <div
               v-for='cond in props.row.Cleaners'
               :key='cond'
             >
               {{ cond }}
+            </div>
+          </q-td>
+          <q-td>
+            <div>
+              <q-btn>编辑</q-btn>
+            </div>
+            <div>
+              <q-btn>保存</q-btn>
             </div>
           </q-td>
         </q-tr>
