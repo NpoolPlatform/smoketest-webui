@@ -76,8 +76,8 @@ const testCases = [
     Path: '/v1/create/user',
     Domain: 'good-manager.npool.top',
     Arguments: {
-      AAA: 10,
-      BBB: 'CCC'
+      AAA: 'string',
+      BBB: 'number'
     }
   }, {
     Name: '创建应用',
