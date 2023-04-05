@@ -58,12 +58,16 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td colspan='90%' class='arguments'>
-            <pre v-html='JSON.stringify(props.row.Args, null, 2)' />
-          </q-td>
-          <q-td>
-            <q-btn>编辑</q-btn>
-            <q-btn>保存</q-btn>
+          <q-td colspan='100%'>
+            <div>
+              <pre class='arguments' v-html='JSON.stringify(props.row.Args, null, 2)' />
+              <q-btn dense>
+                编辑
+              </q-btn>
+              <q-btn dense>
+                保存
+              </q-btn>
+            </div>
           </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
@@ -71,7 +75,7 @@
           <q-td>
             <div>PreConds</div>
           </q-td>
-          <q-td colspan='90%'>
+          <q-td colspan='100%'>
             <div
               v-for='cond in props.row.PreConds'
               :key='cond'
@@ -84,15 +88,20 @@
                 <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
                 <q-td>
                   <q-btn dense>
+                    编辑
+                  </q-btn>
+                  <q-btn dense>
                     删除
                   </q-btn>
                 </q-td>
               </q-tr>
             </div>
-          </q-td>
-          <q-td>
-            <q-btn>增加</q-btn>
-            <q-btn>保存</q-btn>
+            <q-btn dense>
+              增加
+            </q-btn>
+            <q-btn dense>
+              保存
+            </q-btn>
           </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
@@ -113,15 +122,20 @@
                 <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
                 <q-td>
                   <q-btn dense>
+                    编辑
+                  </q-btn>
+                  <q-btn dense>
                     删除
                   </q-btn>
                 </q-td>
               </q-tr>
             </div>
-          </q-td>
-          <q-td>
-            <q-btn>增加</q-btn>
-            <q-btn>保存</q-btn>
+            <q-btn dense>
+              增加
+            </q-btn>
+            <q-btn dense>
+              保存
+            </q-btn>
           </q-td>
         </q-tr>
       </template>
