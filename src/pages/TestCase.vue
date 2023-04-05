@@ -73,11 +73,22 @@
               v-for='cond in props.row.PreConds'
               :key='cond'
             >
-              {{ cond }}
+              <q-tr>
+                <q-td>{{ cond.Index }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Path }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
+                <q-td>
+                  <q-btn dense>
+                    删除
+                  </q-btn>
+                </q-td>
+              </q-tr>
             </div>
           </q-td>
           <q-td>
-            <q-btn>编辑</q-btn>
+            <q-btn>增加</q-btn>
             <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
@@ -91,11 +102,22 @@
               v-for='cond in props.row.Cleaners'
               :key='cond'
             >
-              {{ cond }}
+              <q-tr>
+                <q-td>{{ cond.Index }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.Path }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
+                <q-td>
+                  <q-btn dense>
+                    删除
+                  </q-btn>
+                </q-td>
+              </q-tr>
             </div>
           </q-td>
           <q-td>
-            <q-btn>编辑</q-btn>
+            <q-btn>增加</q-btn>
             <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
@@ -108,7 +130,7 @@
 import { uid } from 'quasar'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase } from 'src/types/types'
+import { TestCase, CondType } from 'src/types/types'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -122,26 +144,45 @@ const testCases = [
     Name: '为其他应用创建用户',
     ID: uid(),
     Path: '/v1/create/app/user',
-    Domain: 'good-manager.npool.top',
+    Module: 'good-manager.npool.top',
     PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
       BBB: 'number'
     },
     PreConds: [
-      uid1,
-      uid2
+      {
+        ID: uid1,
+        Index: 0,
+        Type: CondType.PreCondition,
+        ArgMap: []
+      },
+      {
+        ID: uid2,
+        Index: 1,
+        Type: CondType.PreCondition,
+        ArgMap: []
+      }
     ],
     Cleaners: [
-      uid1,
-      uid2
+      {
+        ID: uid1,
+        Index: 0,
+        Type: CondType.Cleaner
+      },
+      {
+        ID: uid2,
+        Index: 1,
+        Type: CondType.Cleaner,
+        ArgMap: []
+      }
     ]
   },
   {
     Name: '创建用户',
     ID: uid1,
     Path: '/v1/create/user',
-    Domain: 'good-manager.npool.top',
+    Module: 'good-manager.npool.top',
     PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
@@ -151,28 +192,52 @@ const testCases = [
     Name: '创建应用',
     ID: uid2,
     Path: '/v1/create/app',
-    Domain: 'good-manager.npool.top',
+    Module: 'good-manager.npool.top',
     PathPrefix: '/api/good'
   }, {
     Name: '为其他应用创建用户',
     ID: uid(),
     Path: '/v1/create/app/user',
-    Domain: 'good-manager.npool.top',
+    Module: 'good-manager.npool.top',
     PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
       BBB: 'number'
     },
     PreConds: [
-      uid1,
-      uid2
+      {
+        ID: uid1,
+        Index: 0,
+        Type: CondType.PreCondition,
+        ArgMap: []
+      },
+      {
+        ID: uid2,
+        Index: 1,
+        Type: CondType.PreCondition,
+        ArgMap: []
+      }
     ],
     Cleaners: [
-      uid1,
-      uid2
+      {
+        ID: uid1,
+        Index: 0,
+        Type: CondType.Cleaner,
+        ArgMap: []
+      },
+      {
+        ID: uid2,
+        Index: 1,
+        Type: CondType.Cleaner,
+        ArgMap: []
+      }
     ]
   }
 ]
+
+const testCaseByID = (id: string) => {
+  return testCases.find((el) => el.ID === id)
+}
 
 const columns = computed(() => [
   {
@@ -194,10 +259,10 @@ const columns = computed(() => [
     field: (row: TestCase) => row.Path
   },
   {
-    name: 'Domain',
-    label: t('MSG_DOMAIN'),
+    name: 'Module',
+    label: t('MSG_MODULE'),
     align: 'left',
-    field: (row: TestCase) => row.Domain
+    field: (row: TestCase) => row.Module
   },
   {
     name: 'PatPrefix',

@@ -29,7 +29,7 @@ export interface Cond {
 
 export interface TestCase {
   ID: string
-  Domain: string
+  Module: string
   PathPrefix: string
   Path: string
   Name: string
