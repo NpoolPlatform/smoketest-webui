@@ -8,6 +8,18 @@
       :rows='testCases'
       :columns='columns'
     >
+      <template #top-right>
+        <q-select
+          v-model='module'
+          :options='options'
+          dense
+          :label='$t("MSG_MODULE")'
+          class='filter'
+        />
+        <q-btn dense>
+          {{ $t('MSG_CREATE') }}
+        </q-btn>
+      </template>
       <template #header='props'>
         <q-tr :props='props'>
           <q-th auto-width />
@@ -30,6 +42,11 @@
             class='bg-blue test-case-header'
           >
             {{ col.value }}
+          </q-td>
+          <q-td class='bg-blue test-case-header'>
+            <q-btn @click='onExecTestCase(props.row)'>
+              执行
+            </q-btn>
           </q-td>
           <q-td colspan='100%' class='bg-blue test-case-header' />
         </q-tr>
@@ -89,7 +106,7 @@
 
 <script setup lang='ts'>
 import { uid } from 'quasar'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TestCase } from 'src/types/types'
 
@@ -98,6 +115,7 @@ const { t } = useI18n({ useScope: 'global' })
 
 const uid1 = ref(uid())
 const uid2 = ref(uid())
+const module = ref('')
 
 const testCases = [
   {
@@ -105,6 +123,7 @@ const testCases = [
     ID: uid(),
     Path: '/v1/create/app/user',
     Domain: 'good-manager.npool.top',
+    PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
       BBB: 'number'
@@ -123,6 +142,7 @@ const testCases = [
     ID: uid1,
     Path: '/v1/create/user',
     Domain: 'good-manager.npool.top',
+    PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
       BBB: 'number'
@@ -131,12 +151,14 @@ const testCases = [
     Name: '创建应用',
     ID: uid2,
     Path: '/v1/create/app',
-    Domain: 'good-manager.npool.top'
+    Domain: 'good-manager.npool.top',
+    PathPrefix: '/api/good'
   }, {
     Name: '为其他应用创建用户',
     ID: uid(),
     Path: '/v1/create/app/user',
     Domain: 'good-manager.npool.top',
+    PathPrefix: '/api/good',
     Arguments: {
       AAA: 'string',
       BBB: 'number'
@@ -176,8 +198,30 @@ const columns = computed(() => [
     label: t('MSG_DOMAIN'),
     align: 'left',
     field: (row: TestCase) => row.Domain
+  },
+  {
+    name: 'PatPrefix',
+    label: t('MSG_PATH_PREFIX'),
+    align: 'left',
+    field: (row: TestCase) => row.PathPrefix
   }
 ])
+
+watch(module, () => {
+  if (module.value === 'Clear') {
+    module.value = ''
+  }
+})
+
+const options = computed(() => [
+  'good-manager.npool.top',
+  'good-manager.npool.top',
+  'Clear'
+])
+
+const onExecTestCase = (testCase: TestCase) => {
+  console.log(testCase)
+}
 
 </script>
 
@@ -190,4 +234,7 @@ const columns = computed(() => [
   background-color: black
   color: $light-green-13
   font-weight: bold
+
+.filter
+  min-width: 220px
 </style>

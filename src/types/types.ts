@@ -30,6 +30,7 @@ export interface Cond {
 export interface TestCase {
   ID: string
   Domain: string
+  PathPrefix: string
   Path: string
   Name: string
   Args: Array<Arg>
