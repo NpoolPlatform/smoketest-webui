@@ -38,38 +38,30 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td colspan='80%' class='arguments'>
+          <q-td colspan='90%' class='arguments'>
             <pre v-html='JSON.stringify(props.row.Arguments, null, 2)' />
           </q-td>
           <q-td>
-            <div>
-              <q-btn>编辑</q-btn>
-            </div>
-            <div>
-              <q-btn>保存</q-btn>
-            </div>
+            <q-btn>编辑</q-btn>
+            <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
         <q-tr :props='props'>
           <q-td auto-width />
           <q-td>
-            <div>PreConditions</div>
+            <div>PreConds</div>
           </q-td>
-          <q-td colspan='80%'>
+          <q-td colspan='90%'>
             <div
-              v-for='cond in props.row.PreConditions'
+              v-for='cond in props.row.PreConds'
               :key='cond'
             >
               {{ cond }}
             </div>
           </q-td>
           <q-td>
-            <div>
-              <q-btn>编辑</q-btn>
-            </div>
-            <div>
-              <q-btn>保存</q-btn>
-            </div>
+            <q-btn>编辑</q-btn>
+            <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
         <q-tr :props='props'>
@@ -77,7 +69,7 @@
           <q-td>
             <div>Cleaners</div>
           </q-td>
-          <q-td colspan='80%'>
+          <q-td colspan='90%'>
             <div
               v-for='cond in props.row.Cleaners'
               :key='cond'
@@ -86,12 +78,8 @@
             </div>
           </q-td>
           <q-td>
-            <div>
-              <q-btn>编辑</q-btn>
-            </div>
-            <div>
-              <q-btn>保存</q-btn>
-            </div>
+            <q-btn>编辑</q-btn>
+            <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
       </template>
@@ -121,7 +109,7 @@ const testCases = [
       AAA: 'string',
       BBB: 'number'
     },
-    PreConditions: [
+    PreConds: [
       uid1,
       uid2
     ],
@@ -153,7 +141,7 @@ const testCases = [
       AAA: 'string',
       BBB: 'number'
     },
-    PreConditions: [
+    PreConds: [
       uid1,
       uid2
     ],
