@@ -144,17 +144,20 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore } from 'src/localstore'
+import { NotifyType } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
 const module = ref('')
 
-const testCaseStore = useTestCaseStore()
-const testCases = computed(() => testCaseStore.TestCases)
+const testCase = useTestCaseStore()
+const testCases = computed(() => testCase.TestCases)
+
+const apis = useLocalAPIStore()
 
 const testCaseByID = (id: string) => {
   return testCases.value.find((el) => el.ID === id)
@@ -199,11 +202,7 @@ watch(module, () => {
   }
 })
 
-const options = computed(() => [
-  'good-manager.npool.top',
-  'good-manager.npool.top',
-  'Clear'
-])
+const options = ref([] as string[])
 
 const onExecTestCase = (testCase: TestCase) => {
   console.log(testCase)
@@ -212,6 +211,25 @@ const onExecTestCase = (testCase: TestCase) => {
 const onCollapse = (testCase: TestCase) => {
   testCase.Collapsed = !testCase.Collapsed
 }
+
+onMounted(() => {
+  apis.getDomains({
+    Message: {
+      Error: {
+        Title: 'MSG_GET_DOMAINS',
+        Message: 'MSG_GET_DOMAINS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, domains: string[]) => {
+    if (error) {
+      return
+    }
+    options.value = domains
+    options.value.push('Clear')
+  })
+})
 
 </script>
 
