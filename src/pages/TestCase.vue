@@ -34,36 +34,39 @@
       </template>
       <template #body='props'>
         <q-tr :props='props'>
-          <q-td auto-width class='bg-blue test-case-header' />
+          <q-td auto-width class='bg-cyan-6 test-case-header' />
           <q-td
             v-for='col in props.cols'
             :key='col.name'
             :props='props'
-            class='bg-blue test-case-header'
+            class='bg-cyan-6 test-case-header'
           >
             {{ col.value }}
           </q-td>
-          <q-td class='bg-blue test-case-header'>
+          <q-td class='bg-cyan-6 test-case-header'>
             <q-btn @click='onExecTestCase(props.row)'>
               执行
             </q-btn>
+            <q-btn @click='onCollapse(props.row)'>
+              折叠/展开
+            </q-btn>
           </q-td>
-          <q-td colspan='100%' class='bg-blue test-case-header' />
+          <q-td colspan='100%' class='bg-cyan-6 test-case-header' />
         </q-tr>
-        <q-tr :props='props'>
+        <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
           <q-td>
             <div>Arguments</div>
           </q-td>
           <q-td colspan='90%' class='arguments'>
-            <pre v-html='JSON.stringify(props.row.Arguments, null, 2)' />
+            <pre v-html='JSON.stringify(props.row.Args, null, 2)' />
           </q-td>
           <q-td>
             <q-btn>编辑</q-btn>
             <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
-        <q-tr :props='props'>
+        <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
           <q-td>
             <div>PreConds</div>
@@ -92,7 +95,7 @@
             <q-btn>保存</q-btn>
           </q-td>
         </q-tr>
-        <q-tr :props='props'>
+        <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
           <q-td>
             <div>Cleaners</div>
@@ -127,116 +130,20 @@
 </template>
 
 <script setup lang='ts'>
-import { uid } from 'quasar'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, CondType } from 'src/types/types'
+import { TestCase, useTestCaseStore } from 'src/localstore'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
-const uid1 = ref(uid())
-const uid2 = ref(uid())
 const module = ref('')
 
-const testCases = [
-  {
-    Name: '为其他应用创建用户',
-    ID: uid(),
-    Path: '/v1/create/app/user',
-    Module: 'good-manager.npool.top',
-    PathPrefix: '/api/good',
-    Arguments: {
-      AAA: 'string',
-      BBB: 'number'
-    },
-    PreConds: [
-      {
-        ID: uid1,
-        Index: 0,
-        Type: CondType.PreCondition,
-        ArgMap: []
-      },
-      {
-        ID: uid2,
-        Index: 1,
-        Type: CondType.PreCondition,
-        ArgMap: []
-      }
-    ],
-    Cleaners: [
-      {
-        ID: uid1,
-        Index: 0,
-        Type: CondType.Cleaner
-      },
-      {
-        ID: uid2,
-        Index: 1,
-        Type: CondType.Cleaner,
-        ArgMap: []
-      }
-    ]
-  },
-  {
-    Name: '创建用户',
-    ID: uid1,
-    Path: '/v1/create/user',
-    Module: 'good-manager.npool.top',
-    PathPrefix: '/api/good',
-    Arguments: {
-      AAA: 'string',
-      BBB: 'number'
-    }
-  }, {
-    Name: '创建应用',
-    ID: uid2,
-    Path: '/v1/create/app',
-    Module: 'good-manager.npool.top',
-    PathPrefix: '/api/good'
-  }, {
-    Name: '为其他应用创建用户',
-    ID: uid(),
-    Path: '/v1/create/app/user',
-    Module: 'good-manager.npool.top',
-    PathPrefix: '/api/good',
-    Arguments: {
-      AAA: 'string',
-      BBB: 'number'
-    },
-    PreConds: [
-      {
-        ID: uid1,
-        Index: 0,
-        Type: CondType.PreCondition,
-        ArgMap: []
-      },
-      {
-        ID: uid2,
-        Index: 1,
-        Type: CondType.PreCondition,
-        ArgMap: []
-      }
-    ],
-    Cleaners: [
-      {
-        ID: uid1,
-        Index: 0,
-        Type: CondType.Cleaner,
-        ArgMap: []
-      },
-      {
-        ID: uid2,
-        Index: 1,
-        Type: CondType.Cleaner,
-        ArgMap: []
-      }
-    ]
-  }
-]
+const testCaseStore = useTestCaseStore()
+const testCases = computed(() => testCaseStore.TestCases)
 
 const testCaseByID = (id: string) => {
-  return testCases.find((el) => el.ID === id)
+  return testCases.value.find((el) => el.ID === id)
 }
 
 const columns = computed(() => [
@@ -286,6 +193,10 @@ const options = computed(() => [
 
 const onExecTestCase = (testCase: TestCase) => {
   console.log(testCase)
+}
+
+const onCollapse = (testCase: TestCase) => {
+  testCase.Collapsed = !testCase.Collapsed
 }
 
 </script>

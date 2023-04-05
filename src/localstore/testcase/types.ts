@@ -36,4 +36,9 @@ export interface TestCase {
   Args: Array<Arg>
   PreConds: Array<Cond>
   Cleaners: Array<Cond>
+  Collapsed: boolean
+}
+
+export interface TestCaseState {
+  TestCases: Array<TestCase>
 }
