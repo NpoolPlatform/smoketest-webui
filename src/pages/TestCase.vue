@@ -73,11 +73,51 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td colspan='100%'>
+          <q-td>
             <div>
               <pre class='arguments' v-html='JSON.stringify(props.row.Args, null, 2)' />
-              <q-btn dense>
-                编辑
+            </div>
+          </q-td>
+          <q-td colspan='100%'>
+            <div>
+              <div
+                v-for='arg in props.row.Args'
+                :key='arg.Name'
+                class='row'
+              >
+                <q-input v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
+                <q-select
+                  label='Argument Type'
+                  :options='ArgDefs'
+                  v-model='arg.Type'
+                  :disable='!arg.Editing'
+                  class='filter'
+                />
+                <q-btn @click='onModifyArgClick(arg)'>
+                  修改
+                </q-btn>
+                <q-btn @click='onDeleteArgClick(props.row, arg)'>
+                  -
+                </q-btn>
+              </div>
+              <div class='row' v-show='props.row.AddingArg'>
+                <q-input dense v-model='newArg.Name' label='Argument Name' />
+                <q-select
+                  label='Argument Type'
+                  dense
+                  :options='ArgDefs'
+                  v-model='newArg.Type'
+                  class='filter'
+                />
+                <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
+                  确定
+                </q-btn>
+                <q-btn dense @click='onCancelCreateArgClick(props.row)'>
+                  取消
+                </q-btn>
+              </div>
+              <q-btn @click='onCreateArgClick(props.row)'>
+                +
               </q-btn>
             </div>
           </q-td>
@@ -187,7 +227,7 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore, API } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { uid } from 'quasar'
 
@@ -299,7 +339,8 @@ const onFetchAPIsClick = () => {
 
 const showing = ref(false)
 const target = ref({
-  Module: module.value
+  Module: module.value,
+  Args: [] as Arg[]
 } as TestCase)
 
 watch(module, () => {
@@ -343,6 +384,30 @@ const onSubmit = () => {
 
 const onCancel = () => {
   onMenuHide()
+}
+
+const newArg = ref({} as Arg)
+const onCreateArgClick = (testCase: TestCase) => {
+  testCase.AddingArg = true
+}
+
+const onConfirmCreateArgClick = (testCase: TestCase) => {
+  testCase.AddingArg = false
+  testCase.Args.push(newArg.value)
+  newArg.value = {} as Arg
+}
+
+const onCancelCreateArgClick = (testCase: TestCase) => {
+  testCase.AddingArg = false
+  newArg.value = {} as Arg
+}
+
+const onModifyArgClick = (arg: Arg) => {
+  arg.Editing = true
+}
+
+const onDeleteArgClick = (testCase: TestCase, arg: Arg) => {
+  testCase.Args = testCase.Args.filter((el) => el.Name !== arg.Name)
 }
 
 </script>

@@ -1,6 +1,7 @@
 export interface Arg {
   Name: string
   Type: string
+  Editing: boolean
 }
 
 export enum CondType {
@@ -12,6 +13,18 @@ export enum ArgType {
   Input = 'Input',
   Output = 'Output'
 }
+
+export enum ArgDef {
+  Number = 'Number',
+  String = 'String',
+  Object = 'Object'
+}
+
+export const ArgDefs = [
+  ArgDef.Number,
+  ArgDef.String,
+  ArgDef.Object
+]
 
 export interface ArgMap {
   ID: string
@@ -36,6 +49,7 @@ export interface TestCase {
   PreConds: Array<Cond>
   Cleaners: Array<Cond>
   Collapsed: boolean
+  AddingArg: boolean
 }
 
 export interface TestCaseState {
