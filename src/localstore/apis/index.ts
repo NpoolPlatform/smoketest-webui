@@ -3,12 +3,11 @@ import { APIS as APIEnum } from './const'
 import { API, GetAPIsRequest, GetAPIsResponse, GetDomainsRequest, GetDomainsResponse } from './types'
 import { doActionWithError } from 'npool-cli-v4'
 
-export const useLocalAPIStore = defineStore('local-apis', {
+export * from './types'
+
+export const useLocalAPIStore = defineStore('church-apis-v4', {
   state: () => ({
-    APIs: {
-      APIs: [] as Array<API>,
-      Total: 0
-    },
+    APIs: [] as Array<API>,
     Domains: [] as Array<string>
   }),
   getters: {
@@ -20,8 +19,12 @@ export const useLocalAPIStore = defineStore('local-apis', {
         req,
         req.Message,
         (resp: GetAPIsResponse): void => {
-          this.APIs.APIs.push(...resp.Infos)
-          this.APIs.Total = resp.Total
+          resp.Infos.forEach((v) => {
+            if (this.APIs.findIndex((el) => el.ID === v.ID) >= 0) {
+              return
+            }
+            this.APIs.push(v)
+          })
           done(false, resp.Infos)
         }, () => {
           done(true, [] as Array<API>)

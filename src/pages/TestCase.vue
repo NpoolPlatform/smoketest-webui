@@ -16,6 +16,9 @@
           :label='$t("MSG_MODULE")'
           class='filter'
         />
+        <q-btn dense @click='onFetchAPIsClick'>
+          {{ $t('MSG_FETCH_APIS') }}
+        </q-btn>
         <q-btn dense>
           {{ $t('MSG_CREATE') }}
         </q-btn>
@@ -49,6 +52,9 @@
             </q-btn>
             <q-btn @click='onCollapse(props.row)'>
               折叠/展开
+            </q-btn>
+            <q-btn @click='onCollapse(props.row)'>
+              编辑
             </q-btn>
           </q-td>
           <q-td colspan='100%' class='bg-cyan-6 test-case-header' />
@@ -146,7 +152,7 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore, API } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -230,6 +236,36 @@ onMounted(() => {
     options.value.push('Clear')
   })
 })
+
+const fetchAPIs = (offset: number, limit: number) => {
+  apis.getAPIs({
+    Domain: module.value.length > 0 ? module.value : undefined,
+    Exported: true,
+    Depracated: false,
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_APIS',
+        Message: 'MSG_GET_APIS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows: Array<API>) => {
+    if (error) {
+      return
+    }
+    if (rows.length === 0) {
+      return
+    }
+    fetchAPIs(offset + limit, limit)
+  })
+}
+
+const onFetchAPIsClick = () => {
+  fetchAPIs(0, 100)
+}
 
 </script>
 
