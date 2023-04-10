@@ -11,6 +11,14 @@ export const useLocalAPIStore = defineStore('church-apis-v4', {
     Domains: [] as Array<string>
   }),
   getters: {
+    getModuleAPIs (): (module: string) => Array<API> {
+      return (module: string) => {
+        if (module.length === 0) {
+          return this.APIs
+        }
+        return this.APIs.filter((el) => el.ServiceName === module)
+      }
+    }
   },
   actions: {
     getAPIs (req: GetAPIsRequest, done: (error: boolean, rows: Array<API>) => void) {

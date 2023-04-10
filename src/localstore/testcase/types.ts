@@ -28,11 +28,10 @@ export interface Cond {
 }
 
 export interface TestCase {
-  ID: string
-  Module: string
-  PathPrefix: string
-  Path: string
+  ID?: string
+  ApiID: string
   Name: string
+  Module: string
   Args: Array<Arg>
   PreConds: Array<Cond>
   Cleaners: Array<Cond>

@@ -1,6 +1,6 @@
 <template>
   <q-footer>
-    <div class='row announcement main'>
+    <div class='row'>
       <q-icon class='icon start' name='copyright' />
       {{ $t('MSG_DASHBOARD_COPYRIGHT', { THIS_YEAR: new Date().getFullYear() }) }}
     </div>

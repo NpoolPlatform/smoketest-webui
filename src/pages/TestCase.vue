@@ -19,7 +19,7 @@
         <q-btn dense @click='onFetchAPIsClick'>
           {{ $t('MSG_FETCH_APIS') }}
         </q-btn>
-        <q-btn dense>
+        <q-btn dense @click='onCreateClick'>
           {{ $t('MSG_CREATE') }}
         </q-btn>
       </template>
@@ -56,6 +56,12 @@
             <q-btn @click='onCollapse(props.row)'>
               编辑
             </q-btn>
+            <q-btn @click='onCollapse(props.row)'>
+              删除
+            </q-btn>
+            <q-btn @click='onCollapse(props.row)'>
+              废弃
+            </q-btn>
           </q-td>
           <q-td colspan='100%' class='bg-cyan-6 test-case-header' />
         </q-tr>
@@ -90,8 +96,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Path }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
+                <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
                   <q-btn dense>
                     编辑
@@ -124,8 +129,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Path }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.PathPrefix }}</q-td>
+                <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
                   <q-btn dense>
                     编辑
@@ -147,6 +151,43 @@
       </template>
     </q-table>
   </div>
+  <q-dialog
+    v-model='showing'
+    @hide='onMenuHide'
+    position='right'
+  >
+    <q-card class='popup-menu'>
+      <q-card-section>
+        <span>{{ $t('MSG_CREATE_ROLE') }}</span>
+      </q-card-section>
+      <q-card-section>
+        <q-select
+          v-model='target.Module'
+          :options='options'
+          dense
+          :label='$t("MSG_MODULE")'
+          class='filter'
+          :disable='target.Module !== undefined && target.Module.length > 0'
+        />
+        <q-select
+          v-model='selectedAPI'
+          :options='paths'
+          :option-label='(item) => item.PathPrefix + item.Path'
+          dense
+          :label='$t("MSG_PATH")'
+          class='filter'
+        />
+        <q-input
+          v-model='target.Name'
+          :label='$t("MSG_NAME")'
+        />
+      </q-card-section>
+      <q-item class='row'>
+        <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
+        <q-btn class='btn round' :label='$t("MSG_CANCEL")' @click='onCancel' />
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang='ts'>
@@ -186,19 +227,13 @@ const columns = computed(() => [
     name: 'Path',
     label: t('MSG_PATH'),
     align: 'left',
-    field: (row: TestCase) => row.Path
+    field: (row: TestCase) => apiPath(row.ApiID)
   },
   {
     name: 'Module',
     label: t('MSG_MODULE'),
     align: 'left',
     field: (row: TestCase) => row.Module
-  },
-  {
-    name: 'PatPrefix',
-    label: t('MSG_PATH_PREFIX'),
-    align: 'left',
-    field: (row: TestCase) => row.PathPrefix
   }
 ])
 
@@ -265,6 +300,53 @@ const fetchAPIs = (offset: number, limit: number) => {
 
 const onFetchAPIsClick = () => {
   fetchAPIs(0, 100)
+}
+
+const showing = ref(false)
+const target = ref({
+  Module: module.value
+} as TestCase)
+
+watch(module, () => {
+  target.value.Module = module.value
+})
+
+const paths = computed(() => apis.getModuleAPIs(showing.value ? target.value.Module : module.value))
+const selectedAPI = ref(undefined as unknown as API)
+
+watch(selectedAPI, () => {
+  target.value.ApiID = selectedAPI.value?.ID
+})
+
+const apiPath = (apiID?: string) => {
+  if (!apiID) {
+    return 'Invalid'
+  }
+  const path = paths.value.find((el) => el.ID === apiID)
+  if (!path) {
+    return apiID
+  }
+  return path?.PathPrefix + path?.Path
+}
+
+const onCreateClick = () => {
+  showing.value = true
+}
+
+const onMenuHide = () => {
+  showing.value = false
+  target.value = {
+    Module: module.value
+  } as TestCase
+}
+
+const onSubmit = () => {
+  showing.value = false
+  testCase.TestCases.push(target.value)
+}
+
+const onCancel = () => {
+  onMenuHide()
 }
 
 </script>
