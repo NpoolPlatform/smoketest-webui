@@ -62,6 +62,9 @@
             <q-btn @click='onCollapse(props.row)'>
               废弃
             </q-btn>
+            <q-btn @click='onCollapse(props.row)'>
+              保存
+            </q-btn>
           </q-td>
           <q-td colspan='100%' class='bg-cyan-6 test-case-header' />
         </q-tr>
@@ -75,9 +78,6 @@
               <pre class='arguments' v-html='JSON.stringify(props.row.Args, null, 2)' />
               <q-btn dense>
                 编辑
-              </q-btn>
-              <q-btn dense>
-                保存
               </q-btn>
             </div>
           </q-td>
@@ -110,9 +110,6 @@
             <q-btn dense>
               增加
             </q-btn>
-            <q-btn dense>
-              保存
-            </q-btn>
           </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
@@ -142,9 +139,6 @@
             </div>
             <q-btn dense>
               增加
-            </q-btn>
-            <q-btn dense>
-              保存
             </q-btn>
           </q-td>
         </q-tr>
@@ -195,6 +189,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TestCase, useTestCaseStore, useLocalAPIStore, API } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
+import { uid } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -342,6 +337,7 @@ const onMenuHide = () => {
 
 const onSubmit = () => {
   showing.value = false
+  target.value.ID = uid()
   testCase.TestCases.push(target.value)
 }
 
