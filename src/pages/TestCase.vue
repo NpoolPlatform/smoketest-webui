@@ -16,11 +16,11 @@
           :label='$t("MSG_MODULE")'
           class='filter'
         />
-        <q-btn dense @click='onFetchAPIsClick'>
-          {{ $t('MSG_FETCH_APIS') }}
-        </q-btn>
         <q-btn dense @click='onCreateClick'>
           {{ $t('MSG_CREATE') }}
+        </q-btn>
+        <q-btn dense @click='onFetchAPIsClick'>
+          {{ $t('MSG_FETCH_APIS') }}
         </q-btn>
       </template>
       <template #header='props'>

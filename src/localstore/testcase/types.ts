@@ -17,7 +17,7 @@ export interface Arg {
   Name: string
   Type: string
   Editing: boolean
-  From: ArgSrc
+  From?: ArgSrc
 }
 
 export enum CondType {
