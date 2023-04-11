@@ -185,8 +185,7 @@
                 :option-label='(item) => item.ID + ": " + item.Type + ": " + item.Src'
                 :disable='!arg.Editing'
                 class='filter'
-                v-model='argSrc'
-                @update:model-value='(val: ArgSrc) => onArgSrcUpdate(props.row, arg, val)'
+                v-model='arg.From'
               />
               <q-btn @click='onModifyArgClick(arg)'>
                 修改
@@ -213,8 +212,7 @@
                 :options='testCase.argSrcs(props.row)'
                 :option-label='(item) => item.ID + ": " + item.Type + ": " + item.Src'
                 class='filter'
-                v-model='argSrc'
-                @update:model-value='(val: ArgSrc) => onArgSrcUpdate(props.row, newArg, val)'
+                v-model='newArg.From'
               />
               <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
                 确定
@@ -273,7 +271,7 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgSrc, ArgMap } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { uid } from 'quasar'
 
@@ -513,16 +511,6 @@ const onCancelCreateCleanerClick = (testCase: TestCase) => {
 
 const onDeleteCleanerClick = (testCase: TestCase, cond: Cond) => {
   testCase.Cleaners = testCase.Cleaners.filter((el) => el.ID !== cond.ID)
-}
-
-const argSrc = ref({} as ArgSrc)
-const onArgSrcUpdate = (testCase: TestCase, dstArg: Arg, srcArg: ArgSrc) => {
-  testCase.ArgMap.push({
-    ID: srcArg.ID,
-    Type: srcArg.Type,
-    Src: srcArg.Src,
-    Dst: dstArg.Name
-  } as ArgMap)
 }
 
 </script>

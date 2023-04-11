@@ -1,17 +1,28 @@
+export enum ArgType {
+  Input = 'Input',
+  Output = 'Output'
+}
+
+export interface ArgSrc {
+  ID: string
+  Type: ArgType
+  Src: string
+}
+
+export interface ArgMap extends ArgSrc {
+  Dst: string
+}
+
 export interface Arg {
   Name: string
   Type: string
   Editing: boolean
+  From: ArgSrc
 }
 
 export enum CondType {
   PreCondition = 'PreCondition',
   Cleaner = 'Cleaner'
-}
-
-export enum ArgType {
-  Input = 'Input',
-  Output = 'Output'
 }
 
 export enum ArgDef {
@@ -27,16 +38,6 @@ export const ArgDefs = [
   ArgDef.Object,
   ArgDef.Decimal
 ]
-
-export interface ArgSrc {
-  ID: string
-  Type: ArgType
-  Src: string
-}
-
-export interface ArgMap extends ArgSrc {
-  Dst: string
-}
 
 export interface Cond {
   ID: string
@@ -59,7 +60,6 @@ export interface TestCase {
   Input: Record<string, unknown>
   Output: Record<string, unknown>
   Expectation: Record<string, unknown>
-  ArgMap: Array<ArgMap>
 }
 
 export interface TestCaseState {
