@@ -207,6 +207,15 @@
                 v-model='newArg.Type'
                 class='filter'
               />
+              <q-select
+                label='From PreConds Arg'
+                dense
+                :options='testCase.argSrcs(props.row)'
+                :option-label='(item) => item.ID + ": " + item.Type + ": " + item.Src'
+                class='filter'
+                v-model='argSrc'
+                @update:model-value='(val: ArgSrc) => onArgSrcUpdate(props.row, newArg, val)'
+              />
               <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
                 确定
               </q-btn>
@@ -415,7 +424,10 @@ const onCreateClick = () => {
 const onMenuHide = () => {
   showing.value = false
   target.value = {
-    Module: module.value
+    Module: module.value,
+    Args: [] as Arg[],
+    PreConds: [] as Cond[],
+    Cleaners: [] as Cond[]
   } as TestCase
 }
 
