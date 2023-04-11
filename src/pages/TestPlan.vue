@@ -131,6 +131,12 @@ const testPlanColumns = computed(() => [
 
 const testCaseColumns = computed(() => [
   {
+    name: 'Index',
+    label: t('MSG_INDEX'),
+    align: 'left',
+    field: (row: TestCaseInstance) => row.Index
+  },
+  {
     name: 'ID',
     label: t('MSG_ID'),
     align: 'left',
@@ -147,6 +153,18 @@ const testCaseColumns = computed(() => [
     label: t('MSG_CASE_ID'),
     align: 'left',
     field: (row: TestCaseInstance) => row.CaseID
+  },
+  {
+    name: 'Executed',
+    label: t('MSG_EXECUTED'),
+    align: 'left',
+    field: (row: TestCaseInstance) => row.Executed
+  },
+  {
+    name: 'Result',
+    label: t('MSG_RESULT'),
+    align: 'left',
+    field: (row: TestCaseInstance) => row.Result
   }
 ])
 
