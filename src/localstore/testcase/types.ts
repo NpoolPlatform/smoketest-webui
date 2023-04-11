@@ -17,27 +17,31 @@ export enum ArgType {
 export enum ArgDef {
   Number = 'Number',
   String = 'String',
-  Object = 'Object'
+  Object = 'Object',
+  Decimal = 'Decimal'
 }
 
 export const ArgDefs = [
   ArgDef.Number,
   ArgDef.String,
-  ArgDef.Object
+  ArgDef.Object,
+  ArgDef.Decimal
 ]
 
-export interface ArgMap {
+export interface ArgSrc {
   ID: string
   Type: ArgType
   Src: string
-  Dest: string
+}
+
+export interface ArgMap extends ArgSrc {
+  Dst: string
 }
 
 export interface Cond {
   ID: string
   Index: number
   Type: CondType
-  ArgMap: Array<ArgMap>
 }
 
 export interface TestCase {
@@ -52,6 +56,10 @@ export interface TestCase {
   AddingArg: boolean
   AddingPreCond: boolean
   AddingCleaner: boolean
+  Input: Record<string, unknown>
+  Output: Record<string, unknown>
+  Expectation: Record<string, unknown>
+  ArgMap: Array<ArgMap>
 }
 
 export interface TestCaseState {
