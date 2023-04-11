@@ -25,7 +25,7 @@
       </template>
       <template #header='props'>
         <q-tr :props='props'>
-          <q-th auto-width />
+          <q-th auto-width />bg-grey-6
           <q-th
             v-for='col in props.cols'
             :key='col.name'
@@ -37,16 +37,16 @@
       </template>
       <template #body='props'>
         <q-tr :props='props'>
-          <q-td auto-width class='bg-cyan-6 test-case-header' />
+          <q-td auto-width class='bg-grey-6 test-case-header' />
           <q-td
             v-for='col in props.cols'
             :key='col.name'
             :props='props'
-            class='bg-cyan-6 test-case-header'
+            class='bg-grey-6 test-case-header'
           >
             {{ col.value }}
           </q-td>
-          <q-td class='bg-cyan-6 test-case-header'>
+          <q-td class='bg-grey-6 test-case-header'>
             <q-btn @click='onExecTestCase(props.row)'>
               执行
             </q-btn>
@@ -66,7 +66,7 @@
               保存
             </q-btn>
           </q-td>
-          <q-td colspan='100%' class='bg-cyan-6 test-case-header' />
+          <q-td colspan='100%' class='bg-grey-6 test-case-header' />
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
