@@ -334,7 +334,9 @@ const onCollapseClick = (testCase: TestCase) => {
 
 const onEditTestCaseClick = (testCase: TestCase) => {
   target.value = testCase
+  testCaseAPI.value = apis.APIs.find((el) => el.ID === testCase.ApiID) as API
   showing.value = true
+  updating.value = true
 }
 
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
@@ -399,6 +401,8 @@ const onFetchAPIsClick = () => {
 }
 
 const showing = ref(false)
+const updating = ref(false)
+
 const target = ref({
   Module: module.value,
   Args: [] as Arg[],
@@ -448,8 +452,14 @@ const onMenuHide = () => {
 
 const onSubmit = () => {
   showing.value = false
+  updating.value = false
   target.value.ID = uid()
-  testCase.TestCases.push(target.value)
+  if (!updating.value) {
+    testCase.TestCases.push(target.value)
+    return
+  }
+  const index = testCase.TestCases.findIndex((el) => el.ID === target.value.ID)
+  testCase.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, target.value)
 }
 
 const onCancel = () => {
