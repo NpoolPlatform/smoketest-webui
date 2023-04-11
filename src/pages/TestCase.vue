@@ -182,7 +182,7 @@
               <q-select
                 label='From PreConds Arg'
                 :options='testCase.argSrcs(props.row)'
-                :option-label='(item) => item.ID + ": " + item.Type + ": " + item.Src'
+                :option-label='(item) => fromArgLabel(item)'
                 :disable='!arg.Editing'
                 class='filter'
                 v-model='arg.From'
@@ -210,7 +210,7 @@
                 label='From PreConds Arg'
                 dense
                 :options='testCase.argSrcs(props.row)'
-                :option-label='(item) => item.ID + ": " + item.Type + ": " + item.Src'
+                :option-label='(item) => fromArgLabel(item)'
                 class='filter'
                 v-model='newArg.From'
               />
@@ -271,7 +271,7 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgMap } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { uid } from 'quasar'
 
@@ -528,6 +528,14 @@ const onCancelCreateCleanerClick = (testCase: TestCase) => {
 
 const onDeleteCleanerClick = (testCase: TestCase, cond: Cond) => {
   testCase.Cleaners = testCase.Cleaners.filter((el) => el.ID !== cond.ID)
+}
+
+const fromArgLabel = (from: ArgMap) => {
+  const testcase = testCase.testcase(from.ID)
+  if (!testcase) {
+    return 'Invalid'
+  }
+  return apiPath(testcase.ApiID) + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
 }
 
 </script>

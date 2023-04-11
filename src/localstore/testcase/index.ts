@@ -64,6 +64,11 @@ export const useTestCaseStore = defineStore('local-testcase', {
         })
         return srcs
       }
+    },
+    testcase (): (id: string) => TestCase | undefined {
+      return (id: string) => {
+        return this.TestCases.find((el) => el.ID === id)
+      }
     }
   },
   actions: {}
