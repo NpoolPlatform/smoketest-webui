@@ -25,7 +25,7 @@
       </template>
       <template #header='props'>
         <q-tr :props='props'>
-          <q-th auto-width />bg-grey-6
+          <q-th auto-width />
           <q-th
             v-for='col in props.cols'
             :key='col.name'
@@ -33,6 +33,7 @@
           >
             {{ col.label }}
           </q-th>
+          <q-th>{{ t('MSG_OPERATION') }}</q-th>
         </q-tr>
       </template>
       <template #body='props'>
