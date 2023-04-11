@@ -79,47 +79,48 @@
             </div>
           </q-td>
           <q-td colspan='100%'>
-            <div>
-              <div
-                v-for='arg in props.row.Args'
-                :key='arg.Name'
-                class='row'
-              >
-                <q-input v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
-                <q-select
-                  label='Argument Type'
-                  :options='ArgDefs'
-                  v-model='arg.Type'
-                  :disable='!arg.Editing'
-                  class='filter'
-                />
-                <q-btn @click='onModifyArgClick(arg)'>
-                  修改
-                </q-btn>
-                <q-btn @click='onDeleteArgClick(props.row, arg)'>
-                  -
-                </q-btn>
-              </div>
-              <div class='row' v-show='props.row.AddingArg'>
-                <q-input dense v-model='newArg.Name' label='Argument Name' />
-                <q-select
-                  label='Argument Type'
-                  dense
-                  :options='ArgDefs'
-                  v-model='newArg.Type'
-                  class='filter'
-                />
-                <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
-                  确定
-                </q-btn>
-                <q-btn dense @click='onCancelCreateArgClick(props.row)'>
-                  取消
-                </q-btn>
-              </div>
-              <q-btn @click='onCreateArgClick(props.row)'>
-                +
+            <div
+              v-for='arg in props.row.Args'
+              :key='arg.Name'
+              class='row'
+            >
+              <q-input v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
+              <q-select
+                label='Argument Type'
+                :options='ArgDefs'
+                v-model='arg.Type'
+                :disable='!arg.Editing'
+                class='filter'
+              />
+              <q-btn @click='onModifyArgClick(arg)'>
+                修改
+              </q-btn>
+              <q-btn @click='onConfirmModifyArgClick(props.row, arg)'>
+                确定
+              </q-btn>
+              <q-btn @click='onDeleteArgClick(props.row, arg)'>
+                -
               </q-btn>
             </div>
+            <div class='row' v-show='props.row.AddingArg'>
+              <q-input dense v-model='newArg.Name' label='Argument Name' />
+              <q-select
+                label='Argument Type'
+                dense
+                :options='ArgDefs'
+                v-model='newArg.Type'
+                class='filter'
+              />
+              <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
+                确定
+              </q-btn>
+              <q-btn dense @click='onCancelCreateArgClick(props.row)'>
+                取消
+              </q-btn>
+            </div>
+            <q-btn @click='onCreateArgClick(props.row)'>
+              +
+            </q-btn>
           </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
@@ -138,17 +139,30 @@
                 <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
                 <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
-                  <q-btn dense>
-                    编辑
-                  </q-btn>
-                  <q-btn dense>
-                    删除
+                  <q-btn @click='onDeletePreCondClick(props.row, cond)'>
+                    -
                   </q-btn>
                 </q-td>
               </q-tr>
             </div>
-            <q-btn dense>
-              增加
+            <div class='row' v-show='props.row.AddingPreCond'>
+              <q-select
+                v-model='preCondTestCase'
+                :options='testCases'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
+                dense
+                :label='$t("MSG_PATH")'
+                class='filter'
+              />
+              <q-btn dense @click='onConfirmCreatePreCondClick(props.row)'>
+                确定
+              </q-btn>
+              <q-btn dense @click='onCancelCreatePreCondClick(props.row)'>
+                取消
+              </q-btn>
+            </div>
+            <q-btn @click='onCreatePreCondClick(props.row)'>
+              +
             </q-btn>
           </q-td>
         </q-tr>
@@ -168,17 +182,30 @@
                 <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
                 <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
-                  <q-btn dense>
-                    编辑
-                  </q-btn>
-                  <q-btn dense>
-                    删除
+                  <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
+                    -
                   </q-btn>
                 </q-td>
               </q-tr>
             </div>
-            <q-btn dense>
-              增加
+            <div class='row' v-show='props.row.AddingCleaner'>
+              <q-select
+                v-model='cleanerTestCase'
+                :options='testCases'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
+                dense
+                :label='$t("MSG_PATH")'
+                class='filter'
+              />
+              <q-btn dense @click='onConfirmCreateCleanerClick(props.row)'>
+                确定
+              </q-btn>
+              <q-btn dense @click='onCancelCreateCleanerClick(props.row)'>
+                取消
+              </q-btn>
+            </div>
+            <q-btn @click='onCreateCleanerClick(props.row)'>
+              +
             </q-btn>
           </q-td>
         </q-tr>
@@ -204,8 +231,8 @@
           :disable='target.Module !== undefined && target.Module.length > 0'
         />
         <q-select
-          v-model='selectedAPI'
-          :options='paths'
+          v-model='testCaseAPI'
+          :options='modulePaths'
           :option-label='(item) => item.PathPrefix + item.Path'
           dense
           :label='$t("MSG_PATH")'
@@ -227,7 +254,7 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg } from 'src/localstore'
+import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { uid } from 'quasar'
 
@@ -340,30 +367,36 @@ const onFetchAPIsClick = () => {
 const showing = ref(false)
 const target = ref({
   Module: module.value,
-  Args: [] as Arg[]
+  Args: [] as Arg[],
+  PreConds: [] as Cond[],
+  Cleaners: [] as Cond[]
 } as TestCase)
 
 watch(module, () => {
   target.value.Module = module.value
 })
 
-const paths = computed(() => apis.getModuleAPIs(showing.value ? target.value.Module : module.value))
-const selectedAPI = ref(undefined as unknown as API)
+const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.Module : module.value))
+const allPaths = computed(() => apis.APIs)
+const testCaseAPI = ref(undefined as unknown as API)
 
-watch(selectedAPI, () => {
-  target.value.ApiID = selectedAPI.value?.ID
+watch(testCaseAPI, () => {
+  target.value.ApiID = testCaseAPI.value?.ID
 })
 
 const apiPath = (apiID?: string) => {
   if (!apiID) {
     return 'Invalid'
   }
-  const path = paths.value.find((el) => el.ID === apiID)
+  const path = allPaths.value.find((el) => el.ID === apiID)
   if (!path) {
     return apiID
   }
   return path?.PathPrefix + path?.Path
 }
+
+const preCondTestCase = ref(undefined as unknown as TestCase)
+const cleanerTestCase = ref(undefined as unknown as TestCase)
 
 const onCreateClick = () => {
   showing.value = true
@@ -406,8 +439,58 @@ const onModifyArgClick = (arg: Arg) => {
   arg.Editing = true
 }
 
+const onConfirmModifyArgClick = (testCase: TestCase, arg: Arg) => {
+  arg.Editing = false
+  const index = testCase.Args.findIndex((el) => el.Name === arg.Name)
+  testCase.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+}
+
 const onDeleteArgClick = (testCase: TestCase, arg: Arg) => {
   testCase.Args = testCase.Args.filter((el) => el.Name !== arg.Name)
+}
+
+const onCreatePreCondClick = (testCase: TestCase) => {
+  testCase.AddingPreCond = true
+}
+
+const onConfirmCreatePreCondClick = (testCase: TestCase) => {
+  testCase.AddingPreCond = false
+  testCase.PreConds.push({
+    ID: preCondTestCase.value.ID,
+    Index: 0,
+    Type: CondType.PreCondition,
+    ArgMap: []
+  } as Cond)
+}
+
+const onCancelCreatePreCondClick = (testCase: TestCase) => {
+  testCase.AddingPreCond = false
+}
+
+const onDeletePreCondClick = (testCase: TestCase, cond: Cond) => {
+  testCase.PreConds = testCase.PreConds.filter((el) => el.ID !== cond.ID)
+}
+
+const onCreateCleanerClick = (testCase: TestCase) => {
+  testCase.AddingCleaner = true
+}
+
+const onConfirmCreateCleanerClick = (testCase: TestCase) => {
+  testCase.AddingCleaner = false
+  testCase.Cleaners.push({
+    ID: cleanerTestCase.value.ID,
+    Index: 0,
+    Type: CondType.Cleaner,
+    ArgMap: []
+  } as Cond)
+}
+
+const onCancelCreateCleanerClick = (testCase: TestCase) => {
+  testCase.AddingCleaner = false
+}
+
+const onDeleteCleanerClick = (testCase: TestCase, cond: Cond) => {
+  testCase.Cleaners = testCase.Cleaners.filter((el) => el.ID !== cond.ID)
 }
 
 </script>

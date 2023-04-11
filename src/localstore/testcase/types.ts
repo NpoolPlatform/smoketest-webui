@@ -50,6 +50,8 @@ export interface TestCase {
   Cleaners: Array<Cond>
   Collapsed: boolean
   AddingArg: boolean
+  AddingPreCond: boolean
+  AddingCleaner: boolean
 }
 
 export interface TestCaseState {
