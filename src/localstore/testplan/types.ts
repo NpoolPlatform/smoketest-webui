@@ -1,3 +1,5 @@
+import { BaseRequest } from 'npool-cli-v4'
+
 export interface TestPlan {
   ID?: string
   Creator: string
@@ -13,10 +15,21 @@ export enum TestResult {
 }
 
 export interface TestCaseInstance {
+  Index: number
   ID: string
   CaseID: string
   Executed: boolean
   Result: TestResult
+  PlanID: string
+}
+
+export interface CreateTestCaseInstanceRequest extends BaseRequest {
+  CaseID: string
+  PlanID: string
+}
+
+export interface CreateTestCaseInstanceResponse {
+  Info: TestCaseInstance
 }
 
 export interface TestPlanState {
