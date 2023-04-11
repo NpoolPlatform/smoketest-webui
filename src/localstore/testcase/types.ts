@@ -60,6 +60,7 @@ export interface TestCase {
   Input: Record<string, unknown>
   Output: Record<string, unknown>
   Expectation: Record<string, unknown>
+  Depracated: boolean
 }
 
 export interface TestCaseState {

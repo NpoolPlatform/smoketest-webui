@@ -47,22 +47,22 @@
             {{ col.value }}
           </q-td>
           <q-td class='bg-grey-6 test-case-header'>
-            <q-btn @click='onExecTestCase(props.row)'>
+            <q-btn @click='onExecTestCaseClick(props.row)'>
               执行
             </q-btn>
-            <q-btn @click='onCollapse(props.row)'>
+            <q-btn @click='onCollapseClick(props.row)'>
               折叠/展开
             </q-btn>
-            <q-btn @click='onCollapse(props.row)'>
+            <q-btn @click='onEditTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn @click='onCollapse(props.row)'>
+            <q-btn @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
-            <q-btn @click='onCollapse(props.row)'>
+            <q-btn @click='onDepracateTestCaseClick(props.row)'>
               废弃
             </q-btn>
-            <q-btn @click='onCollapse(props.row)'>
+            <q-btn @click='onSaveTestCaseClick(props.row)'>
               保存
             </q-btn>
           </q-td>
@@ -324,12 +324,29 @@ watch(module, () => {
 
 const options = ref([] as string[])
 
-const onExecTestCase = (_testCase: TestCase) => {
+const onExecTestCaseClick = (_testCase: TestCase) => {
   console.log(testCase.args(_testCase))
 }
 
-const onCollapse = (testCase: TestCase) => {
+const onCollapseClick = (testCase: TestCase) => {
   testCase.Collapsed = !testCase.Collapsed
+}
+
+const onEditTestCaseClick = (testCase: TestCase) => {
+  target.value = testCase
+  showing.value = true
+}
+
+const onDeleteTestCaseClick = (_testCase: TestCase) => {
+  testCase.TestCases = testCase.TestCases.filter((el) => el.ID !== _testCase.ID)
+}
+
+const onDepracateTestCaseClick = (testCase: TestCase) => {
+  testCase.Depracated = true
+}
+
+const onSaveTestCaseClick = (testCase: TestCase) => {
+  console.log(testCase)
 }
 
 onMounted(() => {
