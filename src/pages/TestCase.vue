@@ -237,7 +237,7 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_ROLE') }}</span>
+        <span>{{ $t('MSG_CREATE_TEST_CASE') }}</span>
       </q-card-section>
       <q-card-section>
         <q-select
