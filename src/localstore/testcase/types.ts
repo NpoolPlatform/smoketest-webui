@@ -1,3 +1,5 @@
+import { BaseRequest } from 'npool-cli-v4'
+
 export enum ArgType {
   Input = 'Input',
   Output = 'Output'
@@ -42,14 +44,37 @@ export const ArgDefs = [
 export interface Cond {
   ID: string
   Index: number
-  Type: CondType
+  CondType: CondType
+  TestCaseID: string
+  RelatedTestCaseID: string
+}
+
+export enum TestCaseType {
+  Manual = 'Manual',
+  Automatic = 'Automatic'
+}
+
+export interface RelatedTestCase {
+  ID: string
+  CondType: CondType
+  TestCaseID: string
+  RelatedTestCaseID: string
 }
 
 export interface TestCase {
-  ID?: string
-  ApiID: string
+  ID: string
   Name: string
-  Module: string
+  Description: string
+  ModuleID: string
+  ModuleName: string
+  ApiID: string
+  ApiPath: string
+  ApiPathPrefix: string
+  ApiServiceName: string
+  ApiProtocol: string
+  ApiMethod: string
+  ApiDeprecated: boolean
+  Arguments: string
   Args: Array<Arg>
   PreConds: Array<Cond>
   Cleaners: Array<Cond>
@@ -61,6 +86,47 @@ export interface TestCase {
   Output: Record<string, unknown>
   Expectation: Record<string, unknown>
   Depracated: boolean
+  TestCaseType: TestCaseType
+  RelatedTestCases: Array<Cond>
+  CreatedAt: number
+  UpdatedAt: number
+}
+
+export interface CreateTestCaseRequest extends BaseRequest {
+  Name: string
+  Description: string
+  ModuleName: string
+  ApiID: string
+  Arguments: Record<string, unknown>
+  Expectation: Record<string, unknown>
+}
+
+export interface CreateTestCaseResponse {
+  Info: TestCase
+}
+
+export interface UpdateTestCaseRequest extends BaseRequest {
+  ID: string
+  Name?: string
+  Description?: string
+  Expectation?: string
+  Arguments?: string
+  TestCaseType?: TestCaseType
+  Deprecated?: boolean
+}
+
+export interface UpdateTestCaseResponse {
+  Info: TestCase
+}
+
+export interface GetTestCasesRequest extends BaseRequest {
+  ModuleID?: string
+  Offset: number
+  Limit: number
+}
+
+export interface GetTestCasesResponse {
+  Infos: Array<TestCase>
 }
 
 export interface TestCaseState {

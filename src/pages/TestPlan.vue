@@ -222,7 +222,7 @@ const onAddTestCaseClick = () => {
 const onTestCaseSubmit = () => {
   showingTestCase.value = false
   testPlan.createTestCase({
-    CaseID: targetTestCase.value.ID as string,
+    CaseID: targetTestCase.value.ID,
     PlanID: testplan.value.ID as string,
     Message: {
       Error: {

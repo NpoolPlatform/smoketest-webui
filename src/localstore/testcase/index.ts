@@ -1,5 +1,7 @@
+import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
-import { ArgSrc, ArgType, TestCase, TestCaseState } from './types'
+import { API } from './const'
+import { ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({
@@ -71,7 +73,47 @@ export const useTestCaseStore = defineStore('local-testcase', {
       }
     }
   },
-  actions: {}
+  actions: {
+    createTestCase (req: CreateTestCaseRequest, done: (error: boolean, testcase?: TestCase) => void) {
+      doActionWithError<CreateTestCaseRequest, CreateTestCaseResponse>(
+        API.CREATE_TEST_CASE,
+        req,
+        req.Message,
+        (resp: CreateTestCaseResponse): void => {
+          this.TestCases.push(resp.Info)
+          done(false, resp.Info)
+        }, () => {
+          done(true)
+        }
+      )
+    },
+    updateTestCase (req: UpdateTestCaseRequest, done: (error: boolean, testcase?: TestCase) => void) {
+      doActionWithError<UpdateTestCaseRequest, UpdateTestCaseResponse>(
+        API.UPDATE_TEST_CASE,
+        req,
+        req.Message,
+        (resp: UpdateTestCaseResponse): void => {
+          this.TestCases.push(resp.Info)
+          done(false, resp.Info)
+        }, () => {
+          done(true)
+        }
+      )
+    },
+    getTestCases (req: GetTestCasesRequest, done: (error: boolean, testcases?: Array<TestCase>) => void) {
+      doActionWithError<GetTestCasesRequest, GetTestCasesResponse>(
+        API.GET_TEST_CASES,
+        req,
+        req.Message,
+        (resp: GetTestCasesResponse): void => {
+          this.TestCases.push(...resp.Infos)
+          done(false, resp.Infos)
+        }, () => {
+          done(true)
+        }
+      )
+    }
+  }
 })
 
 export * from './types'

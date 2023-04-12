@@ -82,7 +82,7 @@
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
                 <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeletePreCondClick(props.row, cond)'>
@@ -125,7 +125,7 @@
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Module }}</q-td>
+                <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
                 <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
@@ -241,12 +241,12 @@
       </q-card-section>
       <q-card-section>
         <q-select
-          v-model='target.Module'
+          v-model='target.ModuleName'
           :options='options'
           dense
           :label='$t("MSG_MODULE")'
           class='filter'
-          :disable='target.Module !== undefined && target.Module.length > 0'
+          :disable='target.ModuleName !== undefined && target.ModuleName.length > 0'
         />
         <q-select
           v-model='testCaseAPI'
@@ -313,7 +313,7 @@ const columns = computed(() => [
     name: 'Module',
     label: t('MSG_MODULE'),
     align: 'left',
-    field: (row: TestCase) => row.Module
+    field: (row: TestCase) => row.ModuleName
   }
 ])
 
@@ -405,17 +405,17 @@ const showing = ref(false)
 const updating = ref(false)
 
 const target = ref({
-  Module: module.value,
+  ModuleName: module.value,
   Args: [] as Arg[],
   PreConds: [] as Cond[],
   Cleaners: [] as Cond[]
 } as TestCase)
 
 watch(module, () => {
-  target.value.Module = module.value
+  target.value.ModuleName = module.value
 })
 
-const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.Module : module.value))
+const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.ModuleName : module.value))
 const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
@@ -444,7 +444,7 @@ const onCreateClick = () => {
 const onMenuHide = () => {
   showing.value = false
   target.value = {
-    Module: module.value,
+    ModuleName: module.value,
     Args: [] as Arg[],
     PreConds: [] as Cond[],
     Cleaners: [] as Cond[]
@@ -504,11 +504,12 @@ const onCreatePreCondClick = (testCase: TestCase) => {
 const onConfirmCreatePreCondClick = (testCase: TestCase) => {
   testCase.AddingPreCond = false
   testCase.PreConds.push({
-    ID: preCondTestCase.value.ID,
+    TestCaseID: preCondTestCase.value.ID,
+    RelatedTestCaseID: testCase.ID,
     Index: 0,
-    Type: CondType.PreCondition,
+    CondType: CondType.PreCondition,
     ArgMap: []
-  } as Cond)
+  } as unknown as Cond)
 }
 
 const onCancelCreatePreCondClick = (testCase: TestCase) => {
@@ -526,11 +527,12 @@ const onCreateCleanerClick = (testCase: TestCase) => {
 const onConfirmCreateCleanerClick = (testCase: TestCase) => {
   testCase.AddingCleaner = false
   testCase.Cleaners.push({
-    ID: cleanerTestCase.value.ID,
+    TestCaseID: preCondTestCase.value.ID,
+    RelatedTestCaseID: testCase.ID,
     Index: 0,
     Type: CondType.Cleaner,
     ArgMap: []
-  } as Cond)
+  } as unknown as Cond)
 }
 
 const onCancelCreateCleanerClick = (testCase: TestCase) => {
@@ -548,6 +550,33 @@ const fromArgLabel = (from: ArgMap) => {
   }
   return apiPath(testcase.ApiID) + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
 }
+
+const fetchTestCases = (offset: number, limit: number) => {
+  testCase.getTestCases({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_TEST_CASES',
+        Message: 'MSG_GET_TEST_CASES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<TestCase>) => {
+    if (error) {
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchAPIs(offset + limit, limit)
+  })
+}
+
+onMounted(() => {
+  fetchTestCases(0, 100)
+})
 
 </script>
 
