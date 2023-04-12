@@ -341,7 +341,19 @@ const onEditTestCaseClick = (testCase: TestCase) => {
 }
 
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
-  testCase.TestCases = testCase.TestCases.filter((el) => el.ID !== _testCase.ID)
+  testCase.deleteTestCase({
+    ID: _testCase.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE',
+        Message: 'MSG_DELETE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onDepracateTestCaseClick = (testCase: TestCase) => {
@@ -458,8 +470,6 @@ const onSubmit = () => {
     testCase.TestCases.push(target.value)
     return
   }
-
-  console.log(target.value)
 
   testCase.createTestCase({
     Name: target.value.Name,

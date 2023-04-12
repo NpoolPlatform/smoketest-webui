@@ -1,7 +1,7 @@
 import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
 import { API } from './const'
-import { ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
+import { ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, DeleteTestCaseRequest, DeleteTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({
@@ -104,6 +104,20 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req.Message,
         (resp: UpdateTestCaseResponse): void => {
           this.TestCases.push(resp.Info)
+          done(false, resp.Info)
+        }, () => {
+          done(true)
+        }
+      )
+    },
+    deleteTestCase (req: DeleteTestCaseRequest, done: (error: boolean, testcase?: TestCase) => void) {
+      doActionWithError<DeleteTestCaseRequest, DeleteTestCaseResponse>(
+        API.DELETE_TSET_CASE,
+        req,
+        req.Message,
+        (resp: DeleteTestCaseResponse): void => {
+          const index = this.TestCases.findIndex((el) => el.ID === resp.Info.ID)
+          this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0)
           done(false, resp.Info)
         }, () => {
           done(true)

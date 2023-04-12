@@ -130,6 +130,14 @@ export interface GetTestCasesResponse {
   Infos: Array<TestCase>
 }
 
+export interface DeleteTestCaseRequest extends BaseRequest {
+  ID: string
+}
+
+export interface DeleteTestCaseResponse {
+  Info: TestCase
+}
+
 export interface TestCaseState {
   TestCases: Array<TestCase>
 }
