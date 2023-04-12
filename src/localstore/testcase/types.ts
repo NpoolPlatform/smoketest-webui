@@ -98,8 +98,8 @@ export interface CreateTestCaseRequest extends BaseRequest {
   Description: string
   ModuleName: string
   ApiID: string
-  Arguments: Record<string, unknown>
-  Expectation: Record<string, unknown>
+  Arguments: string
+  Expectation: string
 }
 
 export interface CreateTestCaseResponse {

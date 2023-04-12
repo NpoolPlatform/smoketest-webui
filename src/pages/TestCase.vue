@@ -274,7 +274,6 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgMap } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
-import { uid } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -454,13 +453,31 @@ const onMenuHide = () => {
 const onSubmit = () => {
   showing.value = false
   updating.value = false
-  target.value.ID = uid()
-  if (!updating.value) {
+  if (updating.value) {
     testCase.TestCases.push(target.value)
     return
   }
-  const index = testCase.TestCases.findIndex((el) => el.ID === target.value.ID)
-  testCase.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, target.value)
+
+  console.log(target.value)
+
+  testCase.createTestCase({
+    Name: target.value.Name,
+    Description: target.value.Description,
+    ModuleName: target.value.ModuleName,
+    ApiID: target.value.ApiID,
+    Arguments: JSON.stringify(target.value.Input),
+    Expectation: JSON.stringify(target.value.Output),
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_TEST_CASE',
+        Message: 'MSG_CREATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onCancel = () => {
