@@ -173,9 +173,10 @@
               :key='arg.Name'
               class='row'
             >
-              <q-input v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
+              <q-input dense v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
               <q-select
                 label='Argument Type'
+                dense
                 :options='ArgDefs'
                 v-model='arg.Type'
                 :disable='!arg.Editing'
@@ -189,6 +190,7 @@
                 class='filter'
                 v-model='arg.From'
               />
+              <q-input dense v-model='arg.Value' :disable='!arg.Editing' label='Argument Value' />
               <q-btn @click='onModifyArgClick(arg)'>
                 修改
               </q-btn>
@@ -216,6 +218,7 @@
                 class='filter'
                 v-model='newArg.From'
               />
+              <q-input dense v-model='newArg.Value' label='Argument Value' />
               <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
                 确定
               </q-btn>
@@ -327,7 +330,7 @@ watch(module, () => {
 const options = ref([] as string[])
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
-  void post(testCasePath(_testCase) as string, {})
+  void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
       console.log(resp)
     })
@@ -429,6 +432,11 @@ const target = ref({
   PreConds: [] as Cond[],
   Cleaners: [] as Cond[]
 } as TestCase)
+const targetInput = computed(() => testCase.input(target.value))
+
+watch(targetInput, () => {
+  target.value.Input = targetInput.value
+})
 
 watch(module, () => {
   target.value.ModuleName = module.value
@@ -524,10 +532,14 @@ const onCreateArgClick = (testCase: TestCase) => {
   testCase.AddingArg = true
 }
 
-const onConfirmCreateArgClick = (testCase: TestCase) => {
-  testCase.AddingArg = false
-  testCase.Args.push(newArg.value)
+const onConfirmCreateArgClick = (_testCase: TestCase) => {
+  _testCase.AddingArg = false
+  if (!_testCase.Args) {
+    _testCase.Args = []
+  }
+  _testCase.Args.push(newArg.value)
   newArg.value = {} as Arg
+  _testCase.Input = testCase.input(_testCase)
 }
 
 const onCancelCreateArgClick = (testCase: TestCase) => {

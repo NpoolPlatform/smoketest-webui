@@ -29,7 +29,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
         testCase.Args.forEach((v) => {
           switch (v.Type) {
             case 'String':
-              input[v.Name] = ''
+              input[v.Name] = v.Value?.toString()
               break
             case 'Number':
               input[v.Name] = 0

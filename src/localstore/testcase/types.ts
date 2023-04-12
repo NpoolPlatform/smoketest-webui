@@ -20,6 +20,7 @@ export interface Arg {
   Type: string
   Editing: boolean
   From?: ArgSrc
+  Value: string | number | null | undefined
 }
 
 export enum CondType {
