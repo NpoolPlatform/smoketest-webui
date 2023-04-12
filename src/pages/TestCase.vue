@@ -84,7 +84,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ testCase.path(testCaseByID(cond.ID)) }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.ID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeletePreCondClick(props.row, cond)'>
                     -
@@ -96,7 +96,7 @@
               <q-select
                 v-model='preCondTestCase'
                 :options='testCases'
-                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCase.path(item)'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
                 class='filter'
@@ -127,7 +127,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ testCase.path(testCaseByID(cond.ID)) }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.ID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
                     -
@@ -139,7 +139,7 @@
               <q-select
                 v-model='cleanerTestCase'
                 :options='testCases'
-                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCase.path(item)'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
                 class='filter'
@@ -308,7 +308,7 @@ const columns = computed(() => [
     name: 'Path',
     label: t('MSG_PATH'),
     align: 'left',
-    field: (row: TestCase) => testCase.path(row)
+    field: (row: TestCase) => testCasePath(row)
   },
   {
     name: 'Module',
@@ -328,7 +328,7 @@ const options = ref([] as string[])
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
   console.log(testCase.args(_testCase))
-  void post(testCase.path(_testCase), {})
+  void post(testCasePath(_testCase) as string, {})
     .then((resp: unknown) => {
       console.log(resp)
     })
@@ -433,11 +433,23 @@ watch(module, () => {
 })
 
 const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.ModuleName : module.value))
+const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
 watch(testCaseAPI, () => {
   target.value.ApiID = testCaseAPI.value?.ID
 })
+
+const testCasePath = (_testCase?: TestCase) => {
+  if (!_testCase) {
+    return undefined
+  }
+  const path = testCase.path(_testCase)
+  if (path) {
+    return path
+  }
+  return apis.path(allPaths.value.find((el) => el.ID === _testCase.ApiID))
+}
 
 const preCondTestCase = ref(undefined as unknown as TestCase)
 const cleanerTestCase = ref(undefined as unknown as TestCase)
@@ -569,7 +581,7 @@ const fromArgLabel = (from: ArgMap) => {
   if (!testcase) {
     return 'Invalid'
   }
-  return testCase.path(testcase) + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
+  return testCasePath(testcase) as string + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
 }
 
 const fetchTestCases = (offset: number, limit: number) => {

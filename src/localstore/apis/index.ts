@@ -18,6 +18,14 @@ export const useLocalAPIStore = defineStore('church-apis-v4', {
         }
         return this.APIs.filter((el) => el.ServiceName === module)
       }
+    },
+    path (): (api?: API) => string | undefined {
+      return (api?: API) => {
+        if (!api) {
+          return undefined
+        }
+        return api.PathPrefix.replace('/api', '') + api.Path
+      }
     }
   },
   actions: {
