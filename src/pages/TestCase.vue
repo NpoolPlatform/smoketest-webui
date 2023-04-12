@@ -7,6 +7,7 @@
       row-key='ID'
       :rows='testCases'
       :columns='columns'
+      :rows-per-page-options='[20,30,50]'
     >
       <template #top-right>
         <q-select

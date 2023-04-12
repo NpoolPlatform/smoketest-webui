@@ -89,6 +89,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req,
         req.Message,
         (resp: CreateTestCaseResponse): void => {
+          resp.Info.Collapsed = true
           this.TestCases.push(resp.Info)
           done(false, resp.Info)
         }, () => {
