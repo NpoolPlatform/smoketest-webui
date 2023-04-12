@@ -327,10 +327,12 @@ watch(module, () => {
 const options = ref([] as string[])
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
-  console.log(testCase.args(_testCase))
   void post(testCasePath(_testCase) as string, {})
     .then((resp: unknown) => {
       console.log(resp)
+    })
+    .catch((err: Error) => {
+      console.log(err)
     })
 }
 
@@ -470,9 +472,26 @@ const onMenuHide = () => {
 
 const onSubmit = () => {
   showing.value = false
-  updating.value = false
   if (updating.value) {
-    testCase.TestCases.push(target.value)
+    testCase.updateTestCase({
+      ID: target.value.ID,
+      Name: target.value.Name,
+      Description: target.value.Description,
+      Arguments: JSON.stringify(target.value.Input),
+      Expectation: JSON.stringify(target.value.Output),
+      Deprecated: target.value.Depracated,
+      Message: {
+        Error: {
+          Title: 'MSG_CREATE_TEST_CASE',
+          Message: 'MSG_CREATE_TEST_CASE_FAIL',
+          Popup: true,
+          Type: NotifyType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+    updating.value = false
     return
   }
 
