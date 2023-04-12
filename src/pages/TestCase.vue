@@ -84,7 +84,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
+                <q-td>{{ testCase.path(testCaseByID(cond.ID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeletePreCondClick(props.row, cond)'>
                     -
@@ -96,7 +96,7 @@
               <q-select
                 v-model='preCondTestCase'
                 :options='testCases'
-                :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCase.path(item)'
                 dense
                 :label='$t("MSG_PATH")'
                 class='filter'
@@ -127,7 +127,7 @@
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ apiPath(testCaseByID(cond.ID)?.ApiID) }}</q-td>
+                <q-td>{{ testCase.path(testCaseByID(cond.ID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
                     -
@@ -139,7 +139,7 @@
               <q-select
                 v-model='cleanerTestCase'
                 :options='testCases'
-                :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
+                :option-label='(item) => item.ID + ": " + item.Name + ": " + testCase.path(item)'
                 dense
                 :label='$t("MSG_PATH")'
                 class='filter'
@@ -275,6 +275,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgMap } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
+import { post } from 'src/boot/axios'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -307,7 +308,7 @@ const columns = computed(() => [
     name: 'Path',
     label: t('MSG_PATH'),
     align: 'left',
-    field: (row: TestCase) => apiPath(row.ApiID)
+    field: (row: TestCase) => testCase.path(row)
   },
   {
     name: 'Module',
@@ -327,6 +328,10 @@ const options = ref([] as string[])
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
   console.log(testCase.args(_testCase))
+  void post(testCase.path(_testCase), {})
+    .then((resp: unknown) => {
+      console.log(resp)
+    })
 }
 
 const onCollapseClick = (testCase: TestCase) => {
@@ -428,23 +433,11 @@ watch(module, () => {
 })
 
 const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.ModuleName : module.value))
-const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
 watch(testCaseAPI, () => {
   target.value.ApiID = testCaseAPI.value?.ID
 })
-
-const apiPath = (apiID?: string) => {
-  if (!apiID) {
-    return 'Invalid'
-  }
-  const path = allPaths.value.find((el) => el.ID === apiID)
-  if (!path) {
-    return apiID
-  }
-  return path?.PathPrefix + path?.Path
-}
 
 const preCondTestCase = ref(undefined as unknown as TestCase)
 const cleanerTestCase = ref(undefined as unknown as TestCase)
@@ -576,7 +569,7 @@ const fromArgLabel = (from: ArgMap) => {
   if (!testcase) {
     return 'Invalid'
   }
-  return apiPath(testcase.ApiID) + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
+  return testCase.path(testcase) + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
 }
 
 const fetchTestCases = (offset: number, limit: number) => {

@@ -80,6 +80,14 @@ export const useTestCaseStore = defineStore('local-testcase', {
       return (id: string) => {
         return this.TestCases.find((el) => el.ID === id)
       }
+    },
+    path (): (testCase?: TestCase) => string {
+      return (testCase?: TestCase) => {
+        if (!testCase) {
+          return 'Invalid'
+        }
+        return testCase.ApiPathPrefix.replace('/api', '') + testCase.ApiPath
+      }
     }
   },
   actions: {
