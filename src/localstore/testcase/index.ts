@@ -124,7 +124,8 @@ export const useTestCaseStore = defineStore('local-testcase', {
             } catch (e) {
               console.log('Invalid arguments', v)
             }
-            this.TestCases.push(v)
+            const index = this.TestCases.findIndex((el) => el.ID === v.ID)
+            this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
           })
           done(false, resp.Infos)
         }, () => {
