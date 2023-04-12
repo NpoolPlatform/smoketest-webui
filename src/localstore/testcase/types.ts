@@ -84,7 +84,8 @@ export interface TestCase {
   AddingCleaner: boolean
   Input: Record<string, unknown>
   Output: Record<string, unknown>
-  Expectation: Record<string, unknown>
+  Result: Record<string, unknown>
+  Expectation: string
   Depracated: boolean
   TestCaseType: TestCaseType
   RelatedTestCases: Array<Cond>

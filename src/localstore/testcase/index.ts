@@ -11,6 +11,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
     args (): (testCase: TestCase) => Record<string, unknown> {
       return (testCase: TestCase) => {
         const arg = {} as Record<string, unknown>
+        if (!testCase.Args) {
+          return {}
+        }
         testCase.Args.forEach((v) => {
           arg[v.Name] = v.Type
         })
@@ -19,6 +22,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
     },
     input (): (testCase: TestCase) => Record<string, unknown> {
       return (testCase: TestCase) => {
+        if (!testCase.Args) {
+          return {}
+        }
         const input = {} as Record<string, unknown>
         testCase.Args.forEach((v) => {
           switch (v.Type) {
@@ -41,6 +47,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
     },
     argSrcs (): (testCase: TestCase) => Array<ArgSrc> {
       return (testCase: TestCase) => {
+        if (!testCase.PreConds) {
+          return []
+        }
         const srcs = [] as ArgSrc[]
         testCase.PreConds.forEach((v) => {
           const _case = this.TestCases.find((el) => el.ID === v.ID)
@@ -106,7 +115,16 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req,
         req.Message,
         (resp: GetTestCasesResponse): void => {
-          this.TestCases.push(...resp.Infos)
+          resp.Infos.forEach((v) => {
+            v.Collapsed = true
+            try {
+              v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+              v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+            } catch (e) {
+              console.log('Invalid arguments', v)
+            }
+            this.TestCases.push(v)
+          })
           done(false, resp.Infos)
         }, () => {
           done(true)
