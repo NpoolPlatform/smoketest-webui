@@ -125,9 +125,9 @@
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ testCasePath(testCaseByID(cond.ID)) }}</q-td>
+                <q-td>{{ testCaseByID(cond.TestCaseID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
                     -
@@ -373,13 +373,36 @@ watch(module, () => {
 
 const options = ref([] as string[])
 
+const runCleaner = (_testCase: TestCase) => {
+  if (!_testCase.Cleaners) {
+    return
+  }
+  _testCase.Cleaners.sort((a: Cond, b: Cond) => {
+    return a.Index > b.Index ? 1 : -1
+  }).forEach((v) => {
+    const _case = testCase.testcase(v.TestCaseID)
+    if (!_case) {
+      return
+    }
+    void post(testCasePath(_case) as string, _case.Input)
+      .then((resp: unknown) => {
+        console.log(testCasePath(_case), resp)
+      })
+      .catch((err: Error) => {
+        console.log(testCasePath(_case), err)
+      })
+  })
+}
+
 const onExecTestCaseClick = (_testCase: TestCase) => {
   void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
       _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+      runCleaner(_testCase)
     })
     .catch((err: Error) => {
       _testCase.Error = err
+      runCleaner(_testCase)
     })
 }
 
@@ -669,6 +692,9 @@ const onCreateCleanerClick = (testCase: TestCase) => {
 }
 
 const onConfirmCreateCleanerClick = (testCase: TestCase) => {
+  if (!testCase.Cleaners) {
+    testCase.Cleaners = []
+  }
   testCase.AddingCleaner = false
   testCase.Cleaners.push(addingCleaner.value)
 }
@@ -719,9 +745,12 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     ID: uid(),
     Index: 0,
     CondType: CondType.Cleaner,
-    TestCaseID: _testCase.ID,
+    TestCaseID: cleanerTestCase.ID,
     RelatedTestCaseID: cleanerTestCase.ID,
-    Args: [...cleanerTestCase.Args]
+    Args: []
+  }
+  if (cleanerTestCase.Args) {
+    addingCleaner.value.Args.push(...cleanerTestCase.Args)
   }
   addingCleaner.value.Args.forEach((v) => {
     v.Editing = true
