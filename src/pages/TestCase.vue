@@ -704,6 +704,14 @@ onMounted(() => {
   font-weight: bold
   padding: 20px
   margin-right: 10px
+  width: 800px
+
+pre
+  white-space: pre-wrap
+  white-space: -moz-pre-wrap
+  white-space: -pre-wrap
+  white-space: -o-pre-wrap
+  word-wrap: break-word
 
 .error
   color: red
