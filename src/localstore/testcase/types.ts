@@ -48,6 +48,7 @@ export interface Cond {
   CondType: CondType
   TestCaseID: string
   RelatedTestCaseID: string
+  Args: Array<Arg>
 }
 
 export enum TestCaseType {

@@ -143,7 +143,37 @@
                 dense
                 :label='$t("MSG_PATH")'
                 class='filter'
+                @update:model-value='(val) => onCleanerTestCaseUpdated(props.row, val)'
               />
+              <div>
+                <div
+                  class='row'
+                  v-for='arg in addingCleaner?.Args ? addingCleaner?.Args : []'
+                  :key='arg.Name'
+                >
+                  <q-field class='cleaner-arg' dense label='Argument Name' stack-label>
+                    {{ arg.Name }}
+                  </q-field>
+                  <q-select
+                    label='From TestCase Arg'
+                    dense
+                    :options='testCase.cleanerArgSrcs(props.row)'
+                    :option-label='(item) => fromArgLabel(item)'
+                    class='filter'
+                    v-model='arg.From'
+                    :disable='!arg.Editing'
+                  />
+                  <q-btn dense @click='onModifyCreateCleanerArgClick(arg)'>
+                    修改
+                  </q-btn>
+                  <q-btn dense @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
+                    确定
+                  </q-btn>
+                  <q-btn dense @click='onCancelCreateCleanerArgClick(props.row)'>
+                    取消
+                  </q-btn>
+                </div>
+              </div>
               <q-btn dense @click='onConfirmCreateCleanerClick(props.row)'>
                 确定
               </q-btn>
@@ -292,6 +322,7 @@ import { useI18n } from 'vue-i18n'
 import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgMap } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
+import { uid } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -639,13 +670,7 @@ const onCreateCleanerClick = (testCase: TestCase) => {
 
 const onConfirmCreateCleanerClick = (testCase: TestCase) => {
   testCase.AddingCleaner = false
-  testCase.Cleaners.push({
-    TestCaseID: preCondTestCase.value.ID,
-    RelatedTestCaseID: testCase.ID,
-    Index: 0,
-    Type: CondType.Cleaner,
-    ArgMap: []
-  } as unknown as Cond)
+  testCase.Cleaners.push(addingCleaner.value)
 }
 
 const onCancelCreateCleanerClick = (testCase: TestCase) => {
@@ -687,6 +712,39 @@ const fetchTestCases = (offset: number, limit: number) => {
   })
 }
 
+const addingCleaner = ref(undefined as unknown as Cond)
+
+const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase) => {
+  addingCleaner.value = {
+    ID: uid(),
+    Index: 0,
+    CondType: CondType.Cleaner,
+    TestCaseID: _testCase.ID,
+    RelatedTestCaseID: cleanerTestCase.ID,
+    Args: [...cleanerTestCase.Args]
+  }
+  addingCleaner.value.Args.forEach((v) => {
+    v.Editing = true
+  })
+}
+
+const onModifyCreateCleanerArgClick = (arg: Arg) => {
+  arg.Editing = true
+}
+
+const onConfirmCreateCleanerArgClick = (_testCase: TestCase, arg: Arg) => {
+  arg.Editing = false
+  const index = addingCleaner.value.Args.findIndex((el) => el.Name === arg.Name)
+  if (index < 0) {
+    return
+  }
+  addingCleaner.value.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+}
+
+const onCancelCreateCleanerArgClick = (arg: Arg) => {
+  arg.Editing = false
+}
+
 onMounted(() => {
   fetchTestCases(0, 100)
 })
@@ -717,5 +775,8 @@ pre
   color: red
 
 .filter
-  min-width: 220px
+  min-width: 120px
+
+.cleaner-arg
+  width: 320px
 </style>

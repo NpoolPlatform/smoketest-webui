@@ -88,6 +88,28 @@ export const useTestCaseStore = defineStore('local-testcase', {
         return srcs
       }
     },
+    cleanerArgSrcs (): (testCase: TestCase) => Array<ArgSrc> {
+      return (testCase: TestCase) => {
+        const srcs = this.argSrcs(testCase)
+        for (const key of Object.keys(this.input(testCase))) {
+          srcs.push({
+            ID: testCase.ID,
+            Src: key,
+            Type: ArgType.Input
+          })
+        }
+        if (testCase.Output) {
+          for (const key of Object.keys(testCase.Output)) {
+            srcs.push({
+              ID: testCase.ID,
+              Src: key,
+              Type: ArgType.Output
+            })
+          }
+        }
+        return srcs
+      }
+    },
     testcase (): (id: string) => TestCase | undefined {
       return (id: string) => {
         return this.TestCases.find((el) => el.ID === id)
@@ -123,7 +145,8 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req,
         req.Message,
         (resp: UpdateTestCaseResponse): void => {
-          this.TestCases.push(resp.Info)
+          const index = this.TestCases.findIndex((el) => el.ID === resp.Info.ID)
+          this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, resp.Info)
           done(false, resp.Info)
         }, () => {
           done(true)
