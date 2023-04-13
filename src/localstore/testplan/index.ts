@@ -10,7 +10,6 @@ export const useTestPlanStore = defineStore('local-testplan', {
   getters: {
     testcases (): (id: string) => Array<TestCaseInstance> | undefined {
       return (id: string) => {
-        console.log(id, this.TestCases.get(id))
         return this.TestCases.get(id)
       }
     }

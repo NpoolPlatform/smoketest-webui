@@ -232,6 +232,18 @@
             </q-btn>
           </q-td>
         </q-tr>
+        <q-tr :props='props' v-show='!props.row.Collapsed'>
+          <q-td auto-width />
+          <q-td>
+            <div>Output</div>
+          </q-td>
+          <q-td>
+            <div class='row'>
+              <pre v-if='!props.row.Error' class='arguments' v-html='JSON.stringify(props.row.Output, null, 2)' />
+              <div v-else class='arguments error' v-html='props.row.Error' />
+            </div>
+          </q-td>
+        </q-tr>
       </template>
     </q-table>
   </div>
@@ -334,10 +346,9 @@ const onExecTestCaseClick = (_testCase: TestCase) => {
   void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
       _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
-      console.log(_testCase.Output)
     })
     .catch((err: Error) => {
-      console.log(err)
+      _testCase.Error = err
     })
 }
 
@@ -586,6 +597,10 @@ const onCreatePreCondClick = (testCase: TestCase) => {
 
 const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   _testCase.AddingPreCond = false
+  const _case = testCase.testcase(preCondTestCase.value.ID)
+  if (!_case) {
+    return
+  }
   if (!_testCase.PreConds) {
     _testCase.PreConds = []
   }
@@ -596,6 +611,17 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
     CondType: CondType.PreCondition,
     ArgMap: []
   } as unknown as Cond)
+  if (!_case.Output) {
+    void post(testCasePath(_case) as string, _case.Input)
+      .then((resp: unknown) => {
+        _case.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+        _testCase.Input = testCase.input(_testCase)
+      })
+      .catch((err: Error) => {
+        _case.Error = err
+      })
+    return
+  }
   _testCase.Input = testCase.input(_testCase)
 }
 
@@ -678,6 +704,9 @@ onMounted(() => {
   font-weight: bold
   padding: 20px
   margin-right: 10px
+
+.error
+  color: red
 
 .filter
   min-width: 220px
