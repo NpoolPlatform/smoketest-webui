@@ -471,6 +471,7 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
     Arguments: JSON.stringify(_testCase.Input),
     Expectation: JSON.stringify(_testCase.Output),
     Deprecated: _testCase.Depracated,
+    ArgTypeDescription: JSON.stringify(_testCase.Args),
     Message: {
       Error: {
         Title: 'MSG_UPDATE_TEST_CASE',

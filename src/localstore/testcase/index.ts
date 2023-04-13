@@ -1,7 +1,7 @@
 import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
 import { API } from './const'
-import { ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, DeleteTestCaseRequest, DeleteTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
+import { Arg, ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, DeleteTestCaseRequest, DeleteTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({
@@ -142,6 +142,11 @@ export const useTestCaseStore = defineStore('local-testcase', {
           } catch (e) {
             console.log('Invalid arguments', v.Expectation, e)
           }
+          try {
+            v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+          } catch (e) {
+            console.log('Invalid arguments', v.ArgTypeDescription, e)
+          }
           v.Collapsed = true
           this.TestCases.push(v)
           done(false, resp.Info)
@@ -166,6 +171,11 @@ export const useTestCaseStore = defineStore('local-testcase', {
             v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
           } catch (e) {
             console.log('Invalid arguments', v.Expectation, e)
+          }
+          try {
+            v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+          } catch (e) {
+            console.log('Invalid arguments', v.ArgTypeDescription, e)
           }
           const index = this.TestCases.findIndex((el) => el.ID === v.ID)
           this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
@@ -206,6 +216,11 @@ export const useTestCaseStore = defineStore('local-testcase', {
               v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
             } catch (e) {
               console.log('Invalid arguments', v.Expectation, e)
+            }
+            try {
+              v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+            } catch (e) {
+              console.log('Invalid arguments', v.ArgTypeDescription, e)
             }
             const index = this.TestCases.findIndex((el) => el.ID === v.ID)
             this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)

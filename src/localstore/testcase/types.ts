@@ -77,6 +77,7 @@ export interface TestCase {
   ApiMethod: string
   ApiDeprecated: boolean
   Arguments: string
+  ArgTypeDescription: string
   Args: Array<Arg>
   PreConds: Array<Cond>
   Cleaners: Array<Cond>
@@ -103,6 +104,7 @@ export interface CreateTestCaseRequest extends BaseRequest {
   ApiID: string
   Arguments: string
   Expectation: string
+  ArgTypeDescription?: string
 }
 
 export interface CreateTestCaseResponse {
@@ -117,6 +119,7 @@ export interface UpdateTestCaseRequest extends BaseRequest {
   Arguments?: string
   TestCaseType?: TestCaseType
   Deprecated?: boolean
+  ArgTypeDescription?: string
 }
 
 export interface UpdateTestCaseResponse {
