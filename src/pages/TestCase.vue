@@ -372,8 +372,25 @@ const onDepracateTestCaseClick = (testCase: TestCase) => {
   testCase.Depracated = true
 }
 
-const onSaveTestCaseClick = (testCase: TestCase) => {
-  console.log(testCase)
+const onSaveTestCaseClick = (_testCase: TestCase) => {
+  testCase.updateTestCase({
+    ID: _testCase.ID,
+    Name: _testCase.Name,
+    Description: _testCase.Description,
+    Arguments: JSON.stringify(_testCase.Input),
+    Expectation: JSON.stringify(_testCase.Output),
+    Deprecated: _testCase.Depracated,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_CASE',
+        Message: 'MSG_UPDATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 onMounted(() => {
