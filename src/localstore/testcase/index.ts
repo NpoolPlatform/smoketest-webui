@@ -131,8 +131,19 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req,
         req.Message,
         (resp: CreateTestCaseResponse): void => {
-          resp.Info.Collapsed = true
-          this.TestCases.push(resp.Info)
+          const v = resp.Info
+          try {
+            v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid arguments', v.Arguments, e)
+          }
+          try {
+            v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid arguments', v.Expectation, e)
+          }
+          v.Collapsed = true
+          this.TestCases.push(v)
           done(false, resp.Info)
         }, () => {
           done(true)
@@ -145,8 +156,19 @@ export const useTestCaseStore = defineStore('local-testcase', {
         req,
         req.Message,
         (resp: UpdateTestCaseResponse): void => {
-          const index = this.TestCases.findIndex((el) => el.ID === resp.Info.ID)
-          this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, resp.Info)
+          const v = resp.Info
+          try {
+            v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid arguments', v.Arguments, e)
+          }
+          try {
+            v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid arguments', v.Expectation, e)
+          }
+          const index = this.TestCases.findIndex((el) => el.ID === v.ID)
+          this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
           done(false, resp.Info)
         }, () => {
           done(true)
@@ -177,9 +199,13 @@ export const useTestCaseStore = defineStore('local-testcase', {
             v.Collapsed = true
             try {
               v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+            } catch (e) {
+              console.log('Invalid arguments', v.Arguments, e)
+            }
+            try {
               v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
             } catch (e) {
-              console.log('Invalid arguments', v)
+              console.log('Invalid arguments', v.Expectation, e)
             }
             const index = this.TestCases.findIndex((el) => el.ID === v.ID)
             this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)

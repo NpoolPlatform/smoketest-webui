@@ -129,6 +129,35 @@
                 <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
                 <q-td>
+                  <div
+                    class='row'
+                    v-for='arg in cond.Args ? cond.Args : []'
+                    :key='arg.Name'
+                  >
+                    <q-field class='cleaner-arg' dense label='Argument Name' stack-label>
+                      {{ arg.Name }}
+                    </q-field>
+                    <q-select
+                      label='From TestCase Arg'
+                      dense
+                      :options='testCase.cleanerArgSrcs(props.row)'
+                      :option-label='(item) => fromArgLabel(item)'
+                      class='filter'
+                      v-model='arg.From'
+                      :disable='!arg.Editing'
+                    />
+                    <q-btn dense @click='onModifyCleanerArgClick(arg)'>
+                      修改
+                    </q-btn>
+                    <q-btn dense @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
+                      确定
+                    </q-btn>
+                    <q-btn dense @click='onCancelCreateCleanerArgClick(props.row)'>
+                      取消
+                    </q-btn>
+                  </div>
+                </q-td>
+                <q-td>
                   <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
                     -
                   </q-btn>
@@ -148,7 +177,7 @@
               <div>
                 <div
                   class='row'
-                  v-for='arg in addingCleaner?.Args ? addingCleaner?.Args : []'
+                  v-for='arg in cleanerTestCase?.Args ? cleanerTestCase?.Args : []'
                   :key='arg.Name'
                 >
                   <q-field class='cleaner-arg' dense label='Argument Name' stack-label>
@@ -163,9 +192,6 @@
                     v-model='arg.From'
                     :disable='!arg.Editing'
                   />
-                  <q-btn dense @click='onModifyCreateCleanerArgClick(arg)'>
-                    修改
-                  </q-btn>
                   <q-btn dense @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
                     确定
                   </q-btn>
@@ -757,7 +783,7 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
   })
 }
 
-const onModifyCreateCleanerArgClick = (arg: Arg) => {
+const onModifyCleanerArgClick = (arg: Arg) => {
   arg.Editing = true
 }
 
