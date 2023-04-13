@@ -27,6 +27,18 @@ export const useTestCaseStore = defineStore('local-testcase', {
         }
         const input = {} as Record<string, unknown>
         testCase.Args.forEach((v) => {
+          if (v.From) {
+            const _case = this.TestCases.find((el) => el.ID === v.From?.ID)
+            switch (v.From.Type) {
+              case ArgType.Input:
+                input[v.Name] = _case?.Input[v.From.Src]
+                break
+              case ArgType.Output:
+                input[v.Name] = _case?.Output[v.From.Src]
+                break
+            }
+            return input
+          }
           switch (v.Type) {
             case 'String':
               input[v.Name] = v.Value?.toString()
@@ -52,13 +64,13 @@ export const useTestCaseStore = defineStore('local-testcase', {
         }
         const srcs = [] as ArgSrc[]
         testCase.PreConds.forEach((v) => {
-          const _case = this.TestCases.find((el) => el.ID === v.ID)
+          const _case = this.TestCases.find((el) => el.ID === v.TestCaseID)
           if (!_case) {
             return
           }
           for (const key of Object.keys(this.input(_case))) {
             srcs.push({
-              ID: v.ID,
+              ID: v.TestCaseID,
               Src: key,
               Type: ArgType.Input
             })
@@ -66,7 +78,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
           if (_case.Output) {
             for (const key of Object.keys(_case.Output)) {
               srcs.push({
-                ID: v.ID,
+                ID: v.TestCaseID,
                 Src: key,
                 Type: ArgType.Output
               })

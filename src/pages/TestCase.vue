@@ -82,9 +82,9 @@
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.ID)?.ModuleName }}</q-td>
-                <q-td>{{ testCasePath(testCaseByID(cond.ID)) }}</q-td>
+                <q-td>{{ testCaseByID(cond.TestCaseID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeletePreCondClick(props.row, cond)'>
                     -
@@ -184,6 +184,7 @@
               />
               <q-select
                 label='From PreConds Arg'
+                dense
                 :options='testCase.argSrcs(props.row)'
                 :option-label='(item) => fromArgLabel(item)'
                 :disable='!arg.Editing'
@@ -332,7 +333,8 @@ const options = ref([] as string[])
 const onExecTestCaseClick = (_testCase: TestCase) => {
   void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
-      console.log(resp)
+      _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+      console.log(_testCase.Output)
     })
     .catch((err: Error) => {
       console.log(err)
@@ -565,15 +567,19 @@ const onCreatePreCondClick = (testCase: TestCase) => {
   testCase.AddingPreCond = true
 }
 
-const onConfirmCreatePreCondClick = (testCase: TestCase) => {
-  testCase.AddingPreCond = false
-  testCase.PreConds.push({
+const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
+  _testCase.AddingPreCond = false
+  if (!_testCase.PreConds) {
+    _testCase.PreConds = []
+  }
+  _testCase.PreConds.push({
     TestCaseID: preCondTestCase.value.ID,
-    RelatedTestCaseID: testCase.ID,
+    RelatedTestCaseID: _testCase.ID,
     Index: 0,
     CondType: CondType.PreCondition,
     ArgMap: []
   } as unknown as Cond)
+  _testCase.Input = testCase.input(_testCase)
 }
 
 const onCancelCreatePreCondClick = (testCase: TestCase) => {
