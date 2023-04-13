@@ -31,10 +31,10 @@ export const useTestCaseStore = defineStore('local-testcase', {
             const _case = this.TestCases.find((el) => el.ID === v.From?.ID)
             switch (v.From.Type) {
               case ArgType.Input:
-                input[v.Name] = _case?.Input[v.From.Src]
+                input[v.Name] = _case?.Input?.[v.From.Src]
                 break
               case ArgType.Output:
-                input[v.Name] = _case?.Output[v.From.Src]
+                input[v.Name] = _case?.Output?.[v.From.Src]
                 break
             }
             return input
