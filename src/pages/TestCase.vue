@@ -504,25 +504,6 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
   })
 }
 
-onMounted(() => {
-  apis.getDomains({
-    Message: {
-      Error: {
-        Title: 'MSG_GET_DOMAINS',
-        Message: 'MSG_GET_DOMAINS_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (error: boolean, domains: string[]) => {
-    if (error) {
-      return
-    }
-    options.value = domains
-    options.value.push('Clear')
-  })
-})
-
 const fetchAPIs = (offset: number, limit: number) => {
   apis.getAPIs({
     Domain: module.value.length > 0 ? module.value : undefined,
@@ -792,7 +773,7 @@ const fetchTestCases = (offset: number, limit: number) => {
     if (!rows?.length) {
       return
     }
-    fetchAPIs(offset + limit, limit)
+    fetchTestCases(offset + limit, limit)
   })
 }
 
@@ -833,6 +814,22 @@ const onCancelCreateCleanerArgClick = (arg: Arg) => {
 }
 
 onMounted(() => {
+  apis.getDomains({
+    Message: {
+      Error: {
+        Title: 'MSG_GET_DOMAINS',
+        Message: 'MSG_GET_DOMAINS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, domains: string[]) => {
+    if (error) {
+      return
+    }
+    options.value = domains
+    options.value.push('Clear')
+  })
   fetchTestCases(0, 100)
 })
 
