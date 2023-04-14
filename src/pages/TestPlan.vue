@@ -198,11 +198,24 @@ const onTestPlanMenuHide = () => {
 const onTestPlanSubmit = () => {
   showingTestPlan.value = false
   if (updatingTestPlan.value) {
-    testPlan.TestPlans.push(targetTestPlan.value)
+    updatingTestPlan.value = false
+    testPlan.updateTestPlan({
+      ID: targetTestPlan.value.ID as string,
+      Name: targetTestPlan.value.Title,
+      ResponsibleUserID: targetTestPlan.value.Applier,
+      Message: {
+        Error: {
+          Title: 'MSG_UPDATE_TEST_PLAN',
+          Message: 'MSG_UPDATE_TEST_PLAN_FAIL',
+          Popup: true,
+          Type: NotifyType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
     return
   }
-
-  updatingTestPlan.value = false
 
   testPlan.createTestPlan({
     Name: targetTestPlan.value.Title,

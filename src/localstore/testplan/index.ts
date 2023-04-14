@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { CreateTestCaseInstanceRequest, CreateTestPlanRequest, CreateTestPlanResponse, TestCaseInstance, TestPlan, TestPlanState } from './types'
+import { CreateTestCaseInstanceRequest, CreateTestPlanRequest, CreateTestPlanResponse, TestCaseInstance, TestPlan, TestPlanState, UpdateTestPlanRequest, UpdateTestPlanResponse } from './types'
 import { uid } from 'quasar'
 import { doActionWithError } from 'npool-cli-v4'
 import { API } from './const'
@@ -37,6 +37,20 @@ export const useTestPlanStore = defineStore('local-testplan', {
         req.Message,
         (resp: CreateTestPlanResponse): void => {
           this.TestPlans.push(resp.Info)
+          done(false, resp.Info)
+        }, () => {
+          done(true)
+        }
+      )
+    },
+    updateTestPlan (req: UpdateTestPlanRequest, done: (error: boolean, row?: TestPlan) => void) {
+      doActionWithError<UpdateTestPlanRequest, UpdateTestPlanResponse>(
+        API.UPDATE_TEST_PLAN,
+        req,
+        req.Message,
+        (resp: UpdateTestPlanResponse): void => {
+          const index = this.TestPlans.findIndex((el) => el.ID === resp.Info.ID)
+          this.TestPlans.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, resp.Info)
           done(false, resp.Info)
         }, () => {
           done(true)
