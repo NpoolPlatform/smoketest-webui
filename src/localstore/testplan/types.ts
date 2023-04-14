@@ -32,6 +32,44 @@ export interface CreateTestCaseInstanceResponse {
   Info: TestCaseInstance
 }
 
+export interface CreateTestPlanRequest extends BaseRequest {
+  Name: string
+  ResponsibleUserID: string
+  Deadline?: number
+}
+
+export interface CreateTestPlanResponse {
+  Info: TestPlan
+}
+
+export interface UpdateTestPlanRequest extends BaseRequest {
+  ID: string
+  Name?: string
+  ResponsibleUserID?: string
+  Deadline?: number
+}
+
+export interface UpdateTestPlanResponse {
+  Info: TestPlan
+}
+
+export interface GetTestPlansRequest extends BaseRequest {
+  Offset: number
+  Limit: number
+}
+
+export interface GetTestPlansResponse {
+  Infos: Array<TestPlan>
+}
+
+export interface DeleteTestPlanRequest extends BaseRequest {
+  ID: string
+}
+
+export interface DeleteTestPlanResponse {
+  Info: TestPlan
+}
+
 export interface TestPlanState {
   TestPlans: Array<TestPlan>
   TestCases: Map<string, Array<TestCaseInstance>>

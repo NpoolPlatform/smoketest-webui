@@ -96,7 +96,6 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TestPlan, useTestPlanStore, TestCase, useTestCaseStore, TestCaseInstance, useLocalAPIStore, API } from 'src/localstore'
-import { uid } from 'quasar'
 import { NotifyType } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -198,14 +197,27 @@ const onTestPlanMenuHide = () => {
 
 const onTestPlanSubmit = () => {
   showingTestPlan.value = false
-  updatingTestPlan.value = false
-  targetTestPlan.value.ID = uid()
-  if (!updatingTestPlan.value) {
+  if (updatingTestPlan.value) {
     testPlan.TestPlans.push(targetTestPlan.value)
     return
   }
-  const index = testPlan.TestPlans.findIndex((el) => el.ID === targetTestPlan.value.ID)
-  testPlan.TestPlans.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, targetTestPlan.value)
+
+  updatingTestPlan.value = false
+
+  testPlan.createTestPlan({
+    Name: targetTestPlan.value.Title,
+    ResponsibleUserID: targetTestPlan.value.Applier,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_TEST_PLAN',
+        Message: 'MSG_CREATE_TEST_PLAN_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onTestPlanCancel = () => {
