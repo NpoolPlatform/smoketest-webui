@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { CreateTestCaseInstanceRequest, CreateTestPlanRequest, CreateTestPlanResponse, GetTestPlansRequest, GetTestPlansResponse, TestCaseInstance, TestPlan, TestPlanState, UpdateTestPlanRequest, UpdateTestPlanResponse } from './types'
+import { CreateTestCaseInstanceRequest, CreateTestPlanRequest, CreateTestPlanResponse, DeleteTestPlanRequest, DeleteTestPlanResponse, GetTestPlansRequest, GetTestPlansResponse, TestCaseInstance, TestPlan, TestPlanState, UpdateTestPlanRequest, UpdateTestPlanResponse } from './types'
 import { uid } from 'quasar'
 import { doActionWithError } from 'npool-cli-v4'
 import { API } from './const'
@@ -70,6 +70,20 @@ export const useTestPlanStore = defineStore('local-testplan', {
           done(false, resp.Infos)
         }, () => {
           done(true, [])
+        }
+      )
+    },
+    deleteTestPlan (req: DeleteTestPlanRequest, done: (error: boolean, row?: TestPlan) => void) {
+      doActionWithError<DeleteTestPlanRequest, DeleteTestPlanResponse>(
+        API.DELETE_TEST_PLAN,
+        req,
+        req.Message,
+        (resp: DeleteTestPlanResponse): void => {
+          const index = this.TestPlans.findIndex((el) => el.ID === resp.Info.ID)
+          this.TestPlans.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0)
+          done(false, resp.Info)
+        }, () => {
+          done(true)
         }
       )
     }
