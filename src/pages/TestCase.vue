@@ -444,6 +444,7 @@ const onExecTestCaseClick = (_testCase: TestCase) => {
   _testCase.Input = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
+      _testCase.Error = undefined
       _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
       runCleaner(_testCase)
     })

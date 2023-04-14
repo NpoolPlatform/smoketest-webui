@@ -96,7 +96,7 @@ export interface TestCase {
   Depracated: boolean
   TestCaseType: TestCaseType
   RelatedTestCases: Array<Cond>
-  Error: Error
+  Error?: Error
   CreatedAt: number
   UpdatedAt: number
 }
