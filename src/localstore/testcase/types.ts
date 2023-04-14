@@ -16,11 +16,13 @@ export interface ArgMap extends ArgSrc {
 }
 
 export interface Arg {
+  ID: string
   Name: string
   Type: string
   Editing: boolean
   From?: ArgSrc
   Value: string | number | null | undefined
+  ParentID?: string
 }
 
 export enum CondType {
@@ -32,14 +34,16 @@ export enum ArgDef {
   Number = 'Number',
   String = 'String',
   Object = 'Object',
-  Decimal = 'Decimal'
+  Decimal = 'Decimal',
+  Array = 'Array'
 }
 
 export const ArgDefs = [
   ArgDef.Number,
   ArgDef.String,
   ArgDef.Object,
-  ArgDef.Decimal
+  ArgDef.Decimal,
+  ArgDef.Array
 ]
 
 export interface Cond {

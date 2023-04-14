@@ -8,25 +8,43 @@ export const useTestCaseStore = defineStore('local-testcase', {
     TestCases: [] as Array<TestCase>
   }),
   getters: {
-    args (): (testCase: TestCase) => Record<string, unknown> {
-      return (testCase: TestCase) => {
+    args (): (testCase: TestCase, argID?: string) => Record<string, unknown> {
+      return (testCase: TestCase, argID?: string) => {
         const arg = {} as Record<string, unknown>
         if (!testCase.Args) {
           return {}
         }
-        testCase.Args.forEach((v) => {
+        let args = testCase.Args
+        if (argID) {
+          args = testCase.Args.filter((el) => el.ParentID === argID)
+        }
+        args.forEach((v) => {
+          if (v.ParentID && !argID) {
+            return
+          }
+          if (v.Type === 'Object') {
+            arg[v.Name] = this.args(testCase, v.ID)
+            return
+          }
           arg[v.Name] = v.Type
         })
         return arg
       }
     },
-    input (): (testCase: TestCase) => Record<string, unknown> {
-      return (testCase: TestCase) => {
+    input (): (testCase: TestCase, argID?: string) => Record<string, unknown> {
+      return (testCase: TestCase, argID?: string) => {
         if (!testCase.Args) {
           return {}
         }
+        let args = testCase.Args
+        if (argID) {
+          args = testCase.Args.filter((el) => el.ParentID === argID)
+        }
         const input = {} as Record<string, unknown>
-        testCase.Args.forEach((v) => {
+        args.forEach((v) => {
+          if (v.ParentID && !argID) {
+            return
+          }
           if (v.From) {
             const _case = this.TestCases.find((el) => el.ID === v.From?.ID)
             switch (v.From.Type) {
@@ -44,14 +62,16 @@ export const useTestCaseStore = defineStore('local-testcase', {
               input[v.Name] = v.Value?.toString()
               break
             case 'Number':
-              input[v.Name] = 0
+              input[v.Name] = Number(v.Value)
               break
             case 'Object':
-              input[v.Name] = {}
+              input[v.Name] = this.input(testCase, v.ID)
               break
             case 'Decimal':
-              input[v.Name] = '0.0'
+              input[v.Name] = v.Value?.toString()
               break
+            case 'Array':
+              input[v.Name] = v.Value?.toString().split(',')
           }
         })
         return input

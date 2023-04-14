@@ -141,7 +141,7 @@
                       label='From TestCase Arg'
                       dense
                       :options='testCase.cleanerArgSrcs(props.row)'
-                      :option-label='(item) => fromArgLabel(item)'
+                      :option-label='(item) => fromArgMapLabel(item)'
                       class='filter'
                       v-model='arg.From'
                       :disable='!arg.Editing'
@@ -187,7 +187,7 @@
                     label='From TestCase Arg'
                     dense
                     :options='testCase.cleanerArgSrcs(props.row)'
-                    :option-label='(item) => fromArgLabel(item)'
+                    :option-label='(item) => fromArgMapLabel(item)'
                     class='filter'
                     v-model='arg.From'
                     :disable='!arg.Editing'
@@ -242,10 +242,20 @@
                 label='From PreConds Arg'
                 dense
                 :options='testCase.argSrcs(props.row)'
-                :option-label='(item) => fromArgLabel(item)'
+                :option-label='(item) => fromArgMapLabel(item)'
                 :disable='!arg.Editing'
                 class='filter'
                 v-model='arg.From'
+              />
+              <q-select
+                label='Parent Arg ID'
+                dense
+                :options='props.row.Args ? props.row.Args.map((arg: Arg) => arg.ID) : []'
+                :option-label='(item) => fromArgLabel(props.row, item)'
+                option-value='ID'
+                :disable='!arg.Editing'
+                class='filter'
+                v-model='arg.ParentID'
               />
               <q-input dense v-model='arg.Value' :disable='!arg.Editing' label='Argument Value' />
               <q-btn @click='onModifyArgClick(arg)'>
@@ -271,9 +281,18 @@
                 label='From PreConds Arg'
                 dense
                 :options='testCase.argSrcs(props.row)'
-                :option-label='(item) => fromArgLabel(item)'
+                :option-label='(item) => fromArgMapLabel(item)'
                 class='filter'
                 v-model='newArg.From'
+              />
+              <q-select
+                label='Parent Arg ID'
+                dense
+                :options='props.row.Args ? props.row.Args.map((arg: Arg) => arg.ID) : []'
+                :option-label='(item) => fromArgLabel(props.row, item)'
+                option-value='ID'
+                class='filter'
+                v-model='newArg.ParentID'
               />
               <q-input dense v-model='newArg.Value' label='Argument Value' />
               <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
@@ -648,6 +667,7 @@ const onConfirmCreateArgClick = (_testCase: TestCase) => {
   if (!_testCase.Args) {
     _testCase.Args = []
   }
+  newArg.value.ID = uid()
   _testCase.Args.push(newArg.value)
   newArg.value = {} as Arg
   _testCase.Input = testCase.input(_testCase)
@@ -734,12 +754,23 @@ const onDeleteCleanerClick = (testCase: TestCase, cond: Cond) => {
   testCase.Cleaners = testCase.Cleaners.filter((el) => el.ID !== cond.ID)
 }
 
-const fromArgLabel = (from: ArgMap) => {
+const fromArgMapLabel = (from: ArgMap) => {
   const testcase = testCase.testcase(from.ID)
   if (!testcase) {
     return 'Invalid'
   }
   return testCasePath(testcase) as string + ':' + testcase.Name + ':' + from.Type + ':' + from.Src
+}
+
+const fromArgLabel = (testCase: TestCase, argID: string) => {
+  if (!testCase.Args) {
+    return 'Invalid'
+  }
+  const arg = testCase.Args.find((el) => el.ID === argID)
+  if (!arg) {
+    return 'Invalid'
+  }
+  return arg.Name + ':' + arg.ID
 }
 
 const fetchTestCases = (offset: number, limit: number) => {
