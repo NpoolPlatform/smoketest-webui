@@ -429,6 +429,7 @@ const runCleaner = (_testCase: TestCase) => {
     if (!_case) {
       return
     }
+    _case.Input = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.Input)
       .then((resp: unknown) => {
         console.log(testCasePath(_case), resp)
@@ -484,6 +485,7 @@ const onDepracateTestCaseClick = (testCase: TestCase) => {
 }
 
 const onSaveTestCaseClick = (_testCase: TestCase) => {
+  _testCase.Input = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
     Name: _testCase.Name,
@@ -592,6 +594,9 @@ const onMenuHide = () => {
 
 const onSubmit = () => {
   showing.value = false
+
+  target.value.Input = testCase.input(target.value)
+
   if (updating.value) {
     testCase.updateTestCase({
       ID: target.value.ID,
@@ -695,6 +700,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
     ArgMap: []
   } as unknown as Cond)
   if (!_case.Output) {
+    _case.Input = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.Input)
       .then((resp: unknown) => {
         _case.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
