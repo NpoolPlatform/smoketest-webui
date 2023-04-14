@@ -177,8 +177,31 @@ const testCases = computed(() => testPlan.testcases(testplan.value?.ID as string
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
 
+const fetchTestPlans = (offset: number, limit: number) => {
+  testPlan.getTestPlans({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_PLAN',
+        Message: 'MSG_UPDATE_TEST_PLAN_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows: Array<TestPlan>) => {
+    if (error) {
+      return
+    }
+    if (rows.length === 0) {
+      return
+    }
+    fetchTestPlans(offset + limit, limit)
+  })
+}
+
 const onFetchClick = () => {
-  // TODO
+  fetchTestPlans(0, 100)
 }
 
 const showingTestPlan = ref(false)
