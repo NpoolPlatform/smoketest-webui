@@ -77,14 +77,14 @@
           </q-td>
           <q-td colspan='100%'>
             <div
-              v-for='cond in testCaseCond.getConds(props.row.PreConds, CondType.PreCondition)'
+              v-for='cond in testCaseCond.getConds(props.row.ID, CondType.PreCondition)'
               :key='cond.ID'
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
-                <q-td>{{ testCaseByID(cond.TestCaseID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
-                <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
+                <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
                     -
@@ -120,14 +120,14 @@
           </q-td>
           <q-td colspan='90%'>
             <div
-              v-for='cond in testCaseCond.getConds(props.row.Cleaners, CondType.Cleaner)'
+              v-for='cond in testCaseCond.getConds(props.row.ID, CondType.Cleaner)'
               :key='cond.ID'
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
-                <q-td>{{ testCaseByID(cond.TestCaseID)?.Name }}</q-td>
-                <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
-                <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
+                <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
+                <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
+                <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
                   <div
                     class='row'
@@ -464,8 +464,31 @@ const onExecTestCaseClick = (_testCase: TestCase) => {
     })
 }
 
+const runPreConds = (_testCase: TestCase) => {
+  const preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  preConds.sort((a: TestCaseCond, b: TestCaseCond) => {
+    return a.Index > b.Index ? 1 : -1
+  }).forEach((v) => {
+    const _case = testCase.testcase(v.CondTestCaseID)
+    if (!_case) {
+      return
+    }
+    _case.InputVal = testCase.input(_case)
+    void post(testCasePath(_case) as string, _case.Input)
+      .then((resp: unknown) => {
+        _case.Output = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      })
+      .catch((err: Error) => {
+        console.log(testCasePath(_case), err)
+      })
+  })
+}
+
 const onCollapseClick = (testCase: TestCase) => {
   testCase.Collapsed = !testCase.Collapsed
+  if (!testCase.Collapsed) {
+    runPreConds(testCase)
+  }
 }
 
 const onEditTestCaseClick = (testCase: TestCase) => {
@@ -700,7 +723,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   testCaseCond.createTestCaseCond({
     TestCaseID: _testCase.ID,
     CondTestCaseID: preCondTestCase.value.ID,
-    ArgumentMap: JSON.stringify(addingCleaner.value.Args),
+    ArgumentMap: JSON.stringify(preCondTestCase.value.Args),
     Index: 0,
     CondType: CondType.PreCondition,
     Message: {
@@ -734,7 +757,7 @@ const onCancelCreatePreCondClick = (testCase: TestCase) => {
 }
 
 const onDeleteTestCaseCondClick = (cond: TestCaseCond) => {
-  testCaseCond.deleteTestCase({
+  testCaseCond.deleteTestCaseCond({
     ID: cond.ID,
     Message: {
       Error: {
@@ -796,29 +819,6 @@ const fromArgLabel = (testCase: TestCase, argID: string) => {
   return arg.Name + ':' + arg.ID
 }
 
-const fetchTestCases = (offset: number, limit: number) => {
-  testCase.getTestCases({
-    Offset: offset,
-    Limit: limit,
-    Message: {
-      Error: {
-        Title: 'MSG_GET_TEST_CASES',
-        Message: 'MSG_GET_TEST_CASES_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, (error: boolean, rows?: Array<TestCase>) => {
-    if (error) {
-      return
-    }
-    if (!rows?.length) {
-      return
-    }
-    fetchTestCases(offset + limit, limit)
-  })
-}
-
 const addingCleaner = ref(undefined as unknown as TestCaseCond)
 
 const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase) => {
@@ -856,7 +856,30 @@ const onCancelCreateCleanerArgClick = (arg: Arg) => {
   arg.Editing = false
 }
 
-onMounted(() => {
+const fetchTestCases = (offset: number, limit: number) => {
+  testCase.getTestCases({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_TEST_CASES',
+        Message: 'MSG_GET_TEST_CASES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<TestCase>) => {
+    if (error) {
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchTestCases(offset + limit, limit)
+  })
+}
+
+const fetchDomains = () => {
   apis.getDomains({
     Message: {
       Error: {
@@ -873,7 +896,35 @@ onMounted(() => {
     options.value = domains
     options.value.push('Clear')
   })
+}
+
+const fetchTestCaseConds = (offset: number, limit: number) => {
+  testCaseCond.getTestCaseConds({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_TEST_CASE_CONDS',
+        Message: 'MSG_GET_TEST_CASE_CONDS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<TestCaseCond>) => {
+    if (error) {
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchTestCases(offset + limit, limit)
+  })
+}
+
+onMounted(() => {
+  fetchDomains()
   fetchTestCases(0, 100)
+  fetchTestCaseConds(0, 100)
 })
 
 </script>

@@ -20,7 +20,7 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
   getters: {
     getConds (): (testCaseID: string, condType?: CondType) => Array<TestCaseCond> {
       return (testCaseID: string, condType?: CondType) => {
-        return this.Conds.filter((el) => {
+        const conds = this.Conds.filter((el) => {
           if (el.TestCaseID !== testCaseID) {
             return false
           }
@@ -29,6 +29,7 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
           }
           return true
         })
+        return conds
       }
     }
   },
@@ -52,7 +53,7 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
         }
       )
     },
-    updateTestCase (req: UpdateTestCaseCondRequest, done: (error: boolean, testcase?: TestCaseCond) => void) {
+    updateTestCaseCond (req: UpdateTestCaseCondRequest, done: (error: boolean, testcase?: TestCaseCond) => void) {
       doActionWithError<UpdateTestCaseCondRequest, UpdateTestCaseCondResponse>(
         API.UPDATE_TEST_CASE_COND,
         req,
@@ -72,7 +73,7 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
         }
       )
     },
-    deleteTestCase (req: DeleteTestCaseCondRequest, done: (error: boolean, testcase?: TestCaseCond) => void) {
+    deleteTestCaseCond (req: DeleteTestCaseCondRequest, done: (error: boolean, testcase?: TestCaseCond) => void) {
       doActionWithError<DeleteTestCaseCondRequest, DeleteTestCaseCondResponse>(
         API.DELETE_TSET_CASE_COND,
         req,
@@ -86,7 +87,7 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
         }
       )
     },
-    getTestCases (req: GetTestCaseCondsRequest, done: (error: boolean, testcases?: Array<TestCaseCond>) => void) {
+    getTestCaseConds (req: GetTestCaseCondsRequest, done: (error: boolean, testcases?: Array<TestCaseCond>) => void) {
       doActionWithError<GetTestCaseCondsRequest, GetTestCaseCondsResponse>(
         API.GET_TEST_CASES_COND,
         req,
