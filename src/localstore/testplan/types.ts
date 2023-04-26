@@ -17,9 +17,9 @@ export interface TestPlan {
   Name: string
   State: TestPlanState
   CreatedBy: string
-  EmailAddress: string
+  Email: string
   Executor: string
-  ExecutorEmailAddress: string
+  ExecutorEmail: string
   Fails: number
   Passes: number
   Skips: number

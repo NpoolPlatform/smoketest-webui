@@ -26,7 +26,7 @@
         <q-select
           v-model='testplan'
           :options='options'
-          :option-label='(item) => item.Title'
+          :option-label='(item) => item.Title + "/" + item.ID'
           dense
           :label='$t("MSG_TEST_PLAN")'
           class='filter'
@@ -124,13 +124,13 @@ const testPlanColumns = computed(() => [
     name: 'CreatedBy',
     label: t('MSG_CREATED_BY'),
     align: 'left',
-    field: (row: TestPlan) => row.EmailAddress
+    field: (row: TestPlan) => row.Email
   },
   {
     name: 'Executor',
     label: t('MSG_EXECUTOR'),
     align: 'left',
-    field: (row: TestPlan) => row.ExecutorEmailAddress
+    field: (row: TestPlan) => row.ExecutorEmail
   }
 ])
 
@@ -180,7 +180,7 @@ const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
 const testCases = computed(() => testCase.TestCases.filter((el) => {
   const index = planTestCases.value?.findIndex((v) => v.TestCaseID === el.ID)
-  return index
+  return index && index >= 0
 }))
 
 const logined = useLocalUserStore()
@@ -336,9 +336,33 @@ const fetchAPIs = (offset: number, limit: number) => {
   })
 }
 
+const fetchTestCases = (offset: number, limit: number) => {
+  testCase.getTestCases({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_TEST_CASES',
+        Message: 'MSG_GET_TEST_CASES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<TestCase>) => {
+    if (error) {
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchTestCases(offset + limit, limit)
+  })
+}
+
 onMounted(() => {
   fetchAPIs(0, 100)
   fetchTestPlans(0, 100)
+  fetchTestCases(0, 100)
 })
 
 </script>
