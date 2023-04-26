@@ -4,6 +4,15 @@ import { MenuItem } from 'src/localstore'
 const MainDrawerMenus = [
   {
     menuId: uid(),
+    label: '模块',
+    caption: '管理模块',
+    icon: 'pending',
+    target: '/module',
+    level: 0,
+    sectionBegin: false,
+    children: []
+  } as MenuItem, {
+    menuId: uid(),
     label: '测试用例',
     caption: '管理测试用例',
     icon: 'pending',
