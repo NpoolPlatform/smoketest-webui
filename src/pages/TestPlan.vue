@@ -12,9 +12,6 @@
         <q-btn dense @click='onCreateTestPlanClick'>
           {{ $t('MSG_CREATE') }}
         </q-btn>
-        <q-btn dense @click='onFetchClick'>
-          {{ $t('MSG_FETCH') }}
-        </q-btn>
       </template>
     </q-table>
     <q-table
@@ -51,11 +48,11 @@
       </q-card-section>
       <q-card-section>
         <q-input
-          v-model='targetTestPlan.Title'
+          v-model='targetTestPlan.Name'
           :label='$t("MSG_NAME")'
         />
         <q-input
-          v-model='targetTestPlan.Description'
+          v-model='targetTestPlan.Deadline'
           :label='$t("MSG_DESCRIPTION")'
         />
       </q-card-section>
@@ -95,8 +92,17 @@
 <script setup lang='ts'>
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestPlan, useTestPlanStore, TestCase, useTestCaseStore, TestCaseInstance, useLocalAPIStore, API } from 'src/localstore'
-import { NotifyType } from 'npool-cli-v4'
+import {
+  TestPlan,
+  useTestPlanStore,
+  TestCase,
+  useTestCaseStore,
+  useLocalAPIStore,
+  API,
+  PlanTestCase,
+  usePlanTestCaseStore
+} from 'src/localstore'
+import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -106,7 +112,7 @@ const testPlanColumns = computed(() => [
     name: 'Title',
     label: t('MSG_TITLE'),
     align: 'left',
-    field: (row: TestPlan) => row.Title
+    field: (row: TestPlan) => row.Name
   },
   {
     name: 'ID',
@@ -115,16 +121,16 @@ const testPlanColumns = computed(() => [
     field: (row: TestPlan) => row.ID
   },
   {
-    name: 'Creator',
-    label: t('MSG_CREATOR'),
+    name: 'CreatedBy',
+    label: t('MSG_CREATED_BY'),
     align: 'left',
-    field: (row: TestPlan) => row.Creator
+    field: (row: TestPlan) => row.CreatedBy
   },
   {
-    name: 'Applier',
-    label: t('MSG_APPLIER'),
+    name: 'Executor',
+    label: t('MSG_EXECUTOR'),
     align: 'left',
-    field: (row: TestPlan) => row.Applier
+    field: (row: TestPlan) => row.Executor
   }
 ])
 
@@ -133,37 +139,31 @@ const testCaseColumns = computed(() => [
     name: 'Index',
     label: t('MSG_INDEX'),
     align: 'left',
-    field: (row: TestCaseInstance) => row.Index
+    field: (row: PlanTestCase) => row.Index
   },
   {
     name: 'ID',
     label: t('MSG_ID'),
     align: 'left',
-    field: (row: TestCaseInstance) => row.ID
+    field: (row: PlanTestCase) => row.ID
   },
   {
     name: 'PlanID',
     label: t('MSG_PLAN_ID'),
     align: 'left',
-    field: (row: TestCaseInstance) => row.PlanID
+    field: (row: PlanTestCase) => row.TestPlanID
   },
   {
     name: 'CaseID',
     label: t('MSG_CASE_ID'),
     align: 'left',
-    field: (row: TestCaseInstance) => row.CaseID
-  },
-  {
-    name: 'Executed',
-    label: t('MSG_EXECUTED'),
-    align: 'left',
-    field: (row: TestCaseInstance) => row.Executed
+    field: (row: PlanTestCase) => row.TestCaseID
   },
   {
     name: 'Result',
     label: t('MSG_RESULT'),
     align: 'left',
-    field: (row: TestCaseInstance) => row.Result
+    field: (row: PlanTestCase) => row.Result
   }
 ])
 
@@ -171,11 +171,19 @@ const testPlan = useTestPlanStore()
 const testplan = ref(undefined as unknown as TestPlan)
 const testPlans = computed(() => testPlan.TestPlans)
 
+const planTestCase = usePlanTestCaseStore()
+const planTestCases = computed(() => planTestCase.testcases(testplan.value?.ID))
+
 const options = computed(() => testPlan.TestPlans)
-const testCases = computed(() => testPlan.testcases(testplan.value?.ID as string))
 
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
+const testCases = computed(() => testCase.TestCases.filter((el) => {
+  const index = planTestCases.value?.findIndex((v) => v.TestCaseID === el.ID)
+  return index
+}))
+
+const logined = useLocalUserStore()
 
 const fetchTestPlans = (offset: number, limit: number) => {
   testPlan.getTestPlans({
@@ -200,10 +208,6 @@ const fetchTestPlans = (offset: number, limit: number) => {
   })
 }
 
-const onFetchClick = () => {
-  fetchTestPlans(0, 100)
-}
-
 const showingTestPlan = ref(false)
 const updatingTestPlan = ref(false)
 
@@ -223,9 +227,8 @@ const onTestPlanSubmit = () => {
   if (updatingTestPlan.value) {
     updatingTestPlan.value = false
     testPlan.updateTestPlan({
-      ID: targetTestPlan.value.ID as string,
-      Name: targetTestPlan.value.Title,
-      ResponsibleUserID: targetTestPlan.value.Applier,
+      ID: targetTestCase.value.ID,
+      Name: targetTestPlan.value.Name,
       Message: {
         Error: {
           Title: 'MSG_UPDATE_TEST_PLAN',
@@ -241,8 +244,8 @@ const onTestPlanSubmit = () => {
   }
 
   testPlan.createTestPlan({
-    Name: targetTestPlan.value.Title,
-    ResponsibleUserID: targetTestPlan.value.Applier,
+    Name: targetTestPlan.value.Name,
+    CreatedBy: logined.User.ID,
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_PLAN',
@@ -269,13 +272,13 @@ const onAddTestCaseClick = () => {
 
 const onTestCaseSubmit = () => {
   showingTestCase.value = false
-  testPlan.createTestCase({
-    CaseID: targetTestCase.value.ID,
-    PlanID: testplan.value.ID as string,
+  planTestCase.createPlanTestCase({
+    TestCaseID: targetTestCase.value.ID,
+    TestPlanID: testplan.value.ID,
     Message: {
       Error: {
-        Title: 'MSG_CREATE_TEST_CASE',
-        Message: 'MSG_CREATE_TEST_CASE_FAIL',
+        Title: 'MSG_CREATE_PLAN_TEST_CASE',
+        Message: 'MSG_CREATE_PLAN_TEST_CASE_FAIL',
         Popup: true,
         Type: NotifyType.Error
       }
@@ -335,6 +338,7 @@ const fetchAPIs = (offset: number, limit: number) => {
 
 onMounted(() => {
   fetchAPIs(0, 100)
+  fetchTestPlans(0, 100)
 })
 
 </script>

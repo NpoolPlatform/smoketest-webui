@@ -1,35 +1,26 @@
 import { defineStore } from 'pinia'
-import { CreateTestCaseInstanceRequest, CreateTestPlanRequest, CreateTestPlanResponse, DeleteTestPlanRequest, DeleteTestPlanResponse, GetTestPlansRequest, GetTestPlansResponse, TestCaseInstance, TestPlan, TestPlanState, UpdateTestPlanRequest, UpdateTestPlanResponse } from './types'
-import { uid } from 'quasar'
+import {
+  CreateTestPlanRequest,
+  CreateTestPlanResponse,
+  DeleteTestPlanRequest,
+  DeleteTestPlanResponse,
+  GetTestPlansRequest,
+  GetTestPlansResponse,
+  TestPlan,
+  UpdateTestPlanRequest,
+  UpdateTestPlanResponse
+} from './types'
 import { doActionWithError } from 'npool-cli-v4'
 import { API } from './const'
+import { TestPlanState } from './state'
 
 export const useTestPlanStore = defineStore('local-testplan', {
   state: (): TestPlanState => ({
     TestPlans: [] as Array<TestPlan>,
-    TestCases: new Map<string, Array<TestCaseInstance>>()
+    Total: 0
   }),
-  getters: {
-    testcases (): (id: string) => Array<TestCaseInstance> | undefined {
-      return (id: string) => {
-        return this.TestCases.get(id)
-      }
-    }
-  },
+  getters: {},
   actions: {
-    createTestCase (req: CreateTestCaseInstanceRequest, done: (error: boolean, row?: TestCaseInstance) => void) {
-      let cases = this.TestCases.get(req.PlanID)
-      if (!cases) {
-        cases = [] as Array<TestCaseInstance>
-      }
-      cases.push({
-        ID: uid(),
-        CaseID: req.CaseID,
-        PlanID: req.PlanID
-      } as TestCaseInstance)
-      this.TestCases.set(req.PlanID, cases)
-      done(false, {} as TestCaseInstance)
-    },
     createTestPlan (req: CreateTestPlanRequest, done: (error: boolean, row?: TestPlan) => void) {
       doActionWithError<CreateTestPlanRequest, CreateTestPlanResponse>(
         API.CREATE_TEST_PLAN,
@@ -91,3 +82,4 @@ export const useTestPlanStore = defineStore('local-testplan', {
 })
 
 export * from './types'
+export * from './plantestcase'
