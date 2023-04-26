@@ -124,13 +124,13 @@ const testPlanColumns = computed(() => [
     name: 'CreatedBy',
     label: t('MSG_CREATED_BY'),
     align: 'left',
-    field: (row: TestPlan) => row.CreatedBy
+    field: (row: TestPlan) => row.EmailAddress
   },
   {
     name: 'Executor',
     label: t('MSG_EXECUTOR'),
     align: 'left',
-    field: (row: TestPlan) => row.Executor
+    field: (row: TestPlan) => row.ExecutorEmailAddress
   }
 ])
 
@@ -142,10 +142,10 @@ const testCaseColumns = computed(() => [
     field: (row: PlanTestCase) => row.Index
   },
   {
-    name: 'ID',
-    label: t('MSG_ID'),
+    name: 'Name',
+    label: t('MSG_NAME'),
     align: 'left',
-    field: (row: PlanTestCase) => row.ID
+    field: (row: PlanTestCase) => testCase.testcase(row.ID)?.Name
   },
   {
     name: 'PlanID',
