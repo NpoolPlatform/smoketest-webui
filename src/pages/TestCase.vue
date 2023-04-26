@@ -440,7 +440,7 @@ const runCleaner = (_testCase: TestCase) => {
       return
     }
     _case.InputVal = testCase.input(_case)
-    void post(testCasePath(_case) as string, _case.Input)
+    void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
         console.log(testCasePath(_case), resp)
       })
@@ -826,7 +826,7 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     ID: uid(),
     Index: 0,
     CondType: CondType.Cleaner,
-    TestCaseID: cleanerTestCase.ID,
+    TestCaseID: _testCase.ID,
     CondTestCaseID: cleanerTestCase.ID,
     Args: [],
     ArgumentMap: ''
