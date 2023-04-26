@@ -1,70 +1,9 @@
 import { BaseRequest } from 'npool-cli-v4'
-
-export enum ArgType {
-  Input = 'Input',
-  Output = 'Output'
-}
-
-export interface ArgSrc {
-  ID: string
-  Type: ArgType
-  Src: string
-}
-
-export interface ArgMap extends ArgSrc {
-  Dst: string
-}
-
-export interface Arg {
-  ID: string
-  Name: string
-  Type: string
-  Editing: boolean
-  From?: ArgSrc
-  Value: string | number | null | undefined
-  ParentID?: string
-}
-
-export enum CondType {
-  PreCondition = 'PreCondition',
-  Cleaner = 'Cleaner'
-}
-
-export enum ArgDef {
-  Number = 'Number',
-  String = 'String',
-  Object = 'Object',
-  Decimal = 'Decimal',
-  Array = 'Array'
-}
-
-export const ArgDefs = [
-  ArgDef.Number,
-  ArgDef.String,
-  ArgDef.Object,
-  ArgDef.Decimal,
-  ArgDef.Array
-]
-
-export interface Cond {
-  ID: string
-  Index: number
-  CondType: CondType
-  TestCaseID: string
-  RelatedTestCaseID: string
-  Args: Array<Arg>
-}
+import { Arg } from './base/arg'
 
 export enum TestCaseType {
   Manual = 'Manual',
   Automatic = 'Automatic'
-}
-
-export interface RelatedTestCase {
-  ID: string
-  CondType: CondType
-  TestCaseID: string
-  RelatedTestCaseID: string
 }
 
 export interface TestCase {
@@ -80,22 +19,22 @@ export interface TestCase {
   ApiProtocol: string
   ApiMethod: string
   ApiDeprecated: boolean
-  Arguments: string
-  ArgTypeDescription: string
+  Input: string
+  InputDesc: string
+  Expectation: string
+  Depracated: boolean
+  TestCaseType: TestCaseType
+  // Local parsed
   Args: Array<Arg>
-  PreConds: Array<Cond>
-  Cleaners: Array<Cond>
+  // PreConds: Array<Cond>
+  // Cleaners: Array<Cond>
   Collapsed: boolean
   AddingArg: boolean
   AddingPreCond: boolean
   AddingCleaner: boolean
-  Input: Record<string, unknown>
+  InputVal: Record<string, unknown>
   Output: Record<string, unknown>
   Result: Record<string, unknown>
-  Expectation: string
-  Depracated: boolean
-  TestCaseType: TestCaseType
-  RelatedTestCases: Array<Cond>
   Error?: Error
   CreatedAt: number
   UpdatedAt: number
@@ -106,9 +45,9 @@ export interface CreateTestCaseRequest extends BaseRequest {
   Description: string
   ModuleName: string
   ApiID: string
-  Arguments: string
-  Expectation: string
-  ArgTypeDescription?: string
+  Input?: string
+  InputDesc?: string
+  Expectation?: string
 }
 
 export interface CreateTestCaseResponse {
@@ -120,10 +59,10 @@ export interface UpdateTestCaseRequest extends BaseRequest {
   Name?: string
   Description?: string
   Expectation?: string
-  Arguments?: string
+  Input?: string
+  InputDesc?: string
   TestCaseType?: TestCaseType
   Deprecated?: boolean
-  ArgTypeDescription?: string
 }
 
 export interface UpdateTestCaseResponse {
@@ -146,8 +85,4 @@ export interface DeleteTestCaseRequest extends BaseRequest {
 
 export interface DeleteTestCaseResponse {
   Info: TestCase
-}
-
-export interface TestCaseState {
-  TestCases: Array<TestCase>
 }

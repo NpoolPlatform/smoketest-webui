@@ -1,11 +1,24 @@
 import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
+import { TestCaseCond } from './cond'
 import { API } from './const'
-import { Arg, ArgSrc, ArgType, CreateTestCaseRequest, CreateTestCaseResponse, DeleteTestCaseRequest, DeleteTestCaseResponse, GetTestCasesRequest, GetTestCasesResponse, TestCase, TestCaseState, UpdateTestCaseRequest, UpdateTestCaseResponse } from './types'
+import {
+  Arg, ArgSrc, ArgType
+} from './base/arg'
+import {
+  CreateTestCaseRequest, CreateTestCaseResponse,
+  DeleteTestCaseRequest, DeleteTestCaseResponse,
+  GetTestCasesRequest, GetTestCasesResponse,
+  TestCase,
+  UpdateTestCaseRequest, UpdateTestCaseResponse
+} from './types'
+import { CondType } from './cond/def'
+import { TestCaseState } from './state'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({
-    TestCases: [] as Array<TestCase>
+    TestCases: [] as Array<TestCase>,
+    Total: 0
   }),
   getters: {
     args (): (testCase: TestCase, argID?: string) => Record<string, unknown> {
@@ -41,15 +54,15 @@ export const useTestCaseStore = defineStore('local-testcase', {
           args = testCase.Args.filter((el) => el.ParentID === argID)
         }
         const input = {} as Record<string, unknown>
-        args.forEach((v) => {
+        args.forEach((v: Arg) => {
           if (v.ParentID && !argID) {
             return
           }
           if (v.From) {
-            const _case = this.TestCases.find((el) => el.ID === v.From?.ID)
+            const _case = this.TestCases.find((el) => el.ID === v.From?.TestCaseID)
             switch (v.From.Type) {
               case ArgType.Input:
-                input[v.Name] = _case?.Input?.[v.From.Src]
+                input[v.Name] = _case?.InputVal?.[v.From.Src]
                 break
               case ArgType.Output:
                 input[v.Name] = _case?.Output?.[v.From.Src]
@@ -77,43 +90,12 @@ export const useTestCaseStore = defineStore('local-testcase', {
         return input
       }
     },
-    argSrcs (): (testCase: TestCase) => Array<ArgSrc> {
+    testCase2ArgSrc (): (testCase: TestCase) => Array<ArgSrc> {
       return (testCase: TestCase) => {
-        if (!testCase.PreConds) {
-          return []
-        }
-        const srcs = [] as ArgSrc[]
-        testCase.PreConds.forEach((v) => {
-          const _case = this.TestCases.find((el) => el.ID === v.TestCaseID)
-          if (!_case) {
-            return
-          }
-          for (const key of Object.keys(this.input(_case))) {
-            srcs.push({
-              ID: v.TestCaseID,
-              Src: key,
-              Type: ArgType.Input
-            })
-          }
-          if (_case.Output) {
-            for (const key of Object.keys(_case.Output)) {
-              srcs.push({
-                ID: v.TestCaseID,
-                Src: key,
-                Type: ArgType.Output
-              })
-            }
-          }
-        })
-        return srcs
-      }
-    },
-    cleanerArgSrcs (): (testCase: TestCase) => Array<ArgSrc> {
-      return (testCase: TestCase) => {
-        const srcs = this.argSrcs(testCase)
+        const srcs = [] as Array<ArgSrc>
         for (const key of Object.keys(this.input(testCase))) {
           srcs.push({
-            ID: testCase.ID,
+            TestCaseID: testCase.ID,
             Src: key,
             Type: ArgType.Input
           })
@@ -121,13 +103,35 @@ export const useTestCaseStore = defineStore('local-testcase', {
         if (testCase.Output) {
           for (const key of Object.keys(testCase.Output)) {
             srcs.push({
-              ID: testCase.ID,
+              TestCaseID: testCase.ID,
               Src: key,
               Type: ArgType.Output
             })
           }
         }
         return srcs
+      }
+    },
+    argSrcs (): (conds: Array<TestCaseCond>) => Array<ArgSrc> {
+      return (conds: Array<TestCaseCond>) => {
+        let srcs = [] as ArgSrc[]
+        conds.forEach((v) => {
+          if (v.CondType === CondType.Cleaner) {
+            return
+          }
+          const _case = this.TestCases.find((el) => el.ID === v.CondTestCaseID)
+          if (!_case) {
+            return
+          }
+          srcs = [...srcs, ...this.testCase2ArgSrc(_case)]
+        })
+        return srcs
+      }
+    },
+    cleanerArgSrcs (): (testCase: TestCase, conds: Array<TestCaseCond>) => Array<ArgSrc> {
+      return (testCase: TestCase, conds: Array<TestCaseCond>) => {
+        const srcs = this.argSrcs(conds)
+        return [...srcs, ...this.testCase2ArgSrc(testCase)]
       }
     },
     testcase (): (id: string) => TestCase | undefined {
@@ -153,9 +157,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
         (resp: CreateTestCaseResponse): void => {
           const v = resp.Info
           try {
-            v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+            v.InputVal = JSON.parse(v.Input) as Record<string, unknown>
           } catch (e) {
-            console.log('Invalid arguments', v.Arguments, e)
+            console.log('Invalid arguments', v.Input, e)
           }
           try {
             v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
@@ -163,9 +167,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
             console.log('Invalid arguments', v.Expectation, e)
           }
           try {
-            v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+            v.Args = [...JSON.parse(v.InputDesc) as Array<Arg>]
           } catch (e) {
-            console.log('Invalid arguments', v.ArgTypeDescription, e)
+            console.log('Invalid arguments', v.InputDesc, e)
           }
           v.Collapsed = true
           this.TestCases.push(v)
@@ -183,9 +187,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
         (resp: UpdateTestCaseResponse): void => {
           const v = resp.Info
           try {
-            v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+            v.InputVal = JSON.parse(v.Input) as Record<string, unknown>
           } catch (e) {
-            console.log('Invalid arguments', v.Arguments, e)
+            console.log('Invalid arguments', v.Input, e)
           }
           try {
             v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
@@ -193,9 +197,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
             console.log('Invalid arguments', v.Expectation, e)
           }
           try {
-            v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+            v.Args = [...JSON.parse(v.InputDesc) as Array<Arg>]
           } catch (e) {
-            console.log('Invalid arguments', v.ArgTypeDescription, e)
+            console.log('Invalid arguments', v.InputDesc, e)
           }
           const index = this.TestCases.findIndex((el) => el.ID === v.ID)
           this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
@@ -228,9 +232,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
           resp.Infos.forEach((v) => {
             v.Collapsed = true
             try {
-              v.Input = JSON.parse(v.Arguments) as Record<string, unknown>
+              v.InputVal = JSON.parse(v.Input) as Record<string, unknown>
             } catch (e) {
-              console.log('Invalid arguments', v.Arguments, e)
+              console.log('Invalid arguments', v.Input, e)
             }
             try {
               v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
@@ -238,9 +242,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
               console.log('Invalid arguments', v.Expectation, e)
             }
             try {
-              v.Args = [...JSON.parse(v.ArgTypeDescription) as Array<Arg>]
+              v.Args = [...JSON.parse(v.InputDesc) as Array<Arg>]
             } catch (e) {
-              console.log('Invalid arguments', v.ArgTypeDescription, e)
+              console.log('Invalid arguments', v.InputDesc, e)
             }
             const index = this.TestCases.findIndex((el) => el.ID === v.ID)
             this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
@@ -255,3 +259,5 @@ export const useTestCaseStore = defineStore('local-testcase', {
 })
 
 export * from './types'
+export * from './base/arg'
+export * from './cond'

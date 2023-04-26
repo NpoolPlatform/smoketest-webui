@@ -77,8 +77,8 @@
           </q-td>
           <q-td colspan='100%'>
             <div
-              v-for='cond in props.row.PreConds'
-              :key='cond'
+              v-for='cond in testCaseCond.getConds(props.row.PreConds, CondType.PreCondition)'
+              :key='cond.ID'
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
@@ -86,7 +86,7 @@
                 <q-td>{{ testCaseByID(cond.TestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.TestCaseID)) }}</q-td>
                 <q-td>
-                  <q-btn @click='onDeletePreCondClick(props.row, cond)'>
+                  <q-btn @click='onDeleteTestCaseCondClick(cond)'>
                     -
                   </q-btn>
                 </q-td>
@@ -120,8 +120,8 @@
           </q-td>
           <q-td colspan='90%'>
             <div
-              v-for='cond in props.row.Cleaners'
-              :key='cond'
+              v-for='cond in testCaseCond.getConds(props.row.Cleaners, CondType.Cleaner)'
+              :key='cond.ID'
             >
               <q-tr>
                 <q-td>{{ cond.Index }}</q-td>
@@ -140,7 +140,7 @@
                     <q-select
                       label='From TestCase Arg'
                       dense
-                      :options='testCase.cleanerArgSrcs(props.row)'
+                      :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.ID))'
                       :option-label='(item) => fromArgMapLabel(item)'
                       class='filter'
                       v-model='arg.From'
@@ -158,7 +158,7 @@
                   </div>
                 </q-td>
                 <q-td>
-                  <q-btn @click='onDeleteCleanerClick(props.row, cond)'>
+                  <q-btn @click='onDeleteTestCaseCondClick(cond)'>
                     -
                   </q-btn>
                 </q-td>
@@ -186,7 +186,7 @@
                   <q-select
                     label='From TestCase Arg'
                     dense
-                    :options='testCase.cleanerArgSrcs(props.row)'
+                    :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.ID))'
                     :option-label='(item) => fromArgMapLabel(item)'
                     class='filter'
                     v-model='arg.From'
@@ -241,7 +241,7 @@
               <q-select
                 label='From PreConds Arg'
                 dense
-                :options='testCase.argSrcs(props.row)'
+                :options='testCase.argSrcs(testCaseCond.getConds(props.row.ID, CondType.PreCondition))'
                 :option-label='(item) => fromArgMapLabel(item)'
                 :disable='!arg.Editing'
                 class='filter'
@@ -280,7 +280,7 @@
               <q-select
                 label='From PreConds Arg'
                 dense
-                :options='testCase.argSrcs(props.row)'
+                :options='testCase.argSrcs(testCaseCond.getConds(props.row.ID, CondType.PreCondition))'
                 :option-label='(item) => fromArgMapLabel(item)'
                 class='filter'
                 v-model='newArg.From'
@@ -364,7 +364,18 @@
 <script setup lang='ts'>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TestCase, useTestCaseStore, useLocalAPIStore, API, ArgDefs, Arg, Cond, CondType, ArgMap } from 'src/localstore'
+import {
+  TestCase,
+  useTestCaseStore,
+  useLocalAPIStore,
+  API,
+  ArgDefs,
+  Arg,
+  TestCaseCond,
+  CondType,
+  ArgMap,
+  useTestCaseCondStore
+} from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
 import { uid } from 'quasar'
@@ -377,6 +388,7 @@ const module = ref('')
 const testCase = useTestCaseStore()
 const testCases = computed(() => testCase.TestCases)
 
+const testCaseCond = useTestCaseCondStore()
 const apis = useLocalAPIStore()
 
 const testCaseByID = (id: string) => {
@@ -419,17 +431,15 @@ watch(module, () => {
 const options = ref([] as string[])
 
 const runCleaner = (_testCase: TestCase) => {
-  if (!_testCase.Cleaners) {
-    return
-  }
-  _testCase.Cleaners.sort((a: Cond, b: Cond) => {
+  const cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
     return a.Index > b.Index ? 1 : -1
   }).forEach((v) => {
-    const _case = testCase.testcase(v.TestCaseID)
+    const _case = testCase.testcase(v.CondTestCaseID)
     if (!_case) {
       return
     }
-    _case.Input = testCase.input(_case)
+    _case.InputVal = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.Input)
       .then((resp: unknown) => {
         console.log(testCasePath(_case), resp)
@@ -441,7 +451,7 @@ const runCleaner = (_testCase: TestCase) => {
 }
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
-  _testCase.Input = testCase.input(_testCase)
+  _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.Input)
     .then((resp: unknown) => {
       _testCase.Error = undefined
@@ -486,15 +496,15 @@ const onDepracateTestCaseClick = (testCase: TestCase) => {
 }
 
 const onSaveTestCaseClick = (_testCase: TestCase) => {
-  _testCase.Input = testCase.input(_testCase)
+  _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
     Name: _testCase.Name,
     Description: _testCase.Description,
-    Arguments: JSON.stringify(_testCase.Input),
+    Input: JSON.stringify(_testCase.InputVal),
+    InputDesc: JSON.stringify(_testCase.Args),
     Expectation: JSON.stringify(_testCase.Output),
     Deprecated: _testCase.Depracated,
-    ArgTypeDescription: JSON.stringify(_testCase.Args),
     Message: {
       Error: {
         Title: 'MSG_UPDATE_TEST_CASE',
@@ -543,14 +553,12 @@ const updating = ref(false)
 
 const target = ref({
   ModuleName: module.value,
-  Args: [] as Arg[],
-  PreConds: [] as Cond[],
-  Cleaners: [] as Cond[]
+  Args: [] as Arg[]
 } as TestCase)
 const targetInput = computed(() => testCase.input(target.value))
 
 watch(targetInput, () => {
-  target.value.Input = targetInput.value
+  target.value.InputVal = targetInput.value
 })
 
 watch(module, () => {
@@ -587,23 +595,21 @@ const onMenuHide = () => {
   showing.value = false
   target.value = {
     ModuleName: module.value,
-    Args: [] as Arg[],
-    PreConds: [] as Cond[],
-    Cleaners: [] as Cond[]
+    Args: [] as Arg[]
   } as TestCase
 }
 
 const onSubmit = () => {
   showing.value = false
-
-  target.value.Input = testCase.input(target.value)
+  target.value.InputVal = testCase.input(target.value)
 
   if (updating.value) {
     testCase.updateTestCase({
       ID: target.value.ID,
       Name: target.value.Name,
       Description: target.value.Description,
-      Arguments: JSON.stringify(target.value.Input),
+      Input: JSON.stringify(target.value.InputVal),
+      InputDesc: JSON.stringify(target.value.Args),
       Expectation: JSON.stringify(target.value.Output),
       Deprecated: target.value.Depracated,
       Message: {
@@ -626,7 +632,8 @@ const onSubmit = () => {
     Description: target.value.Description,
     ModuleName: target.value.ModuleName,
     ApiID: target.value.ApiID,
-    Arguments: JSON.stringify(target.value.Input),
+    Input: JSON.stringify(target.value.InputVal),
+    InputDesc: JSON.stringify(target.value.Args),
     Expectation: JSON.stringify(target.value.Output),
     Message: {
       Error: {
@@ -658,7 +665,7 @@ const onConfirmCreateArgClick = (_testCase: TestCase) => {
   newArg.value.ID = uid()
   _testCase.Args.push(newArg.value)
   newArg.value = {} as Arg
-  _testCase.Input = testCase.input(_testCase)
+  _testCase.InputVal = testCase.input(_testCase)
 }
 
 const onCancelCreateArgClick = (testCase: TestCase) => {
@@ -690,37 +697,56 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   if (!_case) {
     return
   }
-  if (!_testCase.PreConds) {
-    _testCase.PreConds = []
-  }
-  _testCase.PreConds.push({
-    TestCaseID: preCondTestCase.value.ID,
-    RelatedTestCaseID: _testCase.ID,
+  testCaseCond.createTestCaseCond({
+    TestCaseID: _testCase.ID,
+    CondTestCaseID: preCondTestCase.value.ID,
+    ArgumentMap: JSON.stringify(addingCleaner.value.Args),
     Index: 0,
     CondType: CondType.PreCondition,
-    ArgMap: []
-  } as unknown as Cond)
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
   if (!_case.Output) {
-    _case.Input = testCase.input(_case)
+    _case.InputVal = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.Input)
       .then((resp: unknown) => {
         _case.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
-        _testCase.Input = testCase.input(_testCase)
+        _testCase.InputVal = testCase.input(_testCase)
       })
       .catch((err: Error) => {
         _case.Error = err
       })
     return
   }
-  _testCase.Input = testCase.input(_testCase)
+  _testCase.InputVal = testCase.input(_testCase)
 }
 
 const onCancelCreatePreCondClick = (testCase: TestCase) => {
   testCase.AddingPreCond = false
 }
 
-const onDeletePreCondClick = (testCase: TestCase, cond: Cond) => {
-  testCase.PreConds = testCase.PreConds.filter((el) => el.ID !== cond.ID)
+const onDeleteTestCaseCondClick = (cond: TestCaseCond) => {
+  testCaseCond.deleteTestCase({
+    ID: cond.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onCreateCleanerClick = (testCase: TestCase) => {
@@ -728,23 +754,31 @@ const onCreateCleanerClick = (testCase: TestCase) => {
 }
 
 const onConfirmCreateCleanerClick = (testCase: TestCase) => {
-  if (!testCase.Cleaners) {
-    testCase.Cleaners = []
-  }
-  testCase.AddingCleaner = false
-  testCase.Cleaners.push(addingCleaner.value)
+  testCaseCond.createTestCaseCond({
+    TestCaseID: testCase.ID,
+    CondTestCaseID: addingCleaner.value.CondTestCaseID,
+    ArgumentMap: JSON.stringify(addingCleaner.value.Args),
+    Index: 0,
+    CondType: CondType.Cleaner,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onCancelCreateCleanerClick = (testCase: TestCase) => {
   testCase.AddingCleaner = false
 }
 
-const onDeleteCleanerClick = (testCase: TestCase, cond: Cond) => {
-  testCase.Cleaners = testCase.Cleaners.filter((el) => el.ID !== cond.ID)
-}
-
 const fromArgMapLabel = (from: ArgMap) => {
-  const testcase = testCase.testcase(from.ID)
+  const testcase = testCase.testcase(from.TestCaseID)
   if (!testcase) {
     return 'Invalid'
   }
@@ -785,7 +819,7 @@ const fetchTestCases = (offset: number, limit: number) => {
   })
 }
 
-const addingCleaner = ref(undefined as unknown as Cond)
+const addingCleaner = ref(undefined as unknown as TestCaseCond)
 
 const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase) => {
   addingCleaner.value = {
@@ -793,8 +827,9 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     Index: 0,
     CondType: CondType.Cleaner,
     TestCaseID: cleanerTestCase.ID,
-    RelatedTestCaseID: cleanerTestCase.ID,
-    Args: []
+    CondTestCaseID: cleanerTestCase.ID,
+    Args: [],
+    ArgumentMap: ''
   }
   if (cleanerTestCase.Args) {
     addingCleaner.value.Args.push(...cleanerTestCase.Args)
