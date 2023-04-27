@@ -1,5 +1,5 @@
 commonLabels:
-  # app: smoketest-webui-v1
+  # app: smoketest-webui
 
 resources:
   - 01-smoketest-webui-v1.yaml
