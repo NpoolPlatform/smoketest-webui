@@ -19,10 +19,12 @@ pipeline {
           set -e
           if [ ! $rc -eq 0 ]; then
             n v16.14.0
+            PATH=/usr/local/bin:$PATH npm i -g mirror-config-china --registry=https://registry.npm.taobao.org
             PATH=/usr/local/bin:$PATH npm install --global --registry https://registry.npm.taobao.org yarn
             PATH=/usr/local/bin:$PATH yarn add global quasar-cli@latest
           fi
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin yarn install --registry https://registry.npm.taobao.org/
+          PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin quasar build
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin quasar build
         '''.stripIndent())
       }
@@ -170,6 +172,7 @@ pipeline {
           fi
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin yarn install --registry https://registry.npm.taobao.org/
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin quasar build
+          PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin quasar build
           docker build -t $DOCKER_REGISTRY/entropypool/smoketest-webui-v1:$tag .
         '''.stripIndent())
       }
@@ -243,15 +246,8 @@ pipeline {
         expression { TARGET_ENV ==~ /.*development.*/ }
       }
       steps {
-        sh 'sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml'
-        sh(returnStdout: false, script: '''
-          sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
-          sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/smoketest-webui-v1-treafik/smoketest-webui-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
-        '''.stripIndent())
-        sh 'sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml'
-
         sh 'sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-webui-v1.yaml'
+        sh 'sed -i "s/development/$TARGET_ENV/g" k8s/02-traefik-ingress.yaml'
         sh 'kubectl apply -k k8s'
       }
     }
@@ -268,15 +264,9 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-
-          sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
-          sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
-          sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/smoketest-webui-v1-treafik/smoketest-webui-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
-
           sed -i "s/smoketest-webui-v1:latest/smoketest-webui-v1:$tag/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-webui-v1.yaml
+          sed -i "s/development/$TARGET_ENV/g" k8s/02-traefik-ingress.yaml
           kubectl apply -k k8s
         '''.stripIndent())
       }
@@ -300,15 +290,9 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-
-          sed -i "s/npool\\.top/$ROOT_DOMAIN/g" k8s/02-traefik-ingress.yaml
-          sdomain=`echo $ROOT_DOMAIN | sed 's/\\./-/g'`
-          sed -i "s/npool-top/$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/smoketest-webui-v1-treafik/smoketest-webui-v1-treafik-$sdomain/g" k8s/02-traefik-ingress.yaml
-          sed -i "s/alidns-npool/$CERTIFICATE_ISSUER/g" k8s/02-traefik-ingress.yaml
-
           sed -i "s/smoketest-webui-v1:latest/smoketest-webui-v1:$tag/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-webui-v1.yaml
+          sed -i "s/development/$TARGET_ENV/g" k8s/02-traefik-ingress.yaml
           kubectl apply -k k8s
         '''.stripIndent())
       }

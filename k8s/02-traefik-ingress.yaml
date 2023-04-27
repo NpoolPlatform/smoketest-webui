@@ -15,11 +15,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - '*.npool.top'
-        - npool.top
+        - '*.development.npool.top'
+        - development.npool.top
       secretName: npool-top-tls
   rules:
-    - host: smoketest.npool.top
+    - host: smoketest.development.npool.top
       http: &http_rules
         paths:
           - path: /
