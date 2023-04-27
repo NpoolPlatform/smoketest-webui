@@ -72,15 +72,19 @@
   >
     <q-card class='popup-menu'>
       <q-card-section>
-        <span>{{ $t('MSG_CREATE_TEST_PLAN') }}</span>
+        <span>{{ $t('MSG_ADD_TEST_CASE') }}</span>
       </q-card-section>
       <q-card-section>
+        <q-item-label>
+          {{ selectedPlan?.[0]?.Name }}
+        </q-item-label>
+        <br>
         <q-select
           v-model='targetTestCase'
-          :options='allTestCases'
+          :options='testCases'
           :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
           dense
-          :label='$t("MSG_MODULE")'
+          :label='$t("MSG_TEST_CASE")'
           class='filter'
         />
       </q-card-section>
@@ -182,6 +186,11 @@ const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.
 
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
+const testCases = computed(() => allTestCases.value.filter((v) => {
+  const index = planTestCases.value?.findIndex((el) => v.ID === el.TestCaseID)
+  return index === undefined || index < 0
+}))
+
 const testCaseCond = useTestCaseCondStore()
 const logined = useLocalUserStore()
 
