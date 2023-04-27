@@ -194,7 +194,9 @@ const testPlan = useTestPlanStore()
 const testPlans = computed(() => testPlan.TestPlans)
 
 const planTestCase = usePlanTestCaseStore()
-const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID))
+const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID)?.sort((a: PlanTestCase, b: PlanTestCase) => {
+  return a.Index > b.Index ? 1 : -1
+}))
 
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
