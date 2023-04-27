@@ -34,6 +34,7 @@
       :columns='testCaseColumns'
       selection='single'
       v-model:selected='selectedTestCase'
+      @row-click='onTestCaseClick'
     >
       <template #top-right>
         <q-btn dense @click='onAddTestCaseClick'>
@@ -92,6 +93,10 @@
           :label='$t("MSG_TEST_CASE")'
           class='filter'
         />
+        <q-input
+          v-model='targetPlanTestCase.Index'
+          :label='$t("MSG_INDEX")'
+        />
       </q-card-section>
       <q-item class='row'>
         <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onTestCaseSubmit' />
@@ -115,7 +120,8 @@ import {
   usePlanTestCaseStore,
   useTestCaseCondStore,
   TestCaseCond,
-  CondType
+  CondType,
+  TestCaseResult
 } from 'src/localstore'
 import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
@@ -229,17 +235,18 @@ const targetTestPlan = ref({} as TestPlan)
 
 const onCreateTestPlanClick = () => {
   showingTestPlan.value = true
+  updatingTestPlan.value = false
 }
 
 const onTestPlanMenuHide = () => {
   showingTestPlan.value = false
+  updatingTestPlan.value = false
   targetTestPlan.value = {} as TestPlan
 }
 
 const onTestPlanSubmit = () => {
   showingTestPlan.value = false
   if (updatingTestPlan.value) {
-    updatingTestPlan.value = false
     testPlan.updateTestPlan({
       ID: targetTestCase.value.ID,
       Name: targetTestPlan.value.Name,
@@ -254,6 +261,7 @@ const onTestPlanSubmit = () => {
     }, () => {
       // TODO
     })
+    updatingTestPlan.value = false
     return
   }
 
@@ -278,13 +286,16 @@ const onTestPlanCancel = () => {
 }
 
 const showingTestCase = ref(false)
+const updatingTestCase = ref(false)
 const targetTestCase = ref({} as TestCase)
+const targetPlanTestCase = ref({} as PlanTestCase)
 
 const onAddTestCaseClick = () => {
   if (selectedPlan.value.length === 0) {
     return
   }
   showingTestCase.value = true
+  updatingTestCase.value = false
 }
 
 const selectedTestCase = ref([] as Array<PlanTestCase>)
@@ -309,9 +320,29 @@ const onDeleteTestCaseClick = () => {
 
 const onTestCaseSubmit = () => {
   showingTestCase.value = false
+  if (updatingTestCase.value) {
+    updatingTestCase.value = false
+    planTestCase.updatePlanTestCase({
+      ID: targetPlanTestCase.value.ID,
+      Index: targetPlanTestCase.value.Index,
+      Message: {
+        Error: {
+          Title: 'MSG_UPDATE_PLAN_TEST_CASE',
+          Message: 'MSG_UPDATE_PLAN_TEST_CASE_FAIL',
+          Popup: true,
+          Type: NotifyType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+    return
+  }
+
   planTestCase.createPlanTestCase({
     TestCaseID: targetTestCase.value.ID,
     TestPlanID: selectedPlan.value?.[0]?.ID,
+    Index: targetPlanTestCase.value.Index,
     Message: {
       Error: {
         Title: 'MSG_CREATE_PLAN_TEST_CASE',
@@ -327,6 +358,7 @@ const onTestCaseSubmit = () => {
 
 const onTestCaseMenuHide = () => {
   showingTestCase.value = false
+  updatingTestCase.value = false
   targetTestCase.value = {} as TestCase
 }
 
@@ -535,6 +567,7 @@ const runCleaner = (_testCase: TestCase, condIndex: number) => {
 }
 
 const runTestCase = (_testCase: TestCase, done: () => void, error: (err: Error) => void) => {
+  _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
@@ -554,9 +587,38 @@ const runPlanTestCase = (_case: PlanTestCase) => {
   }
   runPreConds(_testCase, 0, () => {
     runTestCase(_testCase, () => {
+      planTestCase.updatePlanTestCase({
+        ID: _case.ID,
+        Result: TestCaseResult.Passed,
+        TestCaseOutput: JSON.stringify(_testCase.Output),
+        Message: {
+          Error: {
+            Title: 'MSG_UPDATE_TEST_PLAN_CASE',
+            Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
+            Popup: true,
+            Type: NotifyType.Error
+          }
+        }
+      }, () => {
+        // TODO
+      })
       runCleaner(_testCase, 0)
     }, (err: Error) => {
-      console.log('runTestCase', err)
+      planTestCase.updatePlanTestCase({
+        ID: _case.ID,
+        Result: TestCaseResult.Failed,
+        TestCaseOutput: JSON.stringify(err),
+        Message: {
+          Error: {
+            Title: 'MSG_UPDATE_TEST_PLAN_CASE',
+            Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
+            Popup: true,
+            Type: NotifyType.Error
+          }
+        }
+      }, () => {
+        // TODO
+      })
       runCleaner(_testCase, 0)
     })
   }, (err: Error) => {
@@ -577,6 +639,13 @@ const onExecuteTestPlanClick = () => {
       runPlanTestCase(planTestCase)
     })
   })
+}
+
+const onTestCaseClick = (event: PointerEvent, _case: PlanTestCase) => {
+  showingTestCase.value = true
+  updatingTestCase.value = true
+  targetPlanTestCase.value = _case
+  targetTestCase.value = testCase.testcase(_case.TestCaseID) as TestCase
 }
 
 </script>

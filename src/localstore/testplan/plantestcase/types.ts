@@ -36,7 +36,7 @@ export interface UpdatePlanTestCaseRequest extends BaseRequest {
   RunDuration?: number
   TestUserID?: string
   Index?: number
-  Result: TestCaseResult
+  Result?: TestCaseResult
 }
 
 export interface UpdatePlanTestCaseResponse {

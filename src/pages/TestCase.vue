@@ -258,7 +258,7 @@
                 v-model='arg.ParentID'
               />
               <q-input dense v-model='arg.Value' :disable='!arg.Editing' label='Argument Value' />
-              <q-toggle v-if='arg.Type === "String"' v-model='newArg.Random' disable>
+              <q-toggle v-if='arg.Type === "String"' v-model='arg.Random' :disable='!arg.Editing'>
                 随机
               </q-toggle>
               <q-btn @click='onModifyArgClick(arg)'>
