@@ -19,7 +19,7 @@ spec:
         - npool.top
       secretName: npool-top-tls
   rules:
-    - host: dashboard.npool.top
+    - host: smoketest.npool.top
       http: &http_rules
         paths:
           - path: /
