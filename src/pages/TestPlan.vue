@@ -9,6 +9,7 @@
       :columns='testPlanColumns'
       selection='single'
       v-model:selected='selectedPlan'
+      @row-click='onTestPlanClick'
     >
       <template #top-right>
         <q-btn dense @click='onCreateTestPlanClick'>
@@ -230,12 +231,17 @@ const fetchTestPlans = (offset: number, limit: number) => {
 
 const showingTestPlan = ref(false)
 const updatingTestPlan = ref(false)
-
 const targetTestPlan = ref({} as TestPlan)
 
 const onCreateTestPlanClick = () => {
   showingTestPlan.value = true
   updatingTestPlan.value = false
+}
+
+const onTestPlanClick = (event: PointerEvent, plan: TestPlan) => {
+  showingTestPlan.value = true
+  updatingTestPlan.value = true
+  targetTestPlan.value = plan
 }
 
 const onTestPlanMenuHide = () => {
