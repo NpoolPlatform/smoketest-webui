@@ -7,10 +7,15 @@
       row-key='ID'
       :rows='testPlans'
       :columns='testPlanColumns'
+      selection='single'
+      v-model:selected='selectedPlan'
     >
       <template #top-right>
         <q-btn dense @click='onCreateTestPlanClick'>
           {{ $t('MSG_CREATE') }}
+        </q-btn>
+        <q-btn dense @click='onDeleteTestPlanClick'>
+          {{ $t('MSG_DELETE') }}
         </q-btn>
       </template>
     </q-table>
@@ -26,7 +31,7 @@
         <q-select
           v-model='testplan'
           :options='options'
-          :option-label='(item) => item.Title + "/" + item.ID'
+          :option-label='(item) => item.Name + "/" + item.ID'
           dense
           :label='$t("MSG_TEST_PLAN")'
           class='filter'
@@ -364,6 +369,26 @@ onMounted(() => {
   fetchTestPlans(0, 100)
   fetchTestCases(0, 100)
 })
+
+const selectedPlan = ref([] as unknown as Array<TestPlan>)
+
+const onDeleteTestPlanClick = () => {
+  selectedPlan.value.forEach((v) => {
+    testPlan.deleteTestPlan({
+      ID: v.ID,
+      Message: {
+        Error: {
+          Title: 'MSG_DELETE_TEST_PLAN',
+          Message: 'MSG_DELETE_TEST_PLAN_FAIL',
+          Popup: true,
+          Type: NotifyType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+  })
+}
 
 </script>
 
