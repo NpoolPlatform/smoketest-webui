@@ -14,6 +14,7 @@ import {
 } from './types'
 import { CondType } from './cond/def'
 import { TestCaseState } from './state'
+import { uid } from 'quasar'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({
@@ -72,7 +73,11 @@ export const useTestCaseStore = defineStore('local-testcase', {
           }
           switch (v.Type) {
             case 'String':
-              input[v.Name] = v.Value?.toString()
+              if (v.Random) {
+                input[v.Name] = uid()
+              } else {
+                input[v.Name] = v.Value?.toString()
+              }
               break
             case 'Number':
               input[v.Name] = Number(v.Value)

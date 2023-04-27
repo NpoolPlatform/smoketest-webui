@@ -21,6 +21,7 @@ export interface Arg {
   From?: ArgSrc
   Value: string | number | null | undefined
   ParentID?: string
+  Random: boolean
 }
 
 export enum ArgDef {
