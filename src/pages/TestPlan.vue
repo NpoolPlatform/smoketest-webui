@@ -32,10 +32,15 @@
       row-key='ID'
       :rows='planTestCases'
       :columns='testCaseColumns'
+      selection='single'
+      v-model:selected='selectedTestCase'
     >
       <template #top-right>
         <q-btn dense @click='onAddTestCaseClick'>
           {{ $t('MSG_ADD_TEST_CASE') }}
+        </q-btn>
+        <q-btn dense @click='onDeleteTestCaseClick'>
+          {{ $t('MSG_DELETE_TEST_CASE') }}
         </q-btn>
       </template>
     </q-table>
@@ -282,6 +287,26 @@ const onAddTestCaseClick = () => {
   showingTestCase.value = true
 }
 
+const selectedTestCase = ref([] as Array<PlanTestCase>)
+
+const onDeleteTestCaseClick = () => {
+  selectedTestCase.value.forEach((v) => {
+    planTestCase.deletePlanTestCase({
+      ID: v.ID,
+      Message: {
+        Error: {
+          Title: 'MSG_DELETE_PLAN_TEST_CASE',
+          Message: 'MSG_DELETE_PLAN_TEST_CASE_FAIL',
+          Popup: true,
+          Type: NotifyType.Error
+        }
+      }
+    }, () => {
+      // TODO
+    })
+  })
+}
+
 const onTestCaseSubmit = () => {
   showingTestCase.value = false
   planTestCase.createPlanTestCase({
@@ -396,10 +421,34 @@ const fetchPlanTestCases = (testPlanID: string, offset: number, limit: number) =
   })
 }
 
+const fetchTestCaseConds = (offset: number, limit: number) => {
+  testCaseCond.getTestCaseConds({
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_TEST_CASE_CONDS',
+        Message: 'MSG_GET_TEST_CASE_CONDS_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<TestCaseCond>) => {
+    if (error) {
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchTestCases(offset + limit, limit)
+  })
+}
+
 onMounted(() => {
   fetchAPIs(0, 100)
   fetchTestPlans(0, 100)
   fetchTestCases(0, 100)
+  fetchTestCaseConds(0, 100)
 })
 
 const selectedPlan = ref([] as unknown as Array<TestPlan>)
@@ -435,7 +484,7 @@ const testCasePath = (_testCase?: TestCase) => {
 
 const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
   let preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
-  if (condIndex > preConds.length) {
+  if (condIndex >= preConds.length) {
     done()
     return
   }
@@ -460,8 +509,10 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
 }
 
 const runCleaner = (_testCase: TestCase, condIndex: number) => {
+  console.log('runCleaner', condIndex)
   let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
-  if (condIndex > cleaners.length) {
+  console.log('runCleaner', condIndex, cleaners.length)
+  if (condIndex >= cleaners.length) {
     return
   }
   cleaners = cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
@@ -472,6 +523,7 @@ const runCleaner = (_testCase: TestCase, condIndex: number) => {
   if (!_case) {
     return
   }
+  console.log('runCleaner', condIndex, _case)
   _case.InputVal = testCase.input(_case)
   void post(testCasePath(_case) as string, _case.InputVal)
     .then(() => {
