@@ -452,7 +452,7 @@ const runCleaner = (_testCase: TestCase) => {
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
   _testCase.InputVal = testCase.input(_testCase)
-  void post(testCasePath(_testCase) as string, _testCase.Input)
+  void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
       _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
@@ -474,7 +474,7 @@ const runPreConds = (_testCase: TestCase) => {
       return
     }
     _case.InputVal = testCase.input(_case)
-    void post(testCasePath(_case) as string, _case.Input)
+    void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
         _case.Output = (resp as Record<string, unknown>).Info as Record<string, unknown>
       })
@@ -739,7 +739,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   })
   if (!_case.Output) {
     _case.InputVal = testCase.input(_case)
-    void post(testCasePath(_case) as string, _case.Input)
+    void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
         _case.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
         _testCase.InputVal = testCase.input(_testCase)

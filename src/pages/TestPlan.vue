@@ -14,6 +14,12 @@
         <q-btn dense @click='onCreateTestPlanClick'>
           {{ $t('MSG_CREATE') }}
         </q-btn>
+        <q-btn dense @click='onFetchTestPlanCaseClick'>
+          {{ $t('MSG_FETCH_PLAN_TEST_CASE') }}
+        </q-btn>
+        <q-btn dense @click='onExecuteTestPlanClick'>
+          {{ $t('MSG_EXECUTE') }}
+        </q-btn>
         <q-btn dense @click='onDeleteTestPlanClick'>
           {{ $t('MSG_DELETE') }}
         </q-btn>
@@ -24,18 +30,10 @@
       flat
       :title='$t("MSG_TEST_CASE")'
       row-key='ID'
-      :rows='testCases'
+      :rows='planTestCases'
       :columns='testCaseColumns'
     >
       <template #top-right>
-        <q-select
-          v-model='testplan'
-          :options='options'
-          :option-label='(item) => item.Name + "/" + item.ID'
-          dense
-          :label='$t("MSG_TEST_PLAN")'
-          class='filter'
-        />
         <q-btn dense @click='onAddTestCaseClick'>
           {{ $t('MSG_ADD_TEST_CASE') }}
         </q-btn>
@@ -105,9 +103,13 @@ import {
   useLocalAPIStore,
   API,
   PlanTestCase,
-  usePlanTestCaseStore
+  usePlanTestCaseStore,
+  useTestCaseCondStore,
+  TestCaseCond,
+  CondType
 } from 'src/localstore'
 import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
+import { post } from 'src/boot/axios'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -150,7 +152,7 @@ const testCaseColumns = computed(() => [
     name: 'Name',
     label: t('MSG_NAME'),
     align: 'left',
-    field: (row: PlanTestCase) => testCase.testcase(row.ID)?.Name
+    field: (row: PlanTestCase) => testCase.testcase(row.TestCaseID)?.Name
   },
   {
     name: 'PlanID',
@@ -173,21 +175,14 @@ const testCaseColumns = computed(() => [
 ])
 
 const testPlan = useTestPlanStore()
-const testplan = ref(undefined as unknown as TestPlan)
 const testPlans = computed(() => testPlan.TestPlans)
 
 const planTestCase = usePlanTestCaseStore()
-const planTestCases = computed(() => planTestCase.testcases(testplan.value?.ID))
-
-const options = computed(() => testPlan.TestPlans)
+const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID))
 
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
-const testCases = computed(() => testCase.TestCases.filter((el) => {
-  const index = planTestCases.value?.findIndex((v) => v.TestCaseID === el.ID)
-  return index && index >= 0
-}))
-
+const testCaseCond = useTestCaseCondStore()
 const logined = useLocalUserStore()
 
 const fetchTestPlans = (offset: number, limit: number) => {
@@ -272,6 +267,9 @@ const showingTestCase = ref(false)
 const targetTestCase = ref({} as TestCase)
 
 const onAddTestCaseClick = () => {
+  if (selectedPlan.value.length === 0) {
+    return
+  }
   showingTestCase.value = true
 }
 
@@ -279,7 +277,7 @@ const onTestCaseSubmit = () => {
   showingTestCase.value = false
   planTestCase.createPlanTestCase({
     TestCaseID: targetTestCase.value.ID,
-    TestPlanID: testplan.value.ID,
+    TestPlanID: selectedPlan.value?.[0]?.ID,
     Message: {
       Error: {
         Title: 'MSG_CREATE_PLAN_TEST_CASE',
@@ -364,6 +362,31 @@ const fetchTestCases = (offset: number, limit: number) => {
   })
 }
 
+const fetchPlanTestCases = (testPlanID: string, offset: number, limit: number) => {
+  planTestCase.getPlanTestCases({
+    TestPlanID: testPlanID,
+    Offset: offset,
+    Limit: limit,
+    Message: {
+      Error: {
+        Title: 'MSG_GET_PlAN_TEST_CASES',
+        Message: 'MSG_GET_PlAN_TEST_CASES_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean, rows?: Array<PlanTestCase>) => {
+    if (error) {
+      console.log('fetchPlanTestCase error')
+      return
+    }
+    if (!rows?.length) {
+      return
+    }
+    fetchPlanTestCases(testPlanID, offset + limit, limit)
+  })
+}
+
 onMounted(() => {
   fetchAPIs(0, 100)
   fetchTestPlans(0, 100)
@@ -386,6 +409,111 @@ const onDeleteTestPlanClick = () => {
       }
     }, () => {
       // TODO
+    })
+  })
+}
+
+const testCasePath = (_testCase?: TestCase) => {
+  if (!_testCase) {
+    return undefined
+  }
+  const path = testCase.path(_testCase)
+  if (path) {
+    return path
+  }
+  return apis.path(allPaths.value.find((el) => el.ID === _testCase.ApiID))
+}
+
+const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
+  let preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  if (condIndex > preConds.length) {
+    done()
+    return
+  }
+  preConds = preConds.sort((a: TestCaseCond, b: TestCaseCond) => {
+    return a.Index > b.Index ? 1 : -1
+  })
+  const cond = preConds[condIndex]
+  const _case = testCase.testcase(cond.CondTestCaseID)
+  if (!_case) {
+    return
+  }
+  _case.InputVal = testCase.input(_case)
+  void post(testCasePath(_case) as string, _case.InputVal)
+    .then((resp: unknown) => {
+      _case.Output = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      runPreConds(_testCase, condIndex + 1, done, error)
+    })
+    .catch((err: Error) => {
+      console.log(testCasePath(_case), err)
+      error(err)
+    })
+}
+
+const runCleaner = (_testCase: TestCase, condIndex: number) => {
+  let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  if (condIndex > cleaners.length) {
+    return
+  }
+  cleaners = cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
+    return a.Index > b.Index ? 1 : -1
+  })
+  const cond = cleaners[condIndex]
+  const _case = testCase.testcase(cond.CondTestCaseID)
+  if (!_case) {
+    return
+  }
+  _case.InputVal = testCase.input(_case)
+  void post(testCasePath(_case) as string, _case.InputVal)
+    .then(() => {
+      runCleaner(_testCase, condIndex + 1)
+    })
+    .catch((err: Error) => {
+      console.log(testCasePath(_case), err)
+    })
+}
+
+const runTestCase = (_testCase: TestCase, done: () => void, error: (err: Error) => void) => {
+  void post(testCasePath(_testCase) as string, _testCase.InputVal)
+    .then((resp: unknown) => {
+      _testCase.Error = undefined
+      _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+      done()
+    })
+    .catch((err: Error) => {
+      _testCase.Error = err
+      error(err)
+    })
+}
+
+const runPlanTestCase = (_case: PlanTestCase) => {
+  const _testCase = testCase.testcase(_case.TestCaseID)
+  if (!_testCase) {
+    return
+  }
+  runPreConds(_testCase, 0, () => {
+    runTestCase(_testCase, () => {
+      runCleaner(_testCase, 0)
+    }, (err: Error) => {
+      console.log('runTestCase', err)
+      runCleaner(_testCase, 0)
+    })
+  }, (err: Error) => {
+    console.log('runPreConds', err)
+  })
+}
+
+const onFetchTestPlanCaseClick = () => {
+  selectedPlan.value.forEach((v) => {
+    fetchPlanTestCases(v.ID, 0, 100)
+  })
+}
+
+const onExecuteTestPlanClick = () => {
+  selectedPlan.value.forEach((v) => {
+    const cases = planTestCase.testcases(v.ID)
+    cases?.forEach((planTestCase) => {
+      runPlanTestCase(planTestCase)
     })
   })
 }
