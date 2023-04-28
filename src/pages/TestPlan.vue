@@ -539,7 +539,7 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
   _case.InputVal = testCase.input(_case)
   void post(testCasePath(_case) as string, _case.InputVal)
     .then((resp: unknown) => {
-      _case.Output = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
       runPreConds(_testCase, condIndex + 1, done, error)
     })
     .catch((err: Error) => {
@@ -549,9 +549,7 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
 }
 
 const runCleaner = (_testCase: TestCase, condIndex: number) => {
-  console.log('runCleaner', condIndex)
   let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
-  console.log('runCleaner', condIndex, cleaners.length)
   if (condIndex >= cleaners.length) {
     return
   }
@@ -563,7 +561,6 @@ const runCleaner = (_testCase: TestCase, condIndex: number) => {
   if (!_case) {
     return
   }
-  console.log('runCleaner', condIndex, _case)
   _case.InputVal = testCase.input(_case)
   void post(testCasePath(_case) as string, _case.InputVal)
     .then(() => {
@@ -574,18 +571,56 @@ const runCleaner = (_testCase: TestCase, condIndex: number) => {
     })
 }
 
-const runTestCase = (_testCase: TestCase, done: () => void, error: (err: Error) => void) => {
+const runTestCase = (_testCase: TestCase, done: (output: Record<string, unknown>) => void, error: (err: Error) => void) => {
   _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
-      _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
-      done()
+      done(((resp as Record<string, unknown>).Info) as Record<string, unknown>)
     })
     .catch((err: Error) => {
       _testCase.Error = err
       error(err)
     })
+}
+
+const validateTestCaseResult = (_testCase: TestCase, output?: Record<string, unknown>): boolean => {
+  let passed = true
+  Object.keys(_testCase.OutputVal).forEach((k) => {
+    if (_testCase.OutputVal[k] !== output?.[k]) {
+      passed = false
+    }
+  })
+  return passed
+}
+
+const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unknown>, err?: Error) => {
+  const _testCase = testCase.testcase(_case.TestCaseID) as TestCase
+  if (!_testCase) {
+    return
+  }
+  let passed = TestCaseResult.Passed
+  if (output) {
+    passed = validateTestCaseResult(_testCase, output) ? TestCaseResult.Passed : TestCaseResult.Failed
+  }
+  if (err) {
+    passed = TestCaseResult.Failed
+  }
+  planTestCase.updatePlanTestCase({
+    ID: _case.ID,
+    Result: passed,
+    TestCaseOutput: JSON.stringify(output),
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_PLAN_CASE',
+        Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const runPlanTestCase = (_case: PlanTestCase) => {
@@ -594,39 +629,11 @@ const runPlanTestCase = (_case: PlanTestCase) => {
     return
   }
   runPreConds(_testCase, 0, () => {
-    runTestCase(_testCase, () => {
-      planTestCase.updatePlanTestCase({
-        ID: _case.ID,
-        Result: TestCaseResult.Passed,
-        TestCaseOutput: JSON.stringify(_testCase.Output),
-        Message: {
-          Error: {
-            Title: 'MSG_UPDATE_TEST_PLAN_CASE',
-            Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
-            Popup: true,
-            Type: NotifyType.Error
-          }
-        }
-      }, () => {
-        // TODO
-      })
+    runTestCase(_testCase, (output: Record<string, unknown>) => {
+      reportTestCaseResult(_case, output)
       runCleaner(_testCase, 0)
     }, (err: Error) => {
-      planTestCase.updatePlanTestCase({
-        ID: _case.ID,
-        Result: TestCaseResult.Failed,
-        TestCaseOutput: JSON.stringify(err),
-        Message: {
-          Error: {
-            Title: 'MSG_UPDATE_TEST_PLAN_CASE',
-            Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
-            Popup: true,
-            Type: NotifyType.Error
-          }
-        }
-      }, () => {
-        // TODO
-      })
+      reportTestCaseResult(_case, undefined, err)
       runCleaner(_testCase, 0)
     })
   }, (err: Error) => {

@@ -22,18 +22,18 @@ export interface TestCase {
   Input: string
   InputDesc: string
   Expectation: string
+  OutputDesc: string
   Depracated: boolean
   TestCaseType: TestCaseType
   // Local parsed
   Args: Array<Arg>
-  // PreConds: Array<Cond>
-  // Cleaners: Array<Cond>
   Collapsed: boolean
   AddingArg: boolean
   AddingPreCond: boolean
   AddingCleaner: boolean
   InputVal: Record<string, unknown>
-  Output: Record<string, unknown>
+  OutputVal: Record<string, unknown>
+  OutputArgs: Record<string, unknown>
   Result: Record<string, unknown>
   Error?: Error
   CreatedAt: number

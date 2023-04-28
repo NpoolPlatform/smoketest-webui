@@ -66,7 +66,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
                 input[v.Name] = _case?.InputVal?.[v.From.Src]
                 break
               case ArgType.Output:
-                input[v.Name] = _case?.Output?.[v.From.Src]
+                input[v.Name] = _case?.OutputVal?.[v.From.Src]
                 break
             }
             return input
@@ -105,8 +105,8 @@ export const useTestCaseStore = defineStore('local-testcase', {
             Type: ArgType.Input
           })
         }
-        if (testCase.Output) {
-          for (const key of Object.keys(testCase.Output)) {
+        if (testCase.OutputVal) {
+          for (const key of Object.keys(testCase.OutputVal)) {
             srcs.push({
               TestCaseID: testCase.ID,
               Src: key,
@@ -167,7 +167,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
             console.log('Invalid arguments', v.Input, e)
           }
           try {
-            v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+            v.OutputVal = JSON.parse(v.Expectation) as Record<string, unknown>
           } catch (e) {
             console.log('Invalid arguments', v.Expectation, e)
           }
@@ -197,7 +197,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
             console.log('Invalid arguments', v.Input, e)
           }
           try {
-            v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+            v.OutputVal = JSON.parse(v.Expectation) as Record<string, unknown>
           } catch (e) {
             console.log('Invalid arguments', v.Expectation, e)
           }
@@ -242,7 +242,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
               console.log('Invalid arguments', v.Input, e)
             }
             try {
-              v.Output = JSON.parse(v.Expectation) as Record<string, unknown>
+              v.OutputVal = JSON.parse(v.Expectation) as Record<string, unknown>
             } catch (e) {
               console.log('Invalid arguments', v.Expectation, e)
             }
