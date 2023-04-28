@@ -9,7 +9,7 @@
       :columns='testPlanColumns'
       selection='single'
       v-model:selected='selectedPlan'
-      @row-click='onTestPlanClick'
+      @row-click='(evt, row, index) => onTestPlanClick(row)'
     >
       <template #top-right>
         <q-btn dense @click='onCreateTestPlanClick'>
@@ -35,7 +35,7 @@
       :columns='testCaseColumns'
       selection='single'
       v-model:selected='selectedTestCase'
-      @row-click='onTestCaseClick'
+      @row-click='(evt, row, index) => onTestCaseClick(row)'
     >
       <template #top-right>
         <q-btn dense @click='onAddTestCaseClick'>
@@ -240,7 +240,7 @@ const onCreateTestPlanClick = () => {
   updatingTestPlan.value = false
 }
 
-const onTestPlanClick = (event: PointerEvent, plan: TestPlan) => {
+const onTestPlanClick = (plan: TestPlan) => {
   showingTestPlan.value = true
   updatingTestPlan.value = true
   targetTestPlan.value = plan
@@ -656,7 +656,7 @@ const onExecuteTestPlanClick = () => {
   })
 }
 
-const onTestCaseClick = (event: PointerEvent, _case: PlanTestCase) => {
+const onTestCaseClick = (_case: PlanTestCase) => {
   showingTestCase.value = true
   updatingTestCase.value = true
   targetPlanTestCase.value = _case
