@@ -461,7 +461,7 @@ const onExecTestCaseClick = (_testCase: TestCase) => {
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
-      _testCase.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+      _testCase.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
       runCleaner(_testCase)
     })
     .catch((err: Error) => {
@@ -482,7 +482,7 @@ const runPreConds = (_testCase: TestCase) => {
     _case.InputVal = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
-        _case.Output = (resp as Record<string, unknown>).Info as Record<string, unknown>
+        _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
       })
       .catch((err: Error) => {
         console.log(testCasePath(_case), err)
@@ -532,7 +532,7 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
     Description: _testCase.Description,
     Input: JSON.stringify(_testCase.InputVal),
     InputDesc: JSON.stringify(_testCase.Args),
-    Expectation: JSON.stringify(_testCase.Output),
+    Expectation: JSON.stringify(_testCase.OutputVal),
     Deprecated: _testCase.Depracated,
     Message: {
       Error: {
@@ -639,7 +639,7 @@ const onSubmit = () => {
       Description: target.value.Description,
       Input: JSON.stringify(target.value.InputVal),
       InputDesc: JSON.stringify(target.value.Args),
-      Expectation: JSON.stringify(target.value.Output),
+      Expectation: JSON.stringify(target.value.OutputVal),
       Deprecated: target.value.Depracated,
       Message: {
         Error: {
@@ -663,7 +663,7 @@ const onSubmit = () => {
     ApiID: target.value.ApiID,
     Input: JSON.stringify(target.value.InputVal),
     InputDesc: JSON.stringify(target.value.Args),
-    Expectation: JSON.stringify(target.value.Output),
+    Expectation: JSON.stringify(target.value.OutputVal),
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_CASE',
@@ -743,11 +743,11 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   }, () => {
     // TODO
   })
-  if (!_case.Output) {
+  if (!_case.OutputVal) {
     _case.InputVal = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
-        _case.Output = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+        _case.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
         _testCase.InputVal = testCase.input(_testCase)
       })
       .catch((err: Error) => {
