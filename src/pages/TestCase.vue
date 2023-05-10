@@ -24,6 +24,11 @@
           {{ $t('MSG_FETCH_APIS') }}
         </q-btn>
       </template>
+      <template #top-left>
+        <q-input
+          v-model='testcasename'
+        />
+      </template>
       <template #header='props'>
         <q-tr :props='props'>
           <q-th auto-width />
@@ -395,7 +400,11 @@ const { t } = useI18n({ useScope: 'global' })
 const module = ref('')
 
 const testCase = useTestCaseStore()
-const testCases = computed(() => testCase.TestCases)
+const testcasename = ref('')
+
+const testCases = computed(() => {
+  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(testcasename.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcasename.value?.toLowerCase()))
+})
 
 const testCaseCond = useTestCaseCondStore()
 const apis = useLocalAPIStore()
