@@ -409,6 +409,7 @@ const columns = computed(() => [
     name: 'Name',
     label: t('MSG_NAME'),
     align: 'left',
+    sortable: true,
     field: (row: TestCase) => row.Name
   },
   {
@@ -421,12 +422,14 @@ const columns = computed(() => [
     name: 'Path',
     label: t('MSG_PATH'),
     align: 'left',
+    sortable: true,
     field: (row: TestCase) => testCasePath(row)
   },
   {
     name: 'Module',
     label: t('MSG_MODULE'),
     align: 'left',
+    sortable: true,
     field: (row: TestCase) => row.ModuleName
   }
 ])
