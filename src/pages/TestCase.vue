@@ -81,6 +81,17 @@
         <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
           <q-td>
+            <div>Description</div>
+          </q-td>
+          <q-td>
+            <q-input
+              v-model='props.row.Description'
+            />
+          </q-td>
+        </q-tr>
+        <q-tr :props='props' v-show='!props.row.Collapsed'>
+          <q-td auto-width />
+          <q-td>
             <div>PreConds</div>
           </q-td>
           <q-td colspan='100%'>
