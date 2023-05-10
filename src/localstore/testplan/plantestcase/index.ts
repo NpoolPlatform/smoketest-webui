@@ -10,6 +10,7 @@ import {
   GetPlanTestCasesRequest,
   GetPlanTestCasesResponse,
   PlanTestCase,
+  TestCaseResult,
   UpdatePlanTestCaseRequest,
   UpdatePlanTestCaseResponse
 } from './types'
@@ -33,6 +34,11 @@ export const usePlanTestCaseStore = defineStore('local-plantestcase', {
         req,
         req.Message,
         (resp: CreatePlanTestCaseResponse): void => {
+          try {
+            resp.Info.OutputVal = JSON.parse(resp.Info.Output) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid Output', resp.Info.Output, e)
+          }
           this.TestCases.push(resp.Info)
           done(false, resp.Info)
         }, () => {
@@ -46,6 +52,12 @@ export const usePlanTestCaseStore = defineStore('local-plantestcase', {
         req,
         req.Message,
         (resp: UpdatePlanTestCaseResponse): void => {
+          try {
+            resp.Info.OutputVal = JSON.parse(resp.Info.Output) as Record<string, unknown>
+          } catch (e) {
+            console.log('Invalid Output', resp.Info.Output, e)
+          }
+          resp.Info.Pass = resp.Info.Result === TestCaseResult.Passed
           const index = this.TestCases.findIndex((el) => el.ID === resp.Info.ID)
           this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, resp.Info)
           done(false, resp.Info)
@@ -62,6 +74,12 @@ export const usePlanTestCaseStore = defineStore('local-plantestcase', {
         (resp: GetPlanTestCasesResponse): void => {
           resp.Infos.forEach((v) => {
             const index = this.TestCases.findIndex((el) => el.ID === v.ID)
+            try {
+              v.OutputVal = JSON.parse(v.Output) as Record<string, unknown>
+            } catch (e) {
+              console.log('Invalid Output', v.Output, e)
+            }
+            v.Pass = v.Result === TestCaseResult.Passed
             this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
           })
           done(false, resp.Infos)

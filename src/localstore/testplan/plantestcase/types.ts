@@ -10,12 +10,15 @@ export interface PlanTestCase {
   ID: string
   TestPlanID: string
   TestCaseID: string
-  TestCaseOutput: string
   Description: string
   RunDuration: number
   TestUserID: string
   Result: TestCaseResult
   Index: number
+  Output: string
+  OutputVal: Record<string, unknown>
+  Collapsed: boolean
+  Pass: boolean
 }
 
 export interface CreatePlanTestCaseRequest extends BaseRequest {

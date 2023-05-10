@@ -35,7 +35,6 @@
       :columns='testCaseColumns'
       selection='single'
       v-model:selected='selectedTestCase'
-      @row-click='(evt, row, index) => onTestCaseClick(row)'
     >
       <template #top-right>
         <q-btn dense @click='onAddTestCaseClick'>
@@ -44,6 +43,35 @@
         <q-btn dense @click='onDeleteTestCaseClick'>
           {{ $t('MSG_DELETE_TEST_CASE') }}
         </q-btn>
+      </template>
+      <template #body='props'>
+        <q-tr :props='props'>
+          <q-td auto-width class='test-case-header' />
+          <q-td
+            v-for='col in props.cols'
+            :key='col.name'
+            :props='props'
+            class='test-case-header'
+          >
+            {{ col.value }}
+          </q-td>
+          <q-td class='test-case-header'>
+            <q-btn @click='onTestCaseCollapsed(props.row)'>
+              展开
+            </q-btn>
+            <q-btn @click='onTestCaseClick(props.row)'>
+              编辑
+            </q-btn>
+            <q-toggle dense v-model='props.row.Pass' @update:model-value='(value, evt) => onTestCasePass(props.row, value)' />
+          </q-td>
+          <q-td colspan='100%' class='test-case-header' />
+        </q-tr>
+        <q-tr v-if='props.row.Collapsed'>
+          <q-td auto-width class='test-case-header' />
+          <q-td>
+            <pre class='arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
+          </q-td>
+        </q-tr>
       </template>
     </q-table>
   </div>
@@ -661,6 +689,27 @@ const onTestCaseClick = (_case: PlanTestCase) => {
   updatingTestCase.value = true
   targetPlanTestCase.value = _case
   targetTestCase.value = testCase.testcase(_case.TestCaseID) as TestCase
+}
+
+const onTestCasePass = (_case: PlanTestCase, pass: boolean) => {
+  planTestCase.updatePlanTestCase({
+    ID: _case.ID,
+    Result: pass ? TestCaseResult.Passed : TestCaseResult.Failed,
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_CASE',
+        Message: 'MSG_UPDATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
+
+const onTestCaseCollapsed = (_case: PlanTestCase) => {
+  _case.Collapsed = !_case.Collapsed
 }
 
 </script>
