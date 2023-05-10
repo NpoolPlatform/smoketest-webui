@@ -67,6 +67,9 @@
             <q-btn @click='onSaveTestCaseClick(props.row)'>
               保存
             </q-btn>
+            <q-btn @click='onCloneTestCaseClick(props.row)'>
+              克隆
+            </q-btn>
           </q-td>
           <q-td colspan='100%' class='bg-grey-6 test-case-header' />
         </q-tr>
@@ -504,6 +507,12 @@ const onEditTestCaseClick = (testCase: TestCase) => {
   updating.value = true
 }
 
+const onCloneTestCaseClick = (testCase: TestCase) => {
+  target.value = testCase
+  showing.value = true
+  cloning.value = true
+}
+
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
   testCase.deleteTestCase({
     ID: _testCase.ID,
@@ -579,6 +588,7 @@ const onFetchAPIsClick = () => {
 
 const showing = ref(false)
 const updating = ref(false)
+const cloning = ref(false)
 
 const target = ref({
   ModuleName: module.value,
@@ -628,6 +638,34 @@ const onMenuHide = () => {
   } as TestCase
 }
 
+const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number) => {
+  if (index >= conds.length) {
+    return
+  }
+
+  const cond = conds[index]
+  testCaseCond.createTestCaseCond({
+    TestCaseID: testCaseID,
+    CondTestCaseID: cond.CondTestCaseID,
+    ArgumentMap: cond.ArgumentMap,
+    Index: cond.Index,
+    CondType: cond.CondType,
+    Message: {
+      Error: {
+        Title: 'MSG_CLONE_TEST_CASE_COND',
+        Message: 'MSG_CLONE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      return
+    }
+    cloneCond(testCaseID, conds, index + 1)
+  })
+}
+
 const onSubmit = () => {
   showing.value = false
   target.value.InputVal = testCase.input(target.value)
@@ -656,6 +694,8 @@ const onSubmit = () => {
     return
   }
 
+  const testCaseID = target.value.ID
+
   testCase.createTestCase({
     Name: target.value.Name,
     Description: target.value.Description,
@@ -672,8 +712,15 @@ const onSubmit = () => {
         Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean, _case?: TestCase) => {
+    if (error) {
+      return
+    }
+    if (!cloning.value) {
+      return
+    }
+    const conds = testCaseCond.getConds(testCaseID)
+    cloneCond(_case?.ID as string, conds, 0)
   })
 }
 
