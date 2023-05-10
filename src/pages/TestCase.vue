@@ -26,7 +26,7 @@
       </template>
       <template #top-left>
         <q-input
-          v-model='testcasename'
+          v-model='name'
         />
       </template>
       <template #header='props'>
@@ -400,10 +400,10 @@ const { t } = useI18n({ useScope: 'global' })
 const module = ref('')
 
 const testCase = useTestCaseStore()
-const testcasename = ref('')
+const name = ref('')
 
 const testCases = computed(() => {
-  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(testcasename.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcasename.value?.toLowerCase()))
+  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
 })
 
 const testCaseCond = useTestCaseCondStore()
