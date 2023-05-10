@@ -69,6 +69,18 @@
         <q-tr v-if='props.row.Collapsed'>
           <q-td auto-width class='test-case-header' />
           <q-td>
+            <div>Input</div>
+          </q-td>
+          <q-td>
+            <pre class='arguments' v-html='JSON.stringify(testCase.input(testCase.testcase(props.row.TestCaseID) as TestCase), null, 2)' />
+          </q-td>
+        </q-tr>
+        <q-tr v-if='props.row.Collapsed'>
+          <q-td auto-width class='test-case-header' />
+          <q-td>
+            <div>Output</div>
+          </q-td>
+          <q-td>
             <pre class='arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
           </q-td>
         </q-tr>
