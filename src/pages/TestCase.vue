@@ -531,7 +531,7 @@ const onEditTestCaseClick = (testCase: TestCase) => {
 }
 
 const onCloneTestCaseClick = (testCase: TestCase) => {
-  target.value = testCase
+  target.value = { ...testCase }
   showing.value = true
   cloning.value = true
 }
@@ -651,6 +651,7 @@ const cleanerTestCase = ref(undefined as unknown as TestCase)
 
 const onCreateClick = () => {
   showing.value = true
+  testCaseAPI.value = undefined as unknown as API
 }
 
 const onMenuHide = () => {
