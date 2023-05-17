@@ -358,9 +358,17 @@
       </q-card-section>
       <q-card-section>
         <q-select
+          filled
           v-model='target.ModuleName'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
           :options='options'
           dense
+          @filter='onFilter'
+          @filter-abort='onAbortFilter'
+          hint='With hide-selected and fill-input'
           :label='$t("MSG_MODULE")'
           class='filter'
           :disable='target.ModuleName !== undefined && target.ModuleName.length > 0'
@@ -403,7 +411,7 @@ import {
 } from 'src/localstore'
 import { NotifyType } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
-import { uid } from 'quasar'
+import { QSelect, uid } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -688,6 +696,21 @@ const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number
     }
     cloneCond(testCaseID, conds, index + 1)
   })
+}
+
+const onFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void, abort: () => void) => {
+  update(() => {
+    if (val === '') {
+      options.value = apis.Domains
+    } else {
+      const needle = val.toLowerCase()
+      options.value = apis.Domains.filter(v => v.toLowerCase().indexOf(needle) > -1)
+    }
+  })
+}
+
+const onAbortFilter = () => {
+  console.log('delayed filter aborted')
 }
 
 const onSubmit = () => {
