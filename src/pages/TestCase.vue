@@ -12,8 +12,15 @@
       <template #top-right>
         <q-select
           v-model='module'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
           :options='options'
           dense
+          @filter='onDomainFilter'
+          @filter-abort='onAbortFilter'
+          hint='With hide-selected and fill-input'
           :label='$t("MSG_MODULE")'
           class='filter'
         />
@@ -366,7 +373,7 @@
           input-debounce='0'
           :options='options'
           dense
-          @filter='onFilter'
+          @filter='onDomainFilter'
           @filter-abort='onAbortFilter'
           hint='With hide-selected and fill-input'
           :label='$t("MSG_MODULE")'
@@ -375,9 +382,16 @@
         />
         <q-select
           v-model='testCaseAPI'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
           :options='modulePaths'
           :option-label='(item) => item.PathPrefix + item.Path'
           dense
+          @filter='onPathFilter'
+          @filter-abort='onAbortFilter'
+          hint='With hide-selected and fill-input'
           :label='$t("MSG_PATH")'
           class='filter'
         />
@@ -635,7 +649,11 @@ watch(module, () => {
   target.value.ModuleName = module.value
 })
 
-const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.ModuleName : module.value))
+const pathFilter = ref('')
+const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.value.ModuleName : module.value).filter((el) => {
+  return el.PathPrefix.indexOf(pathFilter.value) >= 0 || el.Path.indexOf(pathFilter.value) >= 0
+}))
+
 const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
@@ -698,14 +716,20 @@ const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number
   })
 }
 
-const onFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void, abort: () => void) => {
+const onDomainFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
     if (val === '') {
       options.value = apis.Domains
     } else {
       const needle = val.toLowerCase()
-      options.value = apis.Domains.filter(v => v.toLowerCase().indexOf(needle) > -1)
+      options.value = apis.Domains.filter(el => el.toLowerCase().indexOf(needle) > -1)
     }
+  })
+}
+
+const onPathFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+  update(() => {
+    pathFilter.value = val
   })
 }
 
