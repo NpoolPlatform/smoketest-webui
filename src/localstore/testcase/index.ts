@@ -207,6 +207,9 @@ export const useTestCaseStore = defineStore('local-testcase', {
             console.log('Invalid arguments', v.InputDesc, e)
           }
           const index = this.TestCases.findIndex((el) => el.ID === v.ID)
+          if (index >= 0) {
+            v.Collapsed = this.TestCases[index].Collapsed
+          }
           this.TestCases.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, v)
           done(false, resp.Info)
         }, () => {
