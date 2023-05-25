@@ -200,7 +200,14 @@
             <div class='row' v-show='props.row.AddingCleaner'>
               <q-select
                 v-model='cleanerTestCase'
-                :options='testCases'
+                :options='condTestCases'
+                use-input
+                hide-selected
+                fill-input
+                input-debounce='0'
+                @filter='onTestCaseFilter'
+                @filter-abort='onAbortFilter'
+                hint='With hide-selected and fill-input'
                 :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
