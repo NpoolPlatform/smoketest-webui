@@ -30,6 +30,9 @@
         <q-btn dense @click='onFetchAPIsClick'>
           {{ $t('MSG_FETCH_APIS') }}
         </q-btn>
+        <q-btn dense @click='onExportClick'>
+          {{ $t('MSG_EXPORT') }}
+        </q-btn>
       </template>
       <template #top-left>
         <q-input
@@ -423,6 +426,7 @@
 </template>
 
 <script setup lang='ts'>
+import { saveAs } from 'file-saver'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
@@ -437,7 +441,7 @@ import {
   ArgMap,
   useTestCaseCondStore
 } from 'src/localstore'
-import { NotifyType } from 'npool-cli-v4'
+import { NotifyType, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
 import { QSelect, uid } from 'quasar'
 
@@ -643,6 +647,12 @@ const fetchAPIs = (offset: number, limit: number) => {
 
 const onFetchAPIsClick = () => {
   fetchAPIs(0, 100)
+}
+
+const onExportClick = () => {
+  const blob = new Blob([JSON.stringify(testCases.value)], { type: 'text/plain;charset=utf-8' })
+  const filename = 'testcase-' + formatTime(new Date().getTime() / 1000) + '.json'
+  saveAs(blob, filename)
 }
 
 const showing = ref(false)
