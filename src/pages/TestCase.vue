@@ -460,6 +460,10 @@ const testCases = computed(() => {
 const testCaseCond = useTestCaseCondStore()
 const apis = useLocalAPIStore()
 
+const testCaseConds = computed(() => {
+  return testCaseCond.Conds
+})
+
 const testCaseByID = (id: string) => {
   return condTestCases.value.find((el) => el.ID === id)
 }
@@ -650,7 +654,11 @@ const onFetchAPIsClick = () => {
 }
 
 const onExportClick = () => {
-  const blob = new Blob([JSON.stringify(testCases.value)], { type: 'text/plain;charset=utf-8' })
+  const blobContent = {
+    Testcases: testCases.value,
+    Conds: testCaseConds.value
+  }
+  const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
   const filename = 'testcase-' + formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
 }
