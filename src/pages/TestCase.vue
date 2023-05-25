@@ -121,7 +121,14 @@
             <div class='row' v-show='props.row.AddingPreCond'>
               <q-select
                 v-model='preCondTestCase'
-                :options='testCases'
+                :options='condTestCases'
+                use-input
+                hide-selected
+                fill-input
+                input-debounce='0'
+                @filter='onTestCaseFilter'
+                @filter-abort='onAbortFilter'
+                hint='With hide-selected and fill-input'
                 :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
@@ -654,6 +661,11 @@ const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.val
   return el.PathPrefix.indexOf(pathFilter.value) >= 0 || el.Path.indexOf(pathFilter.value) >= 0
 }))
 
+const testcaseFilter = ref('')
+const condTestCases = computed(() => {
+  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()))
+})
+
 const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
@@ -724,6 +736,13 @@ const onDomainFilter = (val: string, update: (callbackFn: () => void, afterFn?: 
       const needle = val.toLowerCase()
       options.value = apis.Domains.filter(el => el.toLowerCase().indexOf(needle) > -1)
     }
+  })
+}
+
+const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+  update(() => {
+    console.log('filter')
+    testcaseFilter.value = val
   })
 }
 
