@@ -457,7 +457,7 @@ const testCaseCond = useTestCaseCondStore()
 const apis = useLocalAPIStore()
 
 const testCaseByID = (id: string) => {
-  return testCases.value.find((el) => el.ID === id)
+  return condTestCases.value.find((el) => el.ID === id)
 }
 
 const columns = computed(() => [
@@ -748,7 +748,6 @@ const onDomainFilter = (val: string, update: (callbackFn: () => void, afterFn?: 
 
 const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
-    console.log('filter')
     testcaseFilter.value = val
   })
 }
