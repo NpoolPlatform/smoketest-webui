@@ -128,7 +128,14 @@
         <br>
         <q-select
           v-model='targetTestCase'
-          :options='testCases'
+          :options='filterTestCases'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
+          @filter='onTestCaseFilter'
+          @filter-abort='onAbortFilter'
+          hint='With hide-selected and fill-input'
           :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
           dense
           :label='$t("MSG_TEST_CASE")'
@@ -166,6 +173,7 @@ import {
 } from 'src/localstore'
 import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
+import { QSelect } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -244,6 +252,10 @@ const testCases = computed(() => allTestCases.value.filter((v) => {
   const index = planTestCases.value?.findIndex((el) => v.ID === el.TestCaseID)
   return index === undefined || index < 0
 }))
+
+const filterTestCases = computed(() => {
+  return testCases.value.filter((el) => el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()))
+})
 
 const testCaseCond = useTestCaseCondStore()
 const logined = useLocalUserStore()
@@ -722,6 +734,14 @@ const onTestCasePass = (_case: PlanTestCase, pass: boolean) => {
 
 const onTestCaseCollapsed = (_case: PlanTestCase) => {
   _case.Collapsed = !_case.Collapsed
+}
+
+const testcaseFilter = ref('')
+
+const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+  update(() => {
+    testcaseFilter.value = val
+  })
 }
 
 </script>
