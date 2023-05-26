@@ -41,6 +41,7 @@ export interface TestCase {
 }
 
 export interface CreateTestCaseRequest extends BaseRequest {
+  ID?: string
   Name: string
   Description: string
   ModuleName: string

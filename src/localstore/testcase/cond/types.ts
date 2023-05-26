@@ -13,6 +13,7 @@ export interface TestCaseCond {
 }
 
 export interface CreateTestCaseCondRequest extends BaseRequest {
+  ID?: string
   TestCaseID: string
   CondTestCaseID: string
   ArgumentMap: string

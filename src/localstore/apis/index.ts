@@ -26,6 +26,11 @@ export const useLocalAPIStore = defineStore('church-apis-v4', {
         }
         return api.PathPrefix.replace('/api', '') + api.Path
       }
+    },
+    getAPIByPath (): (prefix: string, path: string) => API | undefined {
+      return (prefix: string, path: string) => {
+        return this.APIs.find((el) => el.PathPrefix === prefix && el.Path === path)
+      }
     }
   },
   actions: {

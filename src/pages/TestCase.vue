@@ -423,6 +423,30 @@
       </q-item>
     </q-card>
   </q-dialog>
+  <div>
+    <input
+      ref='loadFileButton'
+      type='file'
+      style='display: none;'
+      @change='uploadFile'
+      accept='.json'
+    >
+    <q-btn
+      dense
+      flat
+      class='btn flat'
+      :label='$t("MSG_IMPORT")'
+      @click='loadFileButton?.click()'
+    />
+    <q-btn
+      dense
+      flat
+      class='btn flat'
+      :label='$t("MSG_BATCH_CREATE")'
+      :disable='!loadedTestCases'
+      @click='onBatchCreate(loadedTestCases, 0)'
+    />
+  </div>
 </template>
 
 <script setup lang='ts'>
@@ -447,6 +471,88 @@ import { QSelect, uid } from 'quasar'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
+
+interface BlobContent {
+  TestCases: Array<TestCase>
+  Conds: Array<TestCaseCond>
+}
+
+const loadedTestCases = ref(undefined as unknown as BlobContent)
+
+const loadFileButton = ref<HTMLInputElement>()
+
+const uploadFile = (evt: Event) => {
+  const target = evt.target as unknown as HTMLInputElement
+  if (target.files) {
+    const filename = target.files[0]
+    const reader = new FileReader()
+    reader.onload = () => {
+      loadedTestCases.value = JSON.parse(reader.result as string) as BlobContent
+    }
+    reader.readAsText(filename)
+  }
+}
+
+const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
+  if (index >= _loadedTestCases.Conds.length) {
+    return
+  }
+
+  const _cond = _loadedTestCases.Conds[index]
+  testCaseCond.createTestCaseCond({
+    ID: _cond.ID,
+    TestCaseID: _cond.TestCaseID,
+    CondTestCaseID: _cond.CondTestCaseID,
+    ArgumentMap: _cond.ArgumentMap,
+    Index: _cond.Index,
+    CondType: _cond.CondType,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_TEST_CASE_COND',
+        Message: 'MSG_CREATE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      return
+    }
+    onBatchCreateConds(_loadedTestCases, index + 1)
+  })
+}
+
+const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
+  if (index >= _loadedTestCases.TestCases.length) {
+    onBatchCreateConds(_loadedTestCases, 0)
+  }
+
+  const _case = _loadedTestCases.TestCases[index]
+  const _ApiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.ID as string
+  testCase.createTestCase({
+    ID: _case.ID,
+    Name: _case.Name,
+    Description: _case.Description,
+    ModuleName: _case.ModuleName,
+    ApiID: _ApiID,
+    Input: JSON.stringify(_case.InputVal),
+    InputDesc: JSON.stringify(_case.Args),
+    Expectation: JSON.stringify(_case.OutputVal),
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_TEST_CASE',
+        Message: 'MSG_CREATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      return
+    }
+    onBatchCreate(_loadedTestCases, index + 1)
+  })
+}
 
 const module = ref('')
 
@@ -655,9 +761,9 @@ const onFetchAPIsClick = () => {
 
 const onExportClick = () => {
   const blobContent = {
-    Testcases: testCases.value,
+    TestCases: testCases.value,
     Conds: testCaseConds.value
-  }
+  } as BlobContent
   const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
   const filename = 'testcase-' + formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
