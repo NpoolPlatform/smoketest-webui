@@ -179,6 +179,11 @@ import { NotifyType, useLocalUserStore, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
 import { QSelect } from 'quasar'
 
+interface BlobContent {
+  TestPlans: Array<TestPlan>
+  PlanTestCases: Array<PlanTestCase>
+}
+
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
 
@@ -565,7 +570,11 @@ const onDeleteTestPlanClick = () => {
 }
 
 const onExportClick = () => {
-  const blob = new Blob([JSON.stringify(planTestCases.value)], { type: 'text/plain;charset=utf-8' })
+  const blobContent = {
+    TestPlans: testPlans.value,
+    PlanTestCases: planTestCases.value
+  } as BlobContent
+  const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
   const filename = 'testplan-' + formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
 }
