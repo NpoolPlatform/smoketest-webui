@@ -13,7 +13,7 @@ export enum TestPlanResult {
 }
 
 export interface TestPlan {
-  ID: string
+  ID?: string
   Name: string
   State: TestPlanState
   CreatedBy: string
@@ -29,6 +29,7 @@ export interface TestPlan {
 }
 
 export interface CreateTestPlanRequest extends BaseRequest {
+  ID?: string
   Name: string
   CreatedBy: string
   Exectuor?: string

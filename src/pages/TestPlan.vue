@@ -155,6 +155,30 @@
       </q-item>
     </q-card>
   </q-dialog>
+  <div>
+    <input
+      ref='loadFileButton'
+      type='file'
+      style='display: none;'
+      @change='uploadFile'
+      accept='.json'
+    >
+    <q-btn
+      dense
+      flat
+      class='btn flat'
+      :label='$t("MSG_IMPORT")'
+      @click='loadFileButton?.click()'
+    />
+    <q-btn
+      dense
+      flat
+      class='btn flat'
+      :label='$t("MSG_BATCH_CREATE")'
+      :disable='!loadedTestPlans'
+      @click='onBatchCreate(loadedTestPlans, 0)'
+    />
+  </div>
 </template>
 
 <script setup lang='ts'>
@@ -566,6 +590,75 @@ const onDeleteTestPlanClick = () => {
     }, () => {
       // TODO
     })
+  })
+}
+
+const loadedTestPlans = ref(undefined as unknown as BlobContent)
+
+const loadFileButton = ref<HTMLInputElement>()
+
+const uploadFile = (evt: Event) => {
+  const target = evt.target as unknown as HTMLInputElement
+  if (target.files) {
+    const filename = target.files[0]
+    const reader = new FileReader()
+    reader.onload = () => {
+      loadedTestPlans.value = JSON.parse(reader.result as string) as BlobContent
+    }
+    reader.readAsText(filename)
+  }
+}
+
+const onBatchCreateTestCases = (_loadedTestPlans: BlobContent, index: number) => {
+  if (index >= _loadedTestPlans.PlanTestCases.length) {
+    return
+  }
+
+  const _testcase = _loadedTestPlans.PlanTestCases[index]
+  planTestCase.createPlanTestCase({
+    ID: _testcase.ID,
+    TestCaseID: _testcase.TestCaseID,
+    TestPlanID: _testcase.TestPlanID,
+    Index: _testcase.Index,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_PLAN_TEST_CASE',
+        Message: 'MSG_CREATE_PLAN_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      console.log('Cond Exists')
+    }
+    onBatchCreateTestCases(_loadedTestPlans, index + 1)
+  })
+}
+
+const onBatchCreate = (_loadedTestPlans: BlobContent, index: number) => {
+  if (index >= _loadedTestPlans.TestPlans.length) {
+    onBatchCreateTestCases(_loadedTestPlans, 0)
+  }
+  const _testplan = _loadedTestPlans.TestPlans[index]
+  console.log(_testplan)
+  testPlan.createTestPlan({
+    ID: _testplan.ID,
+    Name: _testplan.Name,
+    CreatedBy: logined.User.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_CREATE_TEST_PLAN',
+        Message: 'MSG_CREATE_TEST_PLAN_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      console.log('TestPlan Exists!')
+    }
+    onBatchCreate(_loadedTestPlans, index + 1)
   })
 }
 

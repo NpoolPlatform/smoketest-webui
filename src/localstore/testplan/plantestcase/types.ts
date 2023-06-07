@@ -7,7 +7,7 @@ export enum TestCaseResult {
 }
 
 export interface PlanTestCase {
-  ID: string
+  ID?: string
   TestPlanID: string
   TestCaseID: string
   Description: string
@@ -22,6 +22,7 @@ export interface PlanTestCase {
 }
 
 export interface CreatePlanTestCaseRequest extends BaseRequest {
+  ID?: string
   TestPlanID: string
   TestCaseID: string
   Description?: string
