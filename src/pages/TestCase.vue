@@ -516,7 +516,7 @@ const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
     }
   }, (error: boolean) => {
     if (error) {
-      return
+      console.log('Cond Exists')
     }
     onBatchCreateConds(_loadedTestCases, index + 1)
   })
@@ -548,7 +548,7 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
     }
   }, (error: boolean) => {
     if (error) {
-      return
+      console.log('TestCase Exists!')
     }
     onBatchCreate(_loadedTestCases, index + 1)
   })
