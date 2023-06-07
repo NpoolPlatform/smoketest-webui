@@ -24,6 +24,9 @@
         <q-btn dense @click='onDeleteTestPlanClick'>
           {{ $t('MSG_DELETE') }}
         </q-btn>
+        <q-btn dense @click='onExportClick'>
+          {{ $t('MSG_EXPORT') }}
+        </q-btn>
       </template>
     </q-table>
     <q-table
@@ -39,9 +42,6 @@
       <template #top-right>
         <q-btn dense @click='onAddTestCaseClick'>
           {{ $t('MSG_ADD_TEST_CASE') }}
-        </q-btn>
-        <q-btn dense @click='onDeleteTestCaseClick'>
-          {{ $t('MSG_DELETE_TEST_CASE') }}
         </q-btn>
       </template>
       <template #body='props'>
@@ -158,6 +158,7 @@
 </template>
 
 <script setup lang='ts'>
+import { saveAs } from 'file-saver'
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
@@ -174,7 +175,7 @@ import {
   CondType,
   TestCaseResult
 } from 'src/localstore'
-import { NotifyType, useLocalUserStore } from 'npool-cli-v4'
+import { NotifyType, useLocalUserStore, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
 import { QSelect } from 'quasar'
 
@@ -561,6 +562,12 @@ const onDeleteTestPlanClick = () => {
       // TODO
     })
   })
+}
+
+const onExportClick = () => {
+  const blob = new Blob([JSON.stringify(planTestCases.value)], { type: 'text/plain;charset=utf-8' })
+  const filename = 'testplan-' + formatTime(new Date().getTime() / 1000) + '.json'
+  saveAs(blob, filename)
 }
 
 const testCasePath = (_testCase?: TestCase) => {
