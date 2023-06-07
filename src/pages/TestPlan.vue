@@ -62,6 +62,9 @@
             <q-btn @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
+            <q-btn @click='onDeleteTestCaseClick(props.row)'>
+              删除
+            </q-btn>
             <q-toggle dense v-model='props.row.Pass' @update:model-value='(value, evt) => onTestCasePass(props.row, value)' />
           </q-td>
           <q-td colspan='100%' class='test-case-header' />
@@ -360,21 +363,18 @@ const onAddTestCaseClick = () => {
 
 const selectedTestCase = ref([] as Array<PlanTestCase>)
 
-const onDeleteTestCaseClick = () => {
-  selectedTestCase.value.forEach((v) => {
-    planTestCase.deletePlanTestCase({
-      ID: v.ID,
-      Message: {
-        Error: {
-          Title: 'MSG_DELETE_PLAN_TEST_CASE',
-          Message: 'MSG_DELETE_PLAN_TEST_CASE_FAIL',
-          Popup: true,
-          Type: NotifyType.Error
-        }
+const onDeleteTestCaseClick = (_case: PlanTestCase) => {
+  planTestCase.deletePlanTestCase({
+    ID: _case.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_PLAN_TEST_CASE',
+        Message: 'MSG_DELETE_PLAN_TEST_CASE_FAIL',
+        Popup: true
       }
-    }, () => {
-      // TODO
-    })
+    }
+  }, () => {
+    // TODO
   })
 }
 
