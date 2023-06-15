@@ -75,7 +75,7 @@
             <div>Input</div>
           </q-td>
           <q-td>
-            <pre class='arguments' v-html='JSON.stringify(testCase.input(testCase.testcase(props.row.TestCaseID) as TestCase), null, 2)' />
+            <pre class='arguments' v-html='JSON.stringify(props.row.InputVal, null, 2)' />
           </q-td>
         </q-tr>
         <q-tr v-if='props.row.Collapsed'>
@@ -137,7 +137,6 @@
           fill-input
           input-debounce='0'
           @filter='onTestCaseFilter'
-          @filter-abort='onAbortFilter'
           hint='With hide-selected and fill-input'
           :option-label='(item) => item.ID + ": " + item.Name + ": " + apiPath(item.ApiID)'
           dense
@@ -159,7 +158,6 @@
     <input
       ref='loadFileButton'
       type='file'
-      style='display: none;'
       @change='uploadFile'
       accept='.json'
     >
@@ -275,7 +273,7 @@ const testPlan = useTestPlanStore()
 const testPlans = computed(() => testPlan.TestPlans)
 
 const planTestCase = usePlanTestCaseStore()
-const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID)?.sort((a: PlanTestCase, b: PlanTestCase) => {
+const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID as string)?.sort((a: PlanTestCase, b: PlanTestCase) => {
   return a.Index > b.Index ? 1 : -1
 }))
 
@@ -395,7 +393,7 @@ const selectedTestCase = ref([] as Array<PlanTestCase>)
 
 const onDeleteTestCaseClick = (_case: PlanTestCase) => {
   planTestCase.deletePlanTestCase({
-    ID: _case.ID,
+    ID: _case.ID as string,
     Message: {
       Error: {
         Title: 'MSG_DELETE_PLAN_TEST_CASE',
@@ -413,7 +411,7 @@ const onTestCaseSubmit = () => {
   if (updatingTestCase.value) {
     updatingTestCase.value = false
     planTestCase.updatePlanTestCase({
-      ID: targetPlanTestCase.value.ID,
+      ID: targetPlanTestCase.value.ID as string,
       Index: targetPlanTestCase.value.Index,
       Message: {
         Error: {
@@ -431,7 +429,7 @@ const onTestCaseSubmit = () => {
 
   planTestCase.createPlanTestCase({
     TestCaseID: targetTestCase.value.ID,
-    TestPlanID: selectedPlan.value?.[0]?.ID,
+    TestPlanID: selectedPlan.value?.[0]?.ID as string,
     Index: targetPlanTestCase.value.Index,
     Message: {
       Error: {
@@ -578,7 +576,7 @@ const selectedPlan = ref([] as unknown as Array<TestPlan>)
 const onDeleteTestPlanClick = () => {
   selectedPlan.value.forEach((v) => {
     testPlan.deleteTestPlan({
-      ID: v.ID,
+      ID: v.ID as string,
       Message: {
         Error: {
           Title: 'MSG_DELETE_TEST_PLAN',
@@ -701,6 +699,7 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
   void post(testCasePath(_case) as string, _case.InputVal)
     .then((resp: unknown) => {
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      _testCase.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
       runPreConds(_testCase, condIndex + 1, done, error)
     })
     .catch((err: Error) => {
@@ -737,6 +736,7 @@ const runTestCase = (_testCase: TestCase, done: (output: Record<string, unknown>
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
+      _testCase.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
       done(((resp as Record<string, unknown>).Info) as Record<string, unknown>)
     })
     .catch((err: Error) => {
@@ -768,9 +768,10 @@ const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unkno
     passed = TestCaseResult.Failed
   }
   planTestCase.updatePlanTestCase({
-    ID: _case.ID,
+    ID: _case.ID as string,
     Result: passed,
-    TestCaseOutput: JSON.stringify(output),
+    Output: JSON.stringify(output),
+    Input: _testCase.Input,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_TEST_PLAN_CASE',
@@ -804,13 +805,13 @@ const runPlanTestCase = (_case: PlanTestCase) => {
 
 const onFetchTestPlanCaseClick = () => {
   selectedPlan.value.forEach((v) => {
-    fetchPlanTestCases(v.ID, 0, 100)
+    fetchPlanTestCases(v.ID as string, 0, 100)
   })
 }
 
 const onExecuteTestPlanClick = () => {
   selectedPlan.value.forEach((v) => {
-    const cases = planTestCase.testcases(v.ID)
+    const cases = planTestCase.testcases(v.ID as string)
     cases?.forEach((planTestCase) => {
       runPlanTestCase(planTestCase)
     })

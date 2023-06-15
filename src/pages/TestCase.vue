@@ -363,7 +363,7 @@
           </q-td>
           <q-td>
             <div class='row'>
-              <pre v-if='!props.row.Error' class='arguments' v-html='JSON.stringify(props.row.Output, null, 2)' />
+              <pre v-if='!props.row.Error' class='arguments' v-html='JSON.stringify(props.row._testCase.OutputVal, null, 2)' />
               <div v-else class='arguments error' v-html='props.row.Error' />
             </div>
           </q-td>

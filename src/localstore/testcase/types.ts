@@ -20,6 +20,7 @@ export interface TestCase {
   ApiMethod: string
   ApiDeprecated: boolean
   Input: string
+  InputVal: Record<string, unknown>
   InputDesc: string
   Expectation: string
   OutputDesc: string
@@ -31,7 +32,6 @@ export interface TestCase {
   AddingArg: boolean
   AddingPreCond: boolean
   AddingCleaner: boolean
-  InputVal: Record<string, unknown>
   OutputVal: Record<string, unknown>
   OutputArgs: Record<string, unknown>
   Result: Record<string, unknown>

@@ -54,6 +54,7 @@ export const usePlanTestCaseStore = defineStore('local-plantestcase', {
         (resp: UpdatePlanTestCaseResponse): void => {
           try {
             resp.Info.OutputVal = JSON.parse(resp.Info.Output) as Record<string, unknown>
+            resp.Info.InputVal = JSON.parse(resp.Info.Input) as Record<string, unknown>
           } catch (e) {
             console.log('Invalid Output', resp.Info.Output, e)
           }
@@ -76,6 +77,7 @@ export const usePlanTestCaseStore = defineStore('local-plantestcase', {
             const index = this.TestCases.findIndex((el) => el.ID === v.ID)
             try {
               v.OutputVal = JSON.parse(v.Output) as Record<string, unknown>
+              v.InputVal = JSON.parse(v.Input) as Record<string, unknown>
             } catch (e) {
               console.log('Invalid Output', v.Output, e)
             }

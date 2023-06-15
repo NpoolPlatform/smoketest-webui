@@ -15,6 +15,8 @@ export interface PlanTestCase {
   TestUserID: string
   Result: TestCaseResult
   Index: number
+  Input: string
+  InputVal: Record<string, unknown>
   Output: string
   OutputVal: Record<string, unknown>
   Collapsed: boolean
@@ -35,7 +37,8 @@ export interface CreatePlanTestCaseResponse {
 
 export interface UpdatePlanTestCaseRequest extends BaseRequest {
   ID: string
-  TestCaseOutput?: string
+  Input?: string
+  Output?: string
   Description?: string
   RunDuration?: number
   TestUserID?: string
