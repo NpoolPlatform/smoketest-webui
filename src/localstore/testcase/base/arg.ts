@@ -29,7 +29,8 @@ export enum ArgDef {
   String = 'String',
   Object = 'Object',
   Decimal = 'Decimal',
-  Array = 'Array'
+  Array = 'Array',
+  Boolean = 'Boolean'
 }
 
 export const ArgDefs = [
@@ -37,5 +38,6 @@ export const ArgDefs = [
   ArgDef.String,
   ArgDef.Object,
   ArgDef.Decimal,
-  ArgDef.Array
+  ArgDef.Array,
+  ArgDef.Boolean
 ]

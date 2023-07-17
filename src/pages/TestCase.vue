@@ -20,7 +20,6 @@
           dense
           @filter='onDomainFilter'
           @filter-abort='onAbortFilter'
-          hint='With hide-selected and fill-input'
           :label='$t("MSG_MODULE")'
           class='filter'
         />
@@ -36,6 +35,8 @@
       </template>
       <template #top-left>
         <q-input
+          dense
+          :label='$t("MSG_SEARCH_NAME")'
           v-model='name'
         />
       </template>
@@ -131,7 +132,6 @@
                 input-debounce='0'
                 @filter='onTestCaseFilter'
                 @filter-abort='onAbortFilter'
-                hint='With hide-selected and fill-input'
                 :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
@@ -210,7 +210,6 @@
                 input-debounce='0'
                 @filter='onTestCaseFilter'
                 @filter-abort='onAbortFilter'
-                hint='With hide-selected and fill-input'
                 :option-label='(item) => item.ID + ": " + item.Name + ": " + testCasePath(item)'
                 dense
                 :label='$t("MSG_PATH")'
@@ -300,7 +299,19 @@
                 class='filter'
                 v-model='arg.ParentID'
               />
-              <q-input dense v-model='arg.Value' :disable='!arg.Editing' label='Argument Value' />
+              <q-input
+                dense
+                v-model='arg.Value'
+                v-if='arg.Type !== "Boolean"'
+                :disable='!arg.Editing'
+                label='Argument Value'
+              />
+              <q-toggle
+                dense
+                v-model='arg.Value'
+                v-if='arg.Type === "Boolean"'
+                :disable='!arg.Editing'
+              />
               <q-toggle v-if='arg.Type === "String"' v-model='arg.Random' :disable='!arg.Editing'>
                 随机
               </q-toggle>
@@ -340,7 +351,17 @@
                 class='filter'
                 v-model='newArg.ParentID'
               />
-              <q-input dense v-model='newArg.Value' label='Argument Value' />
+              <q-input
+                dense
+                v-model='newArg.Value'
+                v-if='newArg.Type !== "Boolean"'
+                label='Argument Value'
+              />
+              <q-toggle
+                dense
+                v-model='newArg.Value'
+                v-if='newArg.Type === "Boolean"'
+              />
               <q-toggle v-if='newArg.Type === "String"' v-model='newArg.Random'>
                 随机
               </q-toggle>
@@ -392,7 +413,6 @@
           dense
           @filter='onDomainFilter'
           @filter-abort='onAbortFilter'
-          hint='With hide-selected and fill-input'
           :label='$t("MSG_MODULE")'
           class='filter'
           :disable='target.ModuleName !== undefined && target.ModuleName.length > 0'
@@ -408,7 +428,6 @@
           dense
           @filter='onPathFilter'
           @filter-abort='onAbortFilter'
-          hint='With hide-selected and fill-input'
           :label='$t("MSG_PATH")'
           class='filter'
         />
@@ -528,13 +547,13 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
   }
 
   const _case = _loadedTestCases.TestCases[index]
-  const _ApiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.ID as string
+  const _apiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.ID as string
   testCase.createTestCase({
     ID: _case.ID,
     Name: _case.Name,
     Description: _case.Description,
     ModuleName: _case.ModuleName,
-    ApiID: _ApiID,
+    ApiID: _apiID,
     Input: JSON.stringify(_case.InputVal),
     InputDesc: JSON.stringify(_case.Args),
     Expectation: JSON.stringify(_case.OutputVal),

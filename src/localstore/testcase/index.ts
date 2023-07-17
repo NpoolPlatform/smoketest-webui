@@ -90,6 +90,10 @@ export const useTestCaseStore = defineStore('local-testcase', {
               break
             case 'Array':
               input[v.Name] = v.Value?.toString().split(',')
+              break
+            case 'Boolean':
+              input[v.Name] = v.Value
+              break
           }
         })
         return input
