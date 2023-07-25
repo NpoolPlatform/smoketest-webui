@@ -16,7 +16,7 @@ vue3 framework use quasar ui and pinia manage store
 
 ## 用例命名规范
 - master分支，采用```服务名-接口名-序号-用例描述```，如：
-  - appuser-gateway-CreateUser-1-创建用户成功
+  - appuser-gateway-CreateUser-1-创建邮箱用户成功
   - appuser-gateway-CreateUser-2-邮箱已被注册，创建用户失败
 - feature分支，采用```服务名-接口名-feature-序号-用例描述```，如：
   - appuser-gateway-feature-CreateUser-1-创建用户成功
@@ -27,6 +27,9 @@ vue3 framework use quasar ui and pinia manage store
   - sh-dev-appuser-gateway-master-testplan-2023072517-1
   - sh-dev-appuser-gateway-feature-testplan-2023072517-1
   - yz-testing-appuser-gateway-testing-testplan-2023072517-1
+
+## 测试用例description内容规范
+- 待补充
 
 ## 开发使用smoketest自测流程
 - 向管理员申请smoketest账号
