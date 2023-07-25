@@ -6,11 +6,12 @@ metadata:
   annotations:
     k8s.kuboard.cn/displayName: smoketest-webui-v1-treafik
     k8s.kuboard.cn/workload: smoketest-webui-v1-treafik
-    kubernetes.io/ingress.class: "traefik-internet-vpn"
+    kubernetes.io/ingress.class: "traefik-internet"
     traefik.ingress.kubernetes.io/router.entrypoints: websecure, web
-    traefik.ingress.kubernetes.io/router.middlewares: kube-system-http-redirect-https@kubernetescrd,
-                                                      kube-system-http-redirect-https-testing@kubernetescrd,
-                                                      kube-system-common-headers@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares:
+      kube-system-http-redirect-https@kubernetescrd,
+      kube-system-http-redirect-https-testing@kubernetescrd,
+      kube-system-common-headers@kubernetescrd
 
 spec:
   tls:
