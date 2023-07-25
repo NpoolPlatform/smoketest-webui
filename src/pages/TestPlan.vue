@@ -339,7 +339,7 @@ const onTestPlanSubmit = () => {
   showingTestPlan.value = false
   if (updatingTestPlan.value) {
     testPlan.updateTestPlan({
-      ID: targetTestCase.value.ID,
+      ID: targetTestPlan.value.ID as string,
       Name: targetTestPlan.value.Name,
       Message: {
         Error: {
