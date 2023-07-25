@@ -19,7 +19,7 @@ vue3 framework use quasar ui and pinia manage store
   - appuser-gateway-CreateUser-1-创建邮箱用户成功
   - appuser-gateway-CreateUser-2-邮箱已被注册，创建用户失败
 - feature分支，采用```服务名-接口名-feature-序号-用例描述```，如：
-  - appuser-gateway-feature-CreateUser-1-创建用户成功
+  - appuser-gateway-feature-CreateUser-1-创建邮箱用户成功
 
 ## 测试计划命名规范
 - 采用```环境-服务名-分支-日期-序号```，如
