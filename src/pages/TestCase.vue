@@ -74,9 +74,9 @@
             <q-btn @click='onEditTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn @click='onDeleteTestCaseClick(props.row)'>
+            <!--  <q-btn @click='onDeleteTestCaseClick(props.row)'>
               删除
-            </q-btn>
+            </q-btn> -->
             <q-btn @click='onDepracateTestCaseClick(props.row)'>
               废弃
             </q-btn>
@@ -579,7 +579,7 @@ const testCase = useTestCaseStore()
 const name = ref('')
 
 const testCases = computed(() => {
-  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
+  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
 })
 
 const testCaseCond = useTestCaseCondStore()
@@ -705,21 +705,21 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
   cloning.value = true
 }
 
-const onDeleteTestCaseClick = (_testCase: TestCase) => {
-  testCase.deleteTestCase({
-    ID: _testCase.ID,
-    Message: {
-      Error: {
-        Title: 'MSG_DELETE_TEST_CASE',
-        Message: 'MSG_DELETE_TEST_CASE_FAIL',
-        Popup: true,
-        Type: NotifyType.Error
-      }
-    }
-  }, () => {
-    // TODO
-  })
-}
+// const onDeleteTestCaseClick = (_testCase: TestCase) => {
+//   testCase.deleteTestCase({
+//     ID: _testCase.ID,
+//     Message: {
+//       Error: {
+//         Title: 'MSG_DELETE_TEST_CASE',
+//         Message: 'MSG_DELETE_TEST_CASE_FAIL',
+//         Popup: true,
+//         Type: NotifyType.Error
+//       }
+//     }
+//   }, () => {
+//     // TODO
+//   })
+// }
 
 const onDepracateTestCaseClick = (testCase: TestCase) => {
   testCase.Depracated = true
