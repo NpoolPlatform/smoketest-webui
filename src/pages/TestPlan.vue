@@ -24,6 +24,9 @@
         <q-btn dense @click='onDeleteTestPlanClick'>
           {{ $t('MSG_DELETE') }}
         </q-btn>
+        <q-btn dense @click='onCloneTestPlanClick'>
+          {{ $t('MSG_CLONE') }}
+        </q-btn>
         <q-btn dense @click='onExportClick'>
           {{ $t('MSG_EXPORT') }}
         </q-btn>
@@ -316,11 +319,19 @@ const fetchTestPlans = (offset: number, limit: number) => {
 
 const showingTestPlan = ref(false)
 const updatingTestPlan = ref(false)
+const cloningTestPlan = ref(false)
 const targetTestPlan = ref({} as TestPlan)
 
 const onCreateTestPlanClick = () => {
   showingTestPlan.value = true
   updatingTestPlan.value = false
+}
+
+const onCloneTestPlanClick = () => {
+  showingTestPlan.value = true
+  updatingTestPlan.value = false
+  cloningTestPlan.value = true
+  targetTestPlan.value = { ...selectedPlan.value?.[0] }
 }
 
 const onTestPlanClick = (plan: TestPlan) => {
@@ -333,6 +344,32 @@ const onTestPlanMenuHide = () => {
   showingTestPlan.value = false
   updatingTestPlan.value = false
   targetTestPlan.value = {} as TestPlan
+}
+
+const clonePlanTestcase = (testPlanID: string, testcases: Array<PlanTestCase>, index: number) => {
+  if (index >= testcases.length) {
+    return
+  }
+
+  const testcase = testcases[index]
+  planTestCase.createPlanTestCase({
+    TestCaseID: testcase.TestCaseID,
+    TestPlanID: testPlanID,
+    Index: testcase.Index,
+    Message: {
+      Error: {
+        Title: 'MSG_CLONE_PLAN_TEST_CASE',
+        Message: 'MSG_CLONE_PLAN_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (error) {
+      return
+    }
+    clonePlanTestcase(testPlanID, testcases, index + 1)
+  })
 }
 
 const onTestPlanSubmit = () => {
@@ -356,6 +393,8 @@ const onTestPlanSubmit = () => {
     return
   }
 
+  const testPlanID = targetTestPlan.value.ID
+
   testPlan.createTestPlan({
     Name: targetTestPlan.value.Name,
     CreatedBy: logined.User.ID,
@@ -367,8 +406,15 @@ const onTestPlanSubmit = () => {
         Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean, _testplan?: TestPlan) => {
+    if (error) {
+      return
+    }
+    if (!cloningTestPlan.value) {
+      return
+    }
+    const testcases = planTestCase.testcases(testPlanID as string)
+    clonePlanTestcase(_testplan?.ID as string, testcases as [], 0)
   })
 }
 
