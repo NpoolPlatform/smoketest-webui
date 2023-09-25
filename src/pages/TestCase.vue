@@ -682,7 +682,9 @@ const runCleaner = (_testCase: TestCase) => {
 }
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
-  runPreConds(_testCase)
+  if (_testCase.Collapsed) {
+    runPreConds(_testCase)
+  }
   _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
@@ -1046,6 +1048,21 @@ const onConfirmCreateArgClick = (_testCase: TestCase) => {
   _testCase.Args.push(newArg.value)
   newArg.value = {} as Arg
   _testCase.InputVal = testCase.input(_testCase)
+  testCase.updateTestCase({
+    ID: _testCase.ID,
+    Input: JSON.stringify(_testCase.InputVal),
+    InputDesc: JSON.stringify(_testCase.Args),
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_CASE',
+        Message: 'MSG_UPDATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onCancelCreateArgClick = (testCase: TestCase) => {
@@ -1057,14 +1074,46 @@ const onModifyArgClick = (arg: Arg) => {
   arg.Editing = true
 }
 
-const onConfirmModifyArgClick = (testCase: TestCase, arg: Arg) => {
+const onConfirmModifyArgClick = (_testCase: TestCase, arg: Arg) => {
   arg.Editing = false
-  const index = testCase.Args.findIndex((el) => el.Name === arg.Name)
-  testCase.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+  const index = _testCase.Args.findIndex((el) => el.Name === arg.Name)
+  _testCase.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+  _testCase.InputVal = testCase.input(_testCase)
+  testCase.updateTestCase({
+    ID: _testCase.ID,
+    Input: JSON.stringify(_testCase.InputVal),
+    InputDesc: JSON.stringify(_testCase.Args),
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_CASE',
+        Message: 'MSG_UPDATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
-const onDeleteArgClick = (testCase: TestCase, arg: Arg) => {
-  testCase.Args = testCase.Args.filter((el) => el.Name !== arg.Name)
+const onDeleteArgClick = (_testCase: TestCase, arg: Arg) => {
+  _testCase.Args = _testCase.Args.filter((el) => el.Name !== arg.Name)
+  _testCase.InputVal = testCase.input(_testCase)
+  testCase.updateTestCase({
+    ID: _testCase.ID,
+    Input: JSON.stringify(_testCase.InputVal),
+    InputDesc: JSON.stringify(_testCase.Args),
+    Message: {
+      Error: {
+        Title: 'MSG_UPDATE_TEST_CASE',
+        Message: 'MSG_UPDATE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onCreatePreCondClick = (testCase: TestCase) => {
