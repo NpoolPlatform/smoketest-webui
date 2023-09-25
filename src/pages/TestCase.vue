@@ -111,11 +111,23 @@
               :key='cond.ID'
             >
               <q-tr>
+                <q-td>
+                  <q-input dense v-model='cond.Index' :disable='!cond.Editing' label='Index' />
+                </q-td>
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
+                  <q-btn @click='onModifyCondClick(cond)'>
+                    修改
+                  </q-btn>
+                  <q-btn @click='onConfirmModifyCondClick(cond)'>
+                    确定
+                  </q-btn>
+                  <q-btn @click='onCancelModifyCondClick(cond)'>
+                    取消
+                  </q-btn>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
                     -
                   </q-btn>
@@ -160,10 +172,33 @@
               :key='cond.ID'
             >
               <q-tr>
+                <q-td>
+                  <q-input
+                    dense
+                    v-model.number='cond.Index'
+                    :disable='!cond.Editing'
+                    label='Index'
+                    :rules='[val => !!val || "Field is required"]'
+                  />
+                </q-td>
                 <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
+                <q-td>
+                  <q-btn @click='onModifyCondClick(cond)'>
+                    修改
+                  </q-btn>
+                  <q-btn @click='onConfirmModifyCondClick(cond)'>
+                    确定
+                  </q-btn>
+                  <q-btn @click='onCancelModifyCondClick(cond)'>
+                    取消
+                  </q-btn>
+                  <q-btn @click='onDeleteTestCaseCondClick(cond)'>
+                    -
+                  </q-btn>
+                </q-td>
                 <q-td>
                   <div
                     class='row'
@@ -192,11 +227,6 @@
                       取消
                     </q-btn>
                   </div>
-                </q-td>
-                <q-td>
-                  <q-btn @click='onDeleteTestCaseCondClick(cond)'>
-                    -
-                  </q-btn>
                 </q-td>
               </q-tr>
             </div>
@@ -652,11 +682,15 @@ const runCleaner = (_testCase: TestCase) => {
 }
 
 const onExecTestCaseClick = (_testCase: TestCase) => {
+  runPreConds(_testCase)
   _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
       _testCase.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+      if (_testCase.OutputVal == null) {
+        _testCase.OutputVal = ((resp as Record<string, unknown>).Infos) as Record<string, unknown>
+      }
       runCleaner(_testCase)
     })
     .catch((err: Error) => {
@@ -963,6 +997,37 @@ const onSubmit = () => {
   })
 }
 
+const onModifyCondClick = (_testCaseCond: TestCaseCond) => {
+  if (!_testCaseCond.Editing) {
+    _testCaseCond.OldIndex = _testCaseCond.Index
+  }
+  _testCaseCond.Editing = true
+}
+
+const onConfirmModifyCondClick = (_testCaseCond: TestCaseCond) => {
+  testCaseCond.updateTestCaseCond({
+    ID: _testCaseCond.ID,
+    Index: _testCaseCond.Index,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, (error: boolean) => {
+    if (!error) {
+      _testCaseCond.Editing = false
+    }
+  })
+}
+
+const onCancelModifyCondClick = (_testCaseCond: TestCaseCond) => {
+  _testCaseCond.Editing = false
+  _testCaseCond.Index = _testCaseCond.OldIndex
+}
+
 const onCancel = () => {
   onMenuHide()
 }
@@ -1012,11 +1077,13 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   if (!_case) {
     return
   }
+  const conds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  const newIndex = conds.length
   testCaseCond.createTestCaseCond({
     TestCaseID: _testCase.ID,
     CondTestCaseID: preCondTestCase.value.ID,
     ArgumentMap: JSON.stringify(preCondTestCase.value.Args),
-    Index: 0,
+    Index: newIndex,
     CondType: CondType.PreCondition,
     Message: {
       Error: {
@@ -1068,12 +1135,19 @@ const onCreateCleanerClick = (testCase: TestCase) => {
   testCase.AddingCleaner = true
 }
 
-const onConfirmCreateCleanerClick = (testCase: TestCase) => {
+const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
+  _testCase.AddingCleaner = false
+  const _case = testCase.testcase(cleanerTestCase.value.ID)
+  if (!_case) {
+    return
+  }
+  const conds = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  const newIndex = conds.length
   testCaseCond.createTestCaseCond({
-    TestCaseID: testCase.ID,
+    TestCaseID: _testCase.ID,
     CondTestCaseID: addingCleaner.value.CondTestCaseID,
     ArgumentMap: JSON.stringify(addingCleaner.value.Args),
-    Index: 0,
+    Index: newIndex,
     CondType: CondType.Cleaner,
     Message: {
       Error: {

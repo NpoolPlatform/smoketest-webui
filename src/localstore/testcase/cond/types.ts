@@ -10,6 +10,8 @@ export interface TestCaseCond {
   Index: number
   ArgumentMap: string
   Args: Array<Arg>
+  Editing: boolean
+  OldIndex: number
 }
 
 export interface CreateTestCaseCondRequest extends BaseRequest {

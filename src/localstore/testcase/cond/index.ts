@@ -29,6 +29,9 @@ export const useTestCaseCondStore = defineStore('local-testcasecond', {
           }
           return true
         })
+        conds.sort((a: TestCaseCond, b: TestCaseCond) => {
+          return a.Index > b.Index ? 1 : -1
+        })
         return conds
       }
     }
