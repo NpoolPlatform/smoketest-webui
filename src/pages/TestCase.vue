@@ -114,18 +114,17 @@
                 <q-td>
                   <q-input dense v-model='cond.Index' :disable='!cond.Editing' label='Index' />
                 </q-td>
-                <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
-                  <q-btn @click='onModifyCondClick(cond)'>
+                  <q-btn @click='onModifyCondClick(cond)' :disable='cond.Editing'>
                     修改
                   </q-btn>
-                  <q-btn @click='onConfirmModifyCondClick(cond)'>
+                  <q-btn @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
                     确定
                   </q-btn>
-                  <q-btn @click='onCancelModifyCondClick(cond)'>
+                  <q-btn @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
                     取消
                   </q-btn>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
@@ -181,18 +180,17 @@
                     :rules='[val => !!val || "Field is required"]'
                   />
                 </q-td>
-                <q-td>{{ cond.Index }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.Name }}</q-td>
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
-                  <q-btn @click='onModifyCondClick(cond)'>
+                  <q-btn @click='onModifyCondClick(cond)' :disable='cond.Editing'>
                     修改
                   </q-btn>
-                  <q-btn @click='onConfirmModifyCondClick(cond)'>
+                  <q-btn @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
                     确定
                   </q-btn>
-                  <q-btn @click='onCancelModifyCondClick(cond)'>
+                  <q-btn @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
                     取消
                   </q-btn>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
@@ -246,6 +244,12 @@
                 class='filter'
                 @update:model-value='(val) => onCleanerTestCaseUpdated(props.row, val)'
               />
+              <q-btn dense @click='onConfirmCreateCleanerClick(props.row)'>
+                确定
+              </q-btn>
+              <q-btn dense @click='onCancelCreateCleanerClick(props.row)'>
+                取消
+              </q-btn>
               <div>
                 <div
                   class='row'
@@ -272,12 +276,6 @@
                   </q-btn>
                 </div>
               </div>
-              <q-btn dense @click='onConfirmCreateCleanerClick(props.row)'>
-                确定
-              </q-btn>
-              <q-btn dense @click='onCancelCreateCleanerClick(props.row)'>
-                取消
-              </q-btn>
             </div>
             <q-btn @click='onCreateCleanerClick(props.row)'>
               +
@@ -345,10 +343,10 @@
               <q-toggle v-if='arg.Type === "String"' v-model='arg.Random' :disable='!arg.Editing'>
                 随机
               </q-toggle>
-              <q-btn @click='onModifyArgClick(arg)'>
+              <q-btn @click='onModifyArgClick(arg)' :disable='arg.Editing'>
                 修改
               </q-btn>
-              <q-btn @click='onConfirmModifyArgClick(props.row, arg)'>
+              <q-btn @click='onConfirmModifyArgClick(props.row, arg)' :disable='!arg.Editing'>
                 确定
               </q-btn>
               <q-btn @click='onDeleteArgClick(props.row, arg)'>
@@ -661,70 +659,70 @@ watch(module, () => {
 
 const options = ref([] as string[])
 
-const runCleaner = (_testCase: TestCase) => {
+const runCleaner = async (_testCase: TestCase) => {
   const cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
   cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
     return a.Index > b.Index ? 1 : -1
-  }).forEach((v) => {
+  })
+  for (const v of cleaners) {
     const _case = testCase.testcase(v.CondTestCaseID)
     if (!_case) {
-      return
+      continue
     }
     _case.InputVal = testCase.input(_case)
-    void post(testCasePath(_case) as string, _case.InputVal)
-      .then((resp: unknown) => {
-        console.log(testCasePath(_case), resp)
-      })
-      .catch((err: Error) => {
-        console.log(testCasePath(_case), err)
-      })
-  })
+    try {
+      const resp = await post(testCasePath(_case) as string, _case.InputVal)
+      _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+    } catch (err) {
+      console.log(testCasePath(_case), err)
+    }
+  }
 }
 
-const onExecTestCaseClick = (_testCase: TestCase) => {
+const onExecTestCaseClick = async (_testCase: TestCase) => {
   if (_testCase.Collapsed) {
-    runPreConds(_testCase)
+    await runPreConds(_testCase)
   }
   _testCase.InputVal = testCase.input(_testCase)
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
-    .then((resp: unknown) => {
+    .then(async (resp: unknown) => {
       _testCase.Error = undefined
       _testCase.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
       if (_testCase.OutputVal == null) {
         _testCase.OutputVal = ((resp as Record<string, unknown>).Infos) as Record<string, unknown>
       }
-      runCleaner(_testCase)
+      await runCleaner(_testCase)
     })
-    .catch((err: Error) => {
+    .catch(async (err: Error) => {
       _testCase.Error = err
-      runCleaner(_testCase)
+      await runCleaner(_testCase)
     })
 }
 
-const runPreConds = (_testCase: TestCase) => {
+const runPreConds = async (_testCase: TestCase) => {
   const preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
   preConds.sort((a: TestCaseCond, b: TestCaseCond) => {
     return a.Index > b.Index ? 1 : -1
-  }).forEach((v) => {
+  })
+  for (const v of preConds) {
     const _case = testCase.testcase(v.CondTestCaseID)
     if (!_case) {
-      return
+      continue
     }
     _case.InputVal = testCase.input(_case)
-    void post(testCasePath(_case) as string, _case.InputVal)
-      .then((resp: unknown) => {
-        _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
-      })
-      .catch((err: Error) => {
-        console.log(testCasePath(_case), err)
-      })
-  })
+    try {
+      const resp = await post(testCasePath(_case) as string, _case.InputVal)
+      _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+    } catch (err) {
+      console.log(testCasePath(_case), err)
+    }
+  }
 }
 
-const onCollapseClick = (testCase: TestCase) => {
+const onCollapseClick = async (testCase: TestCase) => {
   testCase.Collapsed = !testCase.Collapsed
   if (!testCase.Collapsed) {
-    runPreConds(testCase)
+    await runPreConds(testCase)
   }
 }
 
