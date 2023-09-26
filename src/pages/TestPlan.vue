@@ -795,6 +795,11 @@ const validateTestCaseResult = (_testCase: TestCase, output?: Record<string, unk
   let passed = true
   Object.keys(_testCase.OutputVal).forEach((k) => {
     if (_testCase.OutputVal[k] !== output?.[k]) {
+      if (Array.isArray(_testCase.OutputVal[k]) && Array.isArray(output?.[k])) {
+        if (JSON.stringify(_testCase.OutputVal[k]) === JSON.stringify(output?.[k])) {
+          return passed
+        }
+      }
       passed = false
     }
   })
@@ -857,9 +862,16 @@ const onFetchTestPlanCaseClick = () => {
 
 const onExecuteTestPlanClick = () => {
   selectedPlan.value.forEach((v) => {
-    const cases = planTestCase.testcases(v.ID as string)
-    cases?.forEach((planTestCase) => {
-      runPlanTestCase(planTestCase)
+    let cases = planTestCase.testcases(v.ID as string)
+    if (typeof cases !== 'undefined') {
+      cases = cases.sort((a: PlanTestCase, b: PlanTestCase) => {
+        return a.Index > b.Index ? 1 : -1
+      })
+    }
+    cases?.forEach((planTestCase, index) => {
+      setTimeout(() => {
+        runPlanTestCase(planTestCase)
+      }, 1000 * index)
     })
   })
 }
