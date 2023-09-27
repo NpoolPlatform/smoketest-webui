@@ -1143,6 +1143,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   }, () => {
     // TODO
   })
+  testcaseFilter.value = ''
   if (!_case.OutputVal) {
     _case.InputVal = testCase.input(_case)
     void post(testCasePath(_case) as string, _case.InputVal)
@@ -1160,6 +1161,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
 
 const onCancelCreatePreCondClick = (testCase: TestCase) => {
   testCase.AddingPreCond = false
+  testcaseFilter.value = ''
 }
 
 const onDeleteTestCaseCondClick = (cond: TestCaseCond) => {
@@ -1207,10 +1209,12 @@ const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
   }, () => {
     // TODO
   })
+  testcaseFilter.value = ''
 }
 
 const onCancelCreateCleanerClick = (testCase: TestCase) => {
   testCase.AddingCleaner = false
+  testcaseFilter.value = ''
 }
 
 const fromArgMapLabel = (from: ArgMap) => {
