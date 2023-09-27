@@ -868,10 +868,8 @@ const onExecuteTestPlanClick = () => {
         return a.Index > b.Index ? 1 : -1
       })
     }
-    cases?.forEach((planTestCase, index) => {
-      setTimeout(() => {
-        runPlanTestCase(planTestCase)
-      }, 1000 * index)
+    cases?.forEach((planTestCase) => {
+      runPlanTestCase(planTestCase)
     })
   })
 }
