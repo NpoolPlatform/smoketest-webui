@@ -606,7 +606,7 @@ const fetchTestCaseConds = (offset: number, limit: number) => {
     if (!rows?.length) {
       return
     }
-    fetchTestCases(offset + limit, limit)
+    fetchTestCaseConds(offset + limit, limit)
   })
 }
 
