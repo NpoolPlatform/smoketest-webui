@@ -39,6 +39,7 @@
           :label='$t("MSG_SEARCH_NAME")'
           v-model='name'
         />
+        显示废弃用例：<q-toggle dense v-model='showDeprecated' />
       </template>
       <template #header='props'>
         <q-tr :props='props'>
@@ -65,13 +66,13 @@
             {{ col.value }}
           </q-td>
           <q-td class='bg-grey-6 test-case-header'>
-            <q-btn @click='onExecTestCaseClick(props.row)'>
+            <q-btn @click='onExecTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               执行
             </q-btn>
             <q-btn @click='onCollapseClick(props.row)'>
               折叠/展开
             </q-btn>
-            <q-btn @click='onEditTestCaseClick(props.row)'>
+            <q-btn @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               编辑
             </q-btn>
             <!--  <q-btn @click='onDeleteTestCaseClick(props.row)'>
@@ -83,7 +84,7 @@
             <q-btn @click='onSaveTestCaseClick(props.row)'>
               保存
             </q-btn>
-            <q-btn @click='onCloneTestCaseClick(props.row)'>
+            <q-btn @click='onCloneTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               克隆
             </q-btn>
           </q-td>
@@ -607,7 +608,10 @@ const testCase = useTestCaseStore()
 const name = ref('')
 
 const testCases = computed(() => {
-  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
+  if (showDeprecated.value) {
+    return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
+  }
+  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
 })
 
 const testCaseCond = useTestCaseCondStore()
@@ -680,6 +684,9 @@ const runCleaner = async (_testCase: TestCase) => {
 }
 
 const onExecTestCaseClick = async (_testCase: TestCase) => {
+  if (_testCase.Deprecated) {
+    return
+  }
   if (_testCase.Collapsed) {
     await runPreConds(_testCase)
   }
@@ -721,7 +728,7 @@ const runPreConds = async (_testCase: TestCase) => {
 
 const onCollapseClick = async (testCase: TestCase) => {
   testCase.Collapsed = !testCase.Collapsed
-  if (!testCase.Collapsed) {
+  if (!testCase.Collapsed && !testCase.Deprecated) {
     await runPreConds(testCase)
   }
 }
@@ -756,7 +763,7 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
 // }
 
 const onDepracateTestCaseClick = (testCase: TestCase) => {
-  testCase.Depracated = true
+  testCase.Deprecated = true
 }
 
 const onSaveTestCaseClick = (_testCase: TestCase) => {
@@ -768,7 +775,7 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
     Input: JSON.stringify(_testCase.InputVal),
     InputDesc: JSON.stringify(_testCase.Args),
     Expectation: JSON.stringify(_testCase.OutputVal),
-    Deprecated: _testCase.Depracated,
+    Deprecated: _testCase.Deprecated,
     Message: {
       Error: {
         Title: 'MSG_UPDATE_TEST_CASE',
@@ -825,6 +832,7 @@ const onExportClick = () => {
 const showing = ref(false)
 const updating = ref(false)
 const cloning = ref(false)
+const showDeprecated = ref(false)
 
 const target = ref({
   ModuleName: module.value,
@@ -847,7 +855,7 @@ const modulePaths = computed(() => apis.getModuleAPIs(showing.value ? target.val
 
 const testcaseFilter = ref('')
 const condTestCases = computed(() => {
-  return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()))
+  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase())))
 })
 
 const allPaths = computed(() => apis.APIs)
@@ -951,7 +959,7 @@ const onSubmit = () => {
       Input: JSON.stringify(target.value.InputVal),
       InputDesc: JSON.stringify(target.value.Args),
       Expectation: JSON.stringify(target.value.OutputVal),
-      Deprecated: target.value.Depracated,
+      Deprecated: target.value.Deprecated,
       Message: {
         Error: {
           Title: 'MSG_CREATE_TEST_CASE',

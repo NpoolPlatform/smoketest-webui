@@ -288,7 +288,7 @@ const testCases = computed(() => allTestCases.value.filter((v) => {
 }))
 
 const filterTestCases = computed(() => {
-  return testCases.value.filter((el) => el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()))
+  return testCases.value.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase())))
 })
 
 const testCaseCond = useTestCaseCondStore()

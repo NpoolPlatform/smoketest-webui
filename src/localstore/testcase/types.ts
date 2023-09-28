@@ -24,7 +24,7 @@ export interface TestCase {
   InputDesc: string
   Expectation: string
   OutputDesc: string
-  Depracated: boolean
+  Deprecated: boolean
   TestCaseType: TestCaseType
   // Local parsed
   Args: Array<Arg>
