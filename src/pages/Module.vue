@@ -6,10 +6,11 @@
       :title='$t("MSG_MODULES")'
       row-key='ID'
       :rows='modules'
-      :columns='moduleColumns'
+      :columns='(moduleColumns as never)'
       :rows-per-page-options='[15]'
     >
       <template #top-right>
+        <q-input :label='$t("MSG_MODULE")' v-model='domain' dense />
         <q-btn dense @click='onCreateModuleClick'>
           {{ $t('MSG_CREATE_MODULE') }}
         </q-btn>
@@ -87,10 +88,11 @@ const moduleColumns = computed(() => [
 ])
 
 const module = useModuleStore()
-const modules = computed(() => module.Modules)
+const modules = computed(() => module.Modules.filter((el) => el.Name.includes(domain.value)))
 
 const apis = useLocalAPIStore()
 const domains = ref([] as Array<string>)
+const domain = ref('npool.top')
 
 const fetchDomains = () => {
   apis.getDomains({

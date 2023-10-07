@@ -6,7 +6,7 @@
       :title='$t("MSG_TEST_CASE")'
       row-key='ID'
       :rows='testCases'
-      :columns='columns'
+      :columns='(columns as never)'
       :rows-per-page-options='[15]'
     >
       <template #top-right>
@@ -34,12 +34,16 @@
         </q-btn>
       </template>
       <template #top-left>
-        <q-input
-          dense
-          :label='$t("MSG_SEARCH_NAME")'
-          v-model='name'
-        />
-        显示废弃用例：<q-toggle dense v-model='showDeprecated' />
+        <div class='row'>
+          <q-input
+            dense
+            :label='$t("MSG_SEARCH_NAME")'
+            v-model='name'
+          />
+          <q-toggle dense v-model='showDeprecated'>
+            显示废弃用例
+          </q-toggle>
+        </div>
       </template>
       <template #header='props'>
         <q-tr :props='props'>
@@ -526,7 +530,6 @@ interface BlobContent {
 }
 
 const loadedTestCases = ref(undefined as unknown as BlobContent)
-
 const loadFileButton = ref<HTMLInputElement>()
 
 const uploadFile = (evt: Event) => {
@@ -922,12 +925,11 @@ const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number
 
 const onDomainFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
-    if (val === '') {
-      options.value = apis.Domains
-    } else {
-      const needle = val.toLowerCase()
-      options.value = apis.Domains.filter(el => el.toLowerCase().indexOf(needle) > -1)
+    if (!val?.length) {
+      val = 'npool.top'
     }
+    const needle = val.toLowerCase()
+    options.value = apis.Domains.filter(el => el.toLowerCase().indexOf(needle) > -1)
   })
 }
 
