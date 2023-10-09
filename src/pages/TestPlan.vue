@@ -59,6 +59,9 @@
         <q-btn dense class='btn' @click='onAddTestCaseClick'>
           {{ $t('MSG_ADD_TEST_CASE') }}
         </q-btn>
+        <q-btn dense class='btn' @click='onExportTestResultClick'>
+          {{ $t('MSG_EXPORT') }}
+        </q-btn>
       </template>
       <template #header='props'>
         <q-tr :props='props'>
@@ -221,6 +224,7 @@ import {
 import { NotifyType, useLocalUserStore, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
 import { QSelect } from 'quasar'
+import { stringify as csvStringify } from 'csv-stringify/sync'
 
 interface BlobContent {
   TestPlans: Array<TestPlan>
@@ -731,6 +735,31 @@ const onExportClick = () => {
   } as BlobContent
   const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
   const filename = 'testplan-' + formatTime(new Date().getTime() / 1000) + '.json'
+  saveAs(blob, filename)
+}
+
+const onExportTestResultClick = () => {
+  if (!planTestCases.value || !selectedPlan.value.length) {
+    return
+  }
+  const columns = {
+    ID: `${t('MSG_ID')}`,
+    Result: `${t('MSG_RESULT')}`,
+    TestPlanID: `${t('MSG_TESTPLAN_ID')}`,
+    TestCaseID: `${t('MSG_TESTCASE_ID')}`,
+    Input: `${t('MSG_INPUT')}`,
+    Output: `${t('MSG_OUTPUT')}`,
+    Description: `${t('MSG_DESCRIPTION')}`,
+    RunDuration: `${t('MSG_RUN_DURATION')}`,
+    TestUserID: `${t('MSG_TEST_USER_ID')}`,
+    CreatedAt: `${t('MSG_CREATED_AT')}`
+  } as Record<string, string>
+  const output = csvStringify(planTestCases.value, {
+    header: true,
+    columns: columns
+  })
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), output], { type: 'text/plain;charset=utf-8' })
+  const filename = `testplan-${selectedPlan.value[0].ID as string}-${new Date().getTime() / 1000}.csv`
   saveAs(blob, filename)
 }
 
