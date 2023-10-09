@@ -740,21 +740,21 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
   cloning.value = true
 }
 
-// const onDeleteTestCaseClick = (_testCase: TestCase) => {
-//   testCase.deleteTestCase({
-//     ID: _testCase.ID,
-//     Message: {
-//       Error: {
-//         Title: 'MSG_DELETE_TEST_CASE',
-//         Message: 'MSG_DELETE_TEST_CASE_FAIL',
-//         Popup: true,
-//         Type: NotifyType.Error
-//       }
-//     }
-//   }, () => {
-//     // TODO
-//   })
-// }
+const onDeleteTestCaseClick = (_testCase: TestCase) => {
+  testCase.deleteTestCase({
+    ID: _testCase.ID,
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE',
+        Message: 'MSG_DELETE_TEST_CASE_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+}
 
 const onDepracateTestCaseClick = (testCase: TestCase) => {
   testCase.Deprecated = true
