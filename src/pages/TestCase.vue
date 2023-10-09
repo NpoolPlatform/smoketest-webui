@@ -8,41 +8,58 @@
       :rows='testCases'
       :columns='(columns as never)'
       :rows-per-page-options='[15]'
+      :style='{maxWidth:"100%"}'
     >
       <template #top-right>
-        <q-select
-          v-model='module'
-          use-input
-          hide-selected
-          fill-input
-          input-debounce='0'
-          :options='options'
-          dense
-          @filter='onDomainFilter'
-          @filter-abort='onAbortFilter'
-          :label='$t("MSG_MODULE")'
-          class='filter'
-        />
-        <q-btn dense @click='onCreateClick'>
-          {{ $t('MSG_CREATE') }}
-        </q-btn>
-        <q-btn dense @click='onFetchAPIsClick'>
-          {{ $t('MSG_FETCH_APIS') }}
-        </q-btn>
-        <q-btn dense @click='onExportClick'>
-          {{ $t('MSG_EXPORT') }}
-        </q-btn>
-      </template>
-      <template #top-left>
-        <div class='row'>
+        <div class='row items-end'>
           <q-input
             dense
             :label='$t("MSG_SEARCH_NAME")'
             v-model='name'
-          />
-          <q-toggle dense v-model='showDeprecated'>
+            :style='{maxWidth:"240px"}'
+          >
+            <template #append>
+              <q-icon name='search' />
+            </template>
+          </q-input>
+          <q-toggle dense v-model='showDeprecated' size='xs'>
             显示废弃用例
           </q-toggle>
+          <input
+            ref='loadFileButton'
+            type='file'
+            style='display: none;'
+            @change='uploadFile'
+            accept='.json'
+          >
+          <q-btn class='btn vertical-bottom' dense @click='loadFileButton?.click()'>
+            {{ $t("MSG_IMPORT") }}
+          </q-btn>
+          <q-btn class='btn' dense @click='onBatchCreate(loadedTestCases, 0)'>
+            {{ $t("MSG_BATCH_CREATE") }}
+          </q-btn>
+          <q-select
+            v-model='module'
+            use-input
+            hide-selected
+            fill-input
+            input-debounce='0'
+            :options='options'
+            dense
+            @filter='onDomainFilter'
+            @filter-abort='onAbortFilter'
+            :label='$t("MSG_MODULE")'
+            class='filter'
+          />
+          <q-btn class='btn' dense @click='onCreateClick'>
+            {{ $t('MSG_CREATE') }}
+          </q-btn>
+          <q-btn class='btn' dense @click='onFetchAPIsClick'>
+            {{ $t('MSG_FETCH_APIS') }}
+          </q-btn>
+          <q-btn class='btn' dense @click='onExportClick'>
+            {{ $t('MSG_EXPORT') }}
+          </q-btn>
         </div>
       </template>
       <template #header='props'>
@@ -475,30 +492,6 @@
       </q-item>
     </q-card>
   </q-dialog>
-  <div>
-    <input
-      ref='loadFileButton'
-      type='file'
-      style='display: none;'
-      @change='uploadFile'
-      accept='.json'
-    >
-    <q-btn
-      dense
-      flat
-      class='btn flat'
-      :label='$t("MSG_IMPORT")'
-      @click='loadFileButton?.click()'
-    />
-    <q-btn
-      dense
-      flat
-      class='btn flat'
-      :label='$t("MSG_BATCH_CREATE")'
-      :disable='!loadedTestCases'
-      @click='onBatchCreate(loadedTestCases, 0)'
-    />
-  </div>
 </template>
 
 <script setup lang='ts'>
