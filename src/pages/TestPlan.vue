@@ -70,8 +70,12 @@
           >
             {{ col.label }}
           </q-th>
-          <q-th>{{ t('MSG_OPERATION') }}</q-th>
-          <q-th>{{ t('MSG_RESULT') }}</q-th>
+          <q-th :style='{textAlign:"left"}'>
+            {{ t('MSG_OPERATION') }}
+          </q-th>
+          <q-th :style='{textAlign:"left"}'>
+            {{ t('MSG_RESULT') }}
+          </q-th>
         </q-tr>
       </template>
       <template #body='props'>
