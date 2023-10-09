@@ -439,6 +439,7 @@
         </q-tr>
       </template>
     </q-table>
+    <q-input type='textarea' v-model='executionLog' />
   </div>
   <q-dialog
     v-model='showing'
@@ -522,6 +523,7 @@ interface BlobContent {
 
 const loadedTestCases = ref(undefined as unknown as BlobContent)
 const loadFileButton = ref<HTMLInputElement>()
+const executionLog = ref('')
 
 const uploadFile = (evt: Event) => {
   const target = evt.target as unknown as HTMLInputElement
@@ -657,6 +659,10 @@ watch(module, () => {
 
 const options = ref([] as string[])
 
+const log = (_log: string) => {
+  executionLog.value = _log
+}
+
 const runCleaner = async (_testCase: TestCase) => {
   const cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
   cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
@@ -671,8 +677,11 @@ const runCleaner = async (_testCase: TestCase) => {
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      log(`TestCase: ${JSON.stringify(_case)} Success`)
     } catch (err) {
       console.log(testCasePath(_case), err)
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      log(`TestCase: ${JSON.stringify(_case)} Fail: ${err}`)
     }
   }
 }
@@ -692,10 +701,13 @@ const onExecTestCaseClick = async (_testCase: TestCase) => {
       if (_testCase.OutputVal == null) {
         _testCase.OutputVal = ((resp as Record<string, unknown>).Infos) as Record<string, unknown>
       }
+      log(`TestCase: ${JSON.stringify(_testCase)} Success`)
       await runCleaner(_testCase)
     })
     .catch(async (err: Error) => {
       _testCase.Error = err
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      log(`TestCase: ${JSON.stringify(_testCase)} Fail: ${err}`)
       await runCleaner(_testCase)
     })
 }
@@ -714,8 +726,11 @@ const runPreConds = async (_testCase: TestCase) => {
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      log(`TestCase: ${JSON.stringify(_case)} Success`)
     } catch (err) {
       console.log(testCasePath(_case), err)
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      log(`TestCase: ${JSON.stringify(_case)} Fail: ${err}`)
     }
   }
 }
