@@ -96,9 +96,9 @@
             <q-btn dense class='btn' @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               编辑
             </q-btn>
-            <!--  <q-btn dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn disable dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
-            </q-btn> -->
+            </q-btn>
             <q-btn dense class='btn' @click='onDepracateTestCaseClick(props.row)'>
               废弃
             </q-btn>
