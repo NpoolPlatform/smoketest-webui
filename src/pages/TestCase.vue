@@ -307,13 +307,13 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td colspan='50%'>
+          <q-td colspan='2'>
             <div class='row'>
               <pre class='arguments' v-html='JSON.stringify(testCase.args(props.row), null, 2)' />
               <pre class='arguments' v-html='JSON.stringify(testCase.input(props.row), null, 2)' />
             </div>
           </q-td>
-          <q-td colspan='50%'>
+          <q-td colspan='2'>
             <div
               v-for='arg in props.row.Args'
               :key='arg.Name'
