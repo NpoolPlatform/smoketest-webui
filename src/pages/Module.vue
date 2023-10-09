@@ -10,10 +10,12 @@
       :rows-per-page-options='[15]'
     >
       <template #top-right>
-        <q-input :label='$t("MSG_MODULE")' v-model='domain' dense />
-        <q-btn dense @click='onCreateModuleClick'>
-          {{ $t('MSG_CREATE_MODULE') }}
-        </q-btn>
+        <div class='row items-end'>
+          <q-input :label='$t("MSG_MODULE")' v-model='domain' dense />
+          <q-btn dense class='btn' @click='onCreateModuleClick'>
+            {{ $t('MSG_CREATE_MODULE') }}
+          </q-btn>
+        </div>
       </template>
     </q-table>
   </div>
