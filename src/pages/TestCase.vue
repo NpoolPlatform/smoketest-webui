@@ -77,49 +77,47 @@
       </template>
       <template #body='props'>
         <q-tr :props='props'>
-          <q-td auto-width class='bg-grey-6 test-case-header' />
+          <q-td auto-width class='test-case-header' />
           <q-td
             v-for='col in props.cols'
             :key='col.name'
             :props='props'
-            class='bg-grey-6 test-case-header'
+            class='test-case-header'
           >
             {{ col.value }}
           </q-td>
-          <q-td class='bg-grey-6 test-case-header'>
-            <q-btn @click='onExecTestCaseClick(props.row)' :disable='props.row.Deprecated'>
+          <q-td class='test-case-header'>
+            <q-btn dense class='btn' @click='onExecTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               执行
             </q-btn>
-            <q-btn @click='onCollapseClick(props.row)'>
+            <q-btn dense class='btn' @click='onCollapseClick(props.row)'>
               折叠/展开
             </q-btn>
-            <q-btn @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
+            <q-btn dense class='btn' @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               编辑
             </q-btn>
-            <!--  <q-btn @click='onDeleteTestCaseClick(props.row)'>
+            <!--  <q-btn dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn> -->
-            <q-btn @click='onDepracateTestCaseClick(props.row)'>
+            <q-btn dense class='btn' @click='onDepracateTestCaseClick(props.row)'>
               废弃
             </q-btn>
-            <q-btn @click='onSaveTestCaseClick(props.row)'>
+            <q-btn dense class='btn' @click='onSaveTestCaseClick(props.row)'>
               保存
             </q-btn>
-            <q-btn @click='onCloneTestCaseClick(props.row)' :disable='props.row.Deprecated'>
+            <q-btn dense class='btn' @click='onCloneTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               克隆
             </q-btn>
           </q-td>
-          <q-td colspan='100%' class='bg-grey-6 test-case-header' />
+          <q-td colspan='100%' class='test-case-header' />
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
           <q-td>
             <div>Description</div>
           </q-td>
-          <q-td>
-            <q-input
-              v-model='props.row.Description'
-            />
+          <q-td colspan='4'>
+            <q-input dense v-model='props.row.Description' />
           </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
@@ -127,7 +125,7 @@
           <q-td>
             <div>PreConds</div>
           </q-td>
-          <q-td colspan='100%'>
+          <q-td colspan='4'>
             <div
               v-for='cond in testCaseCond.getConds(props.row.ID, CondType.PreCondition)'
               :key='cond.ID'
@@ -140,13 +138,13 @@
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
-                  <q-btn @click='onModifyCondClick(cond)' :disable='cond.Editing'>
+                  <q-btn dense class='btn' @click='onModifyCondClick(cond)' :disable='cond.Editing'>
                     修改
                   </q-btn>
-                  <q-btn @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
+                  <q-btn dense class='btn' @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
                     确定
                   </q-btn>
-                  <q-btn @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
+                  <q-btn dense class='btn' @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
                     取消
                   </q-btn>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
@@ -170,10 +168,10 @@
                 :label='$t("MSG_PATH")'
                 class='filter'
               />
-              <q-btn dense @click='onConfirmCreatePreCondClick(props.row)'>
+              <q-btn dense class='btn' @click='onConfirmCreatePreCondClick(props.row)'>
                 确定
               </q-btn>
-              <q-btn dense @click='onCancelCreatePreCondClick(props.row)'>
+              <q-btn dense class='btn' @click='onCancelCreatePreCondClick(props.row)'>
                 取消
               </q-btn>
             </div>
@@ -187,7 +185,7 @@
           <q-td>
             <div>Cleaners</div>
           </q-td>
-          <q-td colspan='90%'>
+          <q-td colspan='4'>
             <div
               v-for='cond in testCaseCond.getConds(props.row.ID, CondType.Cleaner)'
               :key='cond.ID'
@@ -206,13 +204,13 @@
                 <q-td>{{ testCaseByID(cond.CondTestCaseID)?.ModuleName }}</q-td>
                 <q-td>{{ testCasePath(testCaseByID(cond.CondTestCaseID)) }}</q-td>
                 <q-td>
-                  <q-btn @click='onModifyCondClick(cond)' :disable='cond.Editing'>
+                  <q-btn dense class='btn' @click='onModifyCondClick(cond)' :disable='cond.Editing'>
                     修改
                   </q-btn>
-                  <q-btn @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
+                  <q-btn dense class='btn' @click='onConfirmModifyCondClick(cond)' :disable='!cond.Editing'>
                     确定
                   </q-btn>
-                  <q-btn @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
+                  <q-btn dense class='btn' @click='onCancelModifyCondClick(cond)' :disable='!cond.Editing'>
                     取消
                   </q-btn>
                   <q-btn @click='onDeleteTestCaseCondClick(cond)'>
@@ -237,13 +235,13 @@
                       v-model='arg.From'
                       :disable='!arg.Editing'
                     />
-                    <q-btn dense @click='onModifyCleanerArgClick(arg)'>
+                    <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
                     </q-btn>
-                    <q-btn dense @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
+                    <q-btn dense class='btn' @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
                       确定
                     </q-btn>
-                    <q-btn dense @click='onCancelCreateCleanerArgClick(props.row)'>
+                    <q-btn dense class='btn' @click='onCancelCreateCleanerArgClick(props.row)'>
                       取消
                     </q-btn>
                   </div>
@@ -266,10 +264,10 @@
                 class='filter'
                 @update:model-value='(val) => onCleanerTestCaseUpdated(props.row, val)'
               />
-              <q-btn dense @click='onConfirmCreateCleanerClick(props.row)'>
+              <q-btn dense class='btn' @click='onConfirmCreateCleanerClick(props.row)'>
                 确定
               </q-btn>
-              <q-btn dense @click='onCancelCreateCleanerClick(props.row)'>
+              <q-btn dense class='btn' @click='onCancelCreateCleanerClick(props.row)'>
                 取消
               </q-btn>
               <div>
@@ -290,10 +288,10 @@
                     v-model='arg.From'
                     :disable='!arg.Editing'
                   />
-                  <q-btn dense @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
+                  <q-btn dense class='btn' @click='onConfirmCreateCleanerArgClick(props.row, arg)'>
                     确定
                   </q-btn>
-                  <q-btn dense @click='onCancelCreateCleanerArgClick(props.row)'>
+                  <q-btn dense class='btn' @click='onCancelCreateCleanerArgClick(props.row)'>
                     取消
                   </q-btn>
                 </div>
@@ -309,13 +307,13 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td>
+          <q-td colspan='50%'>
             <div class='row'>
               <pre class='arguments' v-html='JSON.stringify(testCase.args(props.row), null, 2)' />
               <pre class='arguments' v-html='JSON.stringify(testCase.input(props.row), null, 2)' />
             </div>
           </q-td>
-          <q-td colspan='100%'>
+          <q-td colspan='50%'>
             <div
               v-for='arg in props.row.Args'
               :key='arg.Name'
@@ -365,10 +363,10 @@
               <q-toggle v-if='arg.Type === "String"' v-model='arg.Random' :disable='!arg.Editing'>
                 随机
               </q-toggle>
-              <q-btn @click='onModifyArgClick(arg)' :disable='arg.Editing'>
+              <q-btn dense class='btn' @click='onModifyArgClick(arg)' :disable='arg.Editing'>
                 修改
               </q-btn>
-              <q-btn @click='onConfirmModifyArgClick(props.row, arg)' :disable='!arg.Editing'>
+              <q-btn dense class='btn' @click='onConfirmModifyArgClick(props.row, arg)' :disable='!arg.Editing'>
                 确定
               </q-btn>
               <q-btn @click='onDeleteArgClick(props.row, arg)'>
@@ -415,10 +413,10 @@
               <q-toggle v-if='newArg.Type === "String"' v-model='newArg.Random'>
                 随机
               </q-toggle>
-              <q-btn dense @click='onConfirmCreateArgClick(props.row)'>
+              <q-btn dense class='btn' @click='onConfirmCreateArgClick(props.row)'>
                 确定
               </q-btn>
-              <q-btn dense @click='onCancelCreateArgClick(props.row)'>
+              <q-btn dense class='btn' @click='onCancelCreateArgClick(props.row)'>
                 取消
               </q-btn>
             </div>
@@ -432,7 +430,7 @@
           <q-td>
             <div>Output</div>
           </q-td>
-          <q-td>
+          <q-td colspan='4'>
             <div class='row'>
               <pre v-if='!props.row.Error' class='arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
               <div v-else class='arguments error' v-html='props.row.Error' />
@@ -623,24 +621,10 @@ const testCaseByID = (id: string) => {
 
 const columns = computed(() => [
   {
-    name: 'Name',
-    label: t('MSG_NAME'),
-    align: 'left',
-    sortable: true,
-    field: (row: TestCase) => row.Name
-  },
-  {
     name: 'ID',
     label: t('MSG_ID'),
     align: 'left',
     field: (row: TestCase) => row.ID
-  },
-  {
-    name: 'Path',
-    label: t('MSG_PATH'),
-    align: 'left',
-    sortable: true,
-    field: (row: TestCase) => testCasePath(row)
   },
   {
     name: 'Module',
@@ -648,6 +632,20 @@ const columns = computed(() => [
     align: 'left',
     sortable: true,
     field: (row: TestCase) => row.ModuleName
+  },
+  {
+    name: 'Name',
+    label: t('MSG_NAME'),
+    align: 'left',
+    sortable: true,
+    field: (row: TestCase) => row.Name
+  },
+  {
+    name: 'Path',
+    label: t('MSG_PATH'),
+    align: 'left',
+    sortable: true,
+    field: (row: TestCase) => testCasePath(row)
   }
 ])
 
@@ -1353,8 +1351,7 @@ onMounted(() => {
 
 <style lang='sass' scoped>
 .test-case-header
-  color: white
-  font-weight: bold
+  font-weight: normal
 
 .arguments
   background-color: black
@@ -1378,5 +1375,5 @@ pre
   min-width: 120px
 
 .cleaner-arg
-  width: 320px
+  width: 240px
 </style>

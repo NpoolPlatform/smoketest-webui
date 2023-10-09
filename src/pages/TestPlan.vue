@@ -12,22 +12,35 @@
       @row-click='(evt, row, index) => onTestPlanClick(row)'
     >
       <template #top-right>
-        <q-btn dense @click='onCreateTestPlanClick'>
+        <input
+          ref='loadFileButton'
+          type='file'
+          :style='{display:"none"}'
+          @change='uploadFile'
+          accept='.json'
+        >
+        <q-btn class='btn' dense @click='loadFileButton?.click()'>
+          {{ $t("MSG_IMPORT") }}
+        </q-btn>
+        <q-btn class='btn' dense @click='onBatchCreate(loadedTestPlans, 0)'>
+          {{ $t('MSG_BATCH_CREATE') }}
+        </q-btn>
+        <q-btn class='btn' dense @click='onCreateTestPlanClick'>
           {{ $t('MSG_CREATE') }}
         </q-btn>
-        <q-btn dense @click='onFetchTestPlanCaseClick'>
+        <q-btn class='btn' dense @click='onFetchTestPlanCaseClick'>
           {{ $t('MSG_FETCH_PLAN_TEST_CASE') }}
         </q-btn>
-        <q-btn dense @click='onExecuteTestPlanClick'>
+        <q-btn class='btn' dense @click='onExecuteTestPlanClick'>
           {{ $t('MSG_EXECUTE') }}
         </q-btn>
-        <q-btn dense @click='onDeleteTestPlanClick'>
+        <q-btn class='btn' dense @click='onDeleteTestPlanClick'>
           {{ $t('MSG_DELETE') }}
         </q-btn>
-        <q-btn dense @click='onCloneTestPlanClick'>
+        <q-btn class='btn' dense @click='onCloneTestPlanClick'>
           {{ $t('MSG_CLONE') }}
         </q-btn>
-        <q-btn dense @click='onExportClick'>
+        <q-btn class='btn' dense @click='onExportClick'>
           {{ $t('MSG_EXPORT') }}
         </q-btn>
       </template>
@@ -43,9 +56,23 @@
       v-model:selected='selectedTestCase'
     >
       <template #top-right>
-        <q-btn dense @click='onAddTestCaseClick'>
+        <q-btn dense class='btn' @click='onAddTestCaseClick'>
           {{ $t('MSG_ADD_TEST_CASE') }}
         </q-btn>
+      </template>
+      <template #header='props'>
+        <q-tr :props='props'>
+          <q-th auto-width />
+          <q-th
+            v-for='col in props.cols'
+            :key='col.name'
+            :props='props'
+          >
+            {{ col.label }}
+          </q-th>
+          <q-th>{{ t('MSG_OPERATION') }}</q-th>
+          <q-th>{{ t('MSG_RESULT') }}</q-th>
+        </q-tr>
       </template>
       <template #body='props'>
         <q-tr :props='props'>
@@ -59,16 +86,26 @@
             {{ col.value }}
           </q-td>
           <q-td class='test-case-header'>
-            <q-btn @click='onTestCaseCollapsed(props.row)'>
+            <q-btn class='btn' @click='onTestCaseCollapsed(props.row)'>
               展开
             </q-btn>
-            <q-btn @click='onTestCaseClick(props.row)'>
+            <q-btn class='btn' @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
-            <q-toggle dense v-model='props.row.Pass' @update:model-value='(value, evt) => onTestCasePass(props.row, value)' />
+          </q-td>
+          <q-td :style='{align:"left"}'>
+            <q-btn-toggle
+              :options='[
+                {label: "Pass", value: true},
+                {label: "Fail", value: false}
+              ]'
+              dense size='xs'
+              v-model='props.row.Pass'
+              @update:model-value='(value) => onTestCasePass(props.row, value)'
+            />
           </q-td>
           <q-td colspan='100%' class='test-case-header' />
         </q-tr>
@@ -77,7 +114,7 @@
           <q-td>
             <div>Input</div>
           </q-td>
-          <q-td>
+          <q-td colspan='6'>
             <pre class='arguments' v-html='JSON.stringify(props.row.InputVal, null, 2)' />
           </q-td>
         </q-tr>
@@ -86,7 +123,7 @@
           <q-td>
             <div>Output</div>
           </q-td>
-          <q-td>
+          <q-td colspan='6'>
             <pre class='arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
           </q-td>
         </q-tr>
@@ -157,29 +194,6 @@
       </q-item>
     </q-card>
   </q-dialog>
-  <div>
-    <input
-      ref='loadFileButton'
-      type='file'
-      @change='uploadFile'
-      accept='.json'
-    >
-    <q-btn
-      dense
-      flat
-      class='btn flat'
-      :label='$t("MSG_IMPORT")'
-      @click='loadFileButton?.click()'
-    />
-    <q-btn
-      dense
-      flat
-      class='btn flat'
-      :label='$t("MSG_BATCH_CREATE")'
-      :disable='!loadedTestPlans'
-      @click='onBatchCreate(loadedTestPlans, 0)'
-    />
-  </div>
 </template>
 
 <script setup lang='ts'>
