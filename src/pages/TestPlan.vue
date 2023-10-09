@@ -6,7 +6,7 @@
       :title='$t("MSG_TEST_PLAN")'
       row-key='ID'
       :rows='testPlans'
-      :columns='testPlanColumns'
+      :columns='(testPlanColumns as never)'
       selection='single'
       v-model:selected='selectedPlan'
       @row-click='(evt, row, index) => onTestPlanClick(row)'
@@ -38,7 +38,7 @@
       :title='$t("MSG_TEST_CASE")'
       row-key='ID'
       :rows='planTestCases'
-      :columns='testCaseColumns'
+      :columns='(testCaseColumns as never)'
       selection='single'
       v-model:selected='selectedTestCase'
     >
@@ -883,7 +883,7 @@ const onTestCaseClick = (_case: PlanTestCase) => {
 
 const onTestCasePass = (_case: PlanTestCase, pass: boolean) => {
   planTestCase.updatePlanTestCase({
-    ID: _case.ID,
+    ID: _case.ID as string,
     Result: pass ? TestCaseResult.Passed : TestCaseResult.Failed,
     Message: {
       Error: {

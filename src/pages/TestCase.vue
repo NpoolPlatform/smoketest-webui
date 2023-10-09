@@ -1256,7 +1256,9 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     TestCaseID: _testCase.ID,
     CondTestCaseID: cleanerTestCase.ID,
     Args: [],
-    ArgumentMap: ''
+    ArgumentMap: '',
+    OldIndex: 0,
+    Editing: false
   }
   if (cleanerTestCase.Args) {
     addingCleaner.value.Args.push(...cleanerTestCase.Args)
