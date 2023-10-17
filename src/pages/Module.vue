@@ -29,16 +29,23 @@
         <span>{{ $t('MSG_CREATE_MODULE') }}</span>
       </q-card-section>
       <q-card-section>
+        <q-toggle label='User Define Module' v-model='userDefine' />
         <q-select
+          v-if='!userDefine'
           filled
           dense
-          v-model='names'
+          v-model='name'
           use-input
-          use-chips
-          multiple
           input-debounce='0'
           @new-value='onCreateNewModule'
           :options='domains'
+          :multiple='false'
+        />
+        <q-input
+          v-else
+          v-model='name'
+          suffix='.npool.top'
+          label='Module Name'
         />
         <q-input
           v-model='target.Description'
@@ -89,12 +96,16 @@ const moduleColumns = computed(() => [
   }
 ])
 
+const target = ref({} as Module)
+const showing = ref(false)
+const name = ref('')
 const module = useModuleStore()
-const modules = computed(() => module.Modules.filter((el) => el.Name.includes(domain.value)))
+const modules = computed(() => module.Modules.filter((el) => el.Name.includes(domain.value) && el.Name.includes(name.value)))
 
 const apis = useLocalAPIStore()
 const domains = ref([] as Array<string>)
 const domain = ref('npool.top')
+const userDefine = ref(false)
 
 const fetchDomains = () => {
   apis.getDomains({
@@ -133,14 +144,10 @@ onMounted(() => {
   fetchModules(0, 100)
 })
 
-const target = ref({} as Module)
-const showing = ref(false)
-const names = ref([] as Array<string>)
-
 const onCreateModuleClick = () => {
   showing.value = true
   domains.value = apis.Domains.filter((el) => {
-    return modules.value.findIndex((v) => v.Name === el) < 0
+    return modules.value.findIndex((v) => v.Name === el) < 0 && el.includes('npool.top')
   })
 }
 
@@ -150,7 +157,12 @@ const onModuleMenuHide = () => {
 
 const onModuleSubmit = () => {
   showing.value = false
-  target.value.Name = names.value.join(',')
+  if (!name.value.length) return
+  if (userDefine.value) {
+    target.value.Name = name.value + '.npool.top'
+  } else {
+    target.value.Name = name.value
+  }
 
   module.createModule({
     Name: target.value.Name,
@@ -164,12 +176,13 @@ const onModuleSubmit = () => {
       }
     }
   }, () => {
-    // TODO
+    name.value = ''
   })
 }
 
 const onModuleCancel = () => {
   showing.value = false
+  name.value = ''
   target.value = {} as Module
 }
 
