@@ -44,7 +44,7 @@ export interface CreateTestCaseRequest extends BaseRequest {
   ID?: string
   Name: string
   Description: string
-  ModuleName: string
+  ModuleID: string
   ApiID: string
   Input?: string
   InputDesc?: string

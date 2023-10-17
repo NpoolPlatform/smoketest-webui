@@ -46,7 +46,6 @@
             input-debounce='0'
             :options='options'
             dense
-            @filter='onDomainFilter'
             @filter-abort='onAbortFilter'
             :label='$t("MSG_MODULE")'
             class='filter'
@@ -460,7 +459,6 @@
           input-debounce='0'
           :options='options'
           dense
-          @filter='onDomainFilter'
           @filter-abort='onAbortFilter'
           :label='$t("MSG_MODULE")'
           class='filter'
@@ -507,7 +505,9 @@ import {
   TestCaseCond,
   CondType,
   ArgMap,
-  useTestCaseCondStore
+  useTestCaseCondStore,
+  useModuleStore,
+  Module
 } from 'src/localstore'
 import { NotifyType, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
@@ -577,7 +577,7 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
     ID: _case.ID,
     Name: _case.Name,
     Description: _case.Description,
-    ModuleName: _case.ModuleName,
+    ModuleID: _case.ModuleID,
     ApiID: _apiID,
     Input: JSON.stringify(_case.InputVal),
     InputDesc: JSON.stringify(_case.Args),
@@ -612,6 +612,7 @@ const testCases = computed(() => {
 
 const testCaseCond = useTestCaseCondStore()
 const apis = useLocalAPIStore()
+const _module = useModuleStore()
 
 const testCaseConds = computed(() => {
   return testCaseCond.Conds
@@ -650,12 +651,6 @@ const columns = computed(() => [
     field: (row: TestCase) => testCasePath(row)
   }
 ])
-
-watch(module, () => {
-  if (module.value === 'Clear') {
-    module.value = ''
-  }
-})
 
 const options = ref([] as string[])
 
@@ -844,7 +839,6 @@ const cloning = ref(false)
 const showDeprecated = ref(false)
 
 const target = ref({
-  ModuleName: module.value,
   Args: [] as Arg[]
 } as TestCase)
 const targetInput = computed(() => testCase.input(target.value))
@@ -854,7 +848,13 @@ watch(targetInput, () => {
 })
 
 watch(module, () => {
-  target.value.ModuleName = module.value
+  if (module.value === 'Clear') {
+    module.value = ''
+  }
+})
+
+watch(() => target.value.ModuleName, () => {
+  target.value.ModuleID = _module.Modules.find((el) => el.Name === target.value.ModuleName)?.ID as string
 })
 
 const pathFilter = ref('')
@@ -929,16 +929,6 @@ const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number
   })
 }
 
-const onDomainFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-  update(() => {
-    if (!val?.length) {
-      val = 'npool.top'
-    }
-    const needle = val.toLowerCase()
-    options.value = apis.Domains.filter(el => el.toLowerCase().indexOf(needle) > -1)
-  })
-}
-
 const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
     testcaseFilter.value = val
@@ -988,7 +978,7 @@ const onSubmit = () => {
   testCase.createTestCase({
     Name: target.value.Name,
     Description: target.value.Description,
-    ModuleName: target.value.ModuleName,
+    ModuleID: target.value.ModuleID,
     ApiID: target.value.ApiID,
     Input: JSON.stringify(target.value.InputVal),
     InputDesc: JSON.stringify(target.value.Args),
@@ -1314,21 +1304,23 @@ const fetchTestCases = (offset: number, limit: number) => {
   })
 }
 
-const fetchDomains = () => {
-  apis.getDomains({
+const fetchModules = () => {
+  _module.getModules({
+    Offset: 0,
+    Limit: 200,
     Message: {
       Error: {
-        Title: 'MSG_GET_DOMAINS',
-        Message: 'MSG_GET_DOMAINS_FAIL',
+        Title: 'MSG_GET_MODULES',
+        Message: 'MSG_GET_MODULES_FAIL',
         Popup: true,
         Type: NotifyType.Error
       }
     }
-  }, (error: boolean, domains: string[]) => {
-    if (error) {
+  }, (error: boolean, rows?: Module[]) => {
+    if (error || !rows?.length) {
       return
     }
-    options.value = domains
+    options.value = rows.map((el) => el.Name).filter((el) => el.includes('npool.top'))
     options.value.push('Clear')
   })
 }
@@ -1357,7 +1349,7 @@ const fetchTestCaseConds = (offset: number, limit: number) => {
 }
 
 onMounted(() => {
-  fetchDomains()
+  fetchModules()
   fetchTestCases(0, 100)
   fetchTestCaseConds(0, 100)
 })
