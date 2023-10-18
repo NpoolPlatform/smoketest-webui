@@ -307,18 +307,17 @@
             <div>Arguments</div>
           </q-td>
           <q-td colspan='2'>
-            <div class='row'>
-              <pre class='arguments' v-html='JSON.stringify(testCase.args(props.row), null, 2)' />
-              <pre class='arguments' v-html='JSON.stringify(testCase.input(props.row), null, 2)' />
-            </div>
-          </q-td>
-          <q-td colspan='2'>
             <div
               v-for='arg in props.row.Args'
               :key='arg.Name'
               class='row'
             >
-              <q-input dense v-model='arg.Name' :disable='!arg.Editing' label='Argument Name' />
+              <q-input
+                dense
+                v-model='arg.Name'
+                :disable='!arg.Editing'
+                label='Argument Name'
+              />
               <q-select
                 label='Argument Type'
                 dense
@@ -423,6 +422,12 @@
               +
             </q-btn>
           </q-td>
+          <q-td colspan='2'>
+            <div class='row'>
+              <pre class='arguments' v-html='JSON.stringify(testCase.args(props.row), null, 2)' />
+              <pre class='arguments' v-html='JSON.stringify(testCase.input(props.row), null, 2)' />
+            </div>
+          </q-td>
         </q-tr>
         <q-tr :props='props' v-show='!props.row.Collapsed'>
           <q-td auto-width />
@@ -431,8 +436,8 @@
           </q-td>
           <q-td colspan='4'>
             <div class='row'>
-              <pre v-if='!props.row.Error' class='arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
-              <div v-else class='arguments error' v-html='props.row.Error' />
+              <pre v-if='!props.row.Error' class='output arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
+              <div v-else class='output arguments error' v-html='props.row.Error' />
             </div>
           </q-td>
         </q-tr>
@@ -1398,6 +1403,9 @@ onMounted(() => {
   font-weight: bold
   padding: 20px
   margin-right: 10px
+  width: 500px
+
+.output
   width: 800px
 
 pre
