@@ -308,8 +308,8 @@
           </q-td>
           <q-td colspan='2'>
             <div
-              v-for='arg in props.row.Args'
-              :key='arg.Name'
+              v-for='(arg, index) in props.row.Args'
+              :key='index'
               class='row'
             >
               <q-input
