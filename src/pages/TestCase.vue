@@ -598,7 +598,7 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
   }
 
   const _case = _loadedTestCases.TestCases[index]
-  const _apiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.ID as string
+  const _apiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.EntID as string
   testCase.createTestCase({
     ID: _case.ID,
     Name: _case.Name,
@@ -767,7 +767,7 @@ const onCollapseClick = async (testCase: TestCase) => {
 
 const onEditTestCaseClick = (testCase: TestCase) => {
   target.value = testCase
-  testCaseAPI.value = apis.APIs.find((el) => el.ID === testCase.ApiID) as API
+  testCaseAPI.value = apis.APIs.find((el) => el.EntID === testCase.ApiID) as API
   showing.value = true
   updating.value = true
 }
@@ -899,7 +899,7 @@ const allPaths = computed(() => apis.APIs)
 const testCaseAPI = ref(undefined as unknown as API)
 
 watch(testCaseAPI, () => {
-  target.value.ApiID = testCaseAPI.value?.ID
+  target.value.ApiID = testCaseAPI.value?.EntID
 })
 
 const testCasePath = (_testCase?: TestCase) => {
@@ -910,7 +910,7 @@ const testCasePath = (_testCase?: TestCase) => {
   if (path) {
     return path
   }
-  return apis.path(allPaths.value.find((el) => el.ID === _testCase.ApiID))
+  return apis.path(allPaths.value.find((el) => el.EntID === _testCase.ApiID))
 }
 
 const preCondTestCase = ref(undefined as unknown as TestCase)

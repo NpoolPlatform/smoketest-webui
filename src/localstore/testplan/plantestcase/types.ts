@@ -1,4 +1,5 @@
 import { BaseRequest } from 'npool-cli-v4'
+import { TestCaseClass, TestCaseType } from 'src/localstore/testcase'
 
 export enum TestCaseResult {
   Skipped = 'Skipped',
@@ -10,15 +11,23 @@ export interface PlanTestCase {
   ID?: string
   TestPlanID: string
   TestCaseID: string
+  TestCaseName: string
+  TestCaseType: TestCaseType
+  TestCaseClass: TestCaseClass
   Description: string
   RunDuration: number
   TestUserID: string
+  TestUserEmail: string
   Result: TestCaseResult
   Index: number
   Input: string
   InputVal: Record<string, unknown>
   Output: string
   OutputVal: Record<string, unknown>
+  ModuleID: string
+  ModuleName: string
+  ApiID: string
+  ApiPath: string
   Collapsed: boolean
   Pass: boolean
 }

@@ -529,7 +529,7 @@ const apiPath = (apiID?: string) => {
   if (!apiID) {
     return 'Invalid'
   }
-  const path = allPaths.value.find((el) => el.ID === apiID)
+  const path = allPaths.value.find((el) => el.EntID === apiID)
   if (!path) {
     return apiID
   }
@@ -747,11 +747,19 @@ const onExportTestResultClick = () => {
     Result: `${t('MSG_RESULT')}`,
     TestPlanID: `${t('MSG_TESTPLAN_ID')}`,
     TestCaseID: `${t('MSG_TESTCASE_ID')}`,
+    TestCaseName: `${t('MSG_TESTCASE_NAME')}`,
+    TestCaseType: `${t('MSG_TESTCASE_TYPE')}`,
+    TestCaseClass: `${t('MSG_TESTCASE_CLASS')}`,
     Input: `${t('MSG_INPUT')}`,
     Output: `${t('MSG_OUTPUT')}`,
     Description: `${t('MSG_DESCRIPTION')}`,
     RunDuration: `${t('MSG_RUN_DURATION')}`,
     TestUserID: `${t('MSG_TEST_USER_ID')}`,
+    TestUserEmail: `${t('MSG_TEST_USER_EMAIL')}`,
+    ModuleID: `${t('MSG_MODULE_ID')}`,
+    ModuleName: `${t('MSG_MODULE_NAME')}`,
+    ApiID: `${t('MSG_API_ID')}`,
+    ApiPath: `${t('MSG_API_PATH')}`,
     CreatedAt: `${t('MSG_CREATED_AT')}`
   } as Record<string, string>
   const output = csvStringify(planTestCases.value, {
@@ -771,7 +779,7 @@ const testCasePath = (_testCase?: TestCase) => {
   if (path) {
     return path
   }
-  return apis.path(allPaths.value.find((el) => el.ID === _testCase.ApiID))
+  return apis.path(allPaths.value.find((el) => el.EntID === _testCase.ApiID))
 }
 
 const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
