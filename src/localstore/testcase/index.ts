@@ -66,8 +66,17 @@ export const useTestCaseStore = defineStore('local-testcase', {
                 input[v.Name] = _case?.InputVal?.[v.From.Src]
                 break
               case ArgType.Output:
-                input[v.Name] = _case?.OutputVal?.[v.From.Src]
+              {
+                let outputVal = _case?.OutputVal
+                if (Array.isArray(outputVal)) {
+                  if (!testCase.OutputVal.length) {
+                    return
+                  }
+                  outputVal = testCase.OutputVal[0] as Record<string, unknown>
+                }
+                input[v.Name] = outputVal?.[v.From.Src]
                 break
+              }
             }
             return input
           }
@@ -110,7 +119,14 @@ export const useTestCaseStore = defineStore('local-testcase', {
           })
         }
         if (testCase.OutputVal) {
-          for (const key of Object.keys(testCase.OutputVal)) {
+          let outputVal = testCase.OutputVal
+          if (Array.isArray(outputVal)) {
+            if (!testCase.OutputVal.length) {
+              return srcs
+            }
+            outputVal = testCase.OutputVal[0] as Record<string, unknown>
+          }
+          for (const key of Object.keys(outputVal)) {
             srcs.push({
               TestCaseID: testCase.ID,
               Src: key,
