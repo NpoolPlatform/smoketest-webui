@@ -33,11 +33,18 @@ export enum ArgDef {
   Boolean = 'Boolean'
 }
 
-export const ArgDefs = [
-  ArgDef.Number,
-  ArgDef.String,
-  ArgDef.Object,
-  ArgDef.Decimal,
-  ArgDef.Array,
-  ArgDef.Boolean
-]
+export const ArgDefs = Object.values(ArgDef)
+
+export enum TestCaseType {
+  Manual = 'Manual',
+  Automatic = 'Automatic'
+}
+
+export const TestCaseTypes = Object.values(TestCaseType)
+
+export enum TestCaseClass {
+  Functionality = 'Functionality',
+  Interface = 'Interface'
+}
+
+export const TestCaseClasses = Object.values(TestCaseClass)

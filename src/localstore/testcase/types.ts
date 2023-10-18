@@ -1,10 +1,5 @@
 import { BaseRequest } from 'npool-cli-v4'
-import { Arg } from './base/arg'
-
-export enum TestCaseType {
-  Manual = 'Manual',
-  Automatic = 'Automatic'
-}
+import { Arg, TestCaseClass, TestCaseType } from './base/arg'
 
 export interface TestCase {
   ID: string
@@ -26,6 +21,7 @@ export interface TestCase {
   OutputDesc: string
   Deprecated: boolean
   TestCaseType: TestCaseType
+  TestCaseClass: TestCaseClass
   // Local parsed
   Args: Array<Arg>
   Collapsed: boolean
@@ -49,6 +45,8 @@ export interface CreateTestCaseRequest extends BaseRequest {
   Input?: string
   InputDesc?: string
   Expectation?: string
+  TestCaseType: TestCaseType
+  TestCaseClass: TestCaseClass
 }
 
 export interface CreateTestCaseResponse {
@@ -63,6 +61,7 @@ export interface UpdateTestCaseRequest extends BaseRequest {
   Input?: string
   InputDesc?: string
   TestCaseType?: TestCaseType
+  TestCaseClass?: TestCaseClass
   Deprecated?: boolean
 }
 

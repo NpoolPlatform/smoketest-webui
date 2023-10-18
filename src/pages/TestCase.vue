@@ -482,6 +482,30 @@
           v-model='target.Name'
           :label='$t("MSG_NAME")'
         />
+        <q-select
+          filled
+          v-model='target.TestCaseType'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
+          :options='TestCaseTypes'
+          dense
+          :label='$t("MSG_TEST_CASE_TYPE")'
+          class='filter'
+        />
+        <q-select
+          filled
+          v-model='target.TestCaseClass'
+          use-input
+          hide-selected
+          fill-input
+          input-debounce='0'
+          :options='TestCaseClasses'
+          dense
+          :label='$t("MSG_TEST_CASE_CLASS")'
+          class='filter'
+        />
       </q-card-section>
       <q-item class='row'>
         <q-btn class='btn round alt' :label='$t("MSG_SUBMIT")' @click='onSubmit' />
@@ -507,7 +531,9 @@ import {
   ArgMap,
   useTestCaseCondStore,
   useModuleStore,
-  Module
+  Module,
+  TestCaseTypes,
+  TestCaseClasses
 } from 'src/localstore'
 import { NotifyType, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
@@ -582,6 +608,8 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
     Input: JSON.stringify(_case.InputVal),
     InputDesc: JSON.stringify(_case.Args),
     Expectation: JSON.stringify(_case.OutputVal),
+    TestCaseType: _case.TestCaseType,
+    TestCaseClass: _case.TestCaseClass,
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_CASE',
@@ -958,6 +986,8 @@ const onSubmit = () => {
       InputDesc: JSON.stringify(target.value.Args),
       Expectation: JSON.stringify(target.value.OutputVal),
       Deprecated: target.value.Deprecated,
+      TestCaseType: target.value.TestCaseType,
+      TestCaseClass: target.value.TestCaseClass,
       Message: {
         Error: {
           Title: 'MSG_CREATE_TEST_CASE',
@@ -983,6 +1013,8 @@ const onSubmit = () => {
     Input: JSON.stringify(target.value.InputVal),
     InputDesc: JSON.stringify(target.value.Args),
     Expectation: JSON.stringify(target.value.OutputVal),
+    TestCaseType: target.value.TestCaseType,
+    TestCaseClass: target.value.TestCaseClass,
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_CASE',
