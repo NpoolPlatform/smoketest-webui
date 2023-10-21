@@ -69,10 +69,10 @@ export const useTestCaseStore = defineStore('local-testcase', {
               {
                 let outputVal = _case?.OutputVal
                 if (Array.isArray(outputVal)) {
-                  if (!testCase.OutputVal.length) {
+                  if (!outputVal.length) {
                     return
                   }
-                  outputVal = testCase.OutputVal[0] as Record<string, unknown>
+                  outputVal = outputVal[0] as Record<string, unknown>
                 }
                 input[v.Name] = outputVal?.[v.From.Src]
                 break

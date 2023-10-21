@@ -705,6 +705,9 @@ const runCleaner = async (_testCase: TestCase) => {
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      if (!_case.OutputVal) {
+        _case.OutputVal = (resp as Record<string, unknown>).Infos as Record<string, unknown>
+      }
       log(`TestCase: ${JSON.stringify(_case)} Success`)
     } catch (err) {
       console.log(testCasePath(_case), err)
@@ -754,6 +757,9 @@ const runPreConds = async (_testCase: TestCase) => {
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      if (!_case.OutputVal) {
+        _case.OutputVal = (resp as Record<string, unknown>).Infos as Record<string, unknown>
+      }
       log(`TestCase: ${JSON.stringify(_case)} Success`)
     } catch (err) {
       console.log(testCasePath(_case), err)
@@ -1192,6 +1198,9 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
     void post(testCasePath(_case) as string, _case.InputVal)
       .then((resp: unknown) => {
         _case.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
+        if (!_case.OutputVal) {
+          _case.OutputVal = ((resp as Record<string, unknown>).Infos) as Record<string, unknown>
+        }
         _testCase.InputVal = testCase.input(_testCase)
       })
       .catch((err: Error) => {
