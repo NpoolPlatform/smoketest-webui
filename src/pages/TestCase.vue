@@ -1350,10 +1350,10 @@ const fetchTestCases = (offset: number, limit: number) => {
   })
 }
 
-const fetchModules = () => {
+const fetchModules = (offset: number, limit: number) => {
   _module.getModules({
-    Offset: 0,
-    Limit: 200,
+    Offset: offset,
+    Limit: limit,
     Message: {
       Error: {
         Title: 'MSG_GET_MODULES',
@@ -1364,10 +1364,11 @@ const fetchModules = () => {
     }
   }, (error: boolean, rows?: Module[]) => {
     if (error || !rows?.length) {
+      options.value.push('Clear')
       return
     }
-    options.value = rows.map((el) => el.Name).filter((el) => el.includes('npool.top'))
-    options.value.push('Clear')
+    options.value.push(...rows.map((el) => el.Name).filter((el) => el.includes('npool.top')))
+    fetchModules(offset + limit, limit)
   })
 }
 
@@ -1395,7 +1396,7 @@ const fetchTestCaseConds = (offset: number, limit: number) => {
 }
 
 onMounted(() => {
-  fetchModules()
+  fetchModules(0, 100)
   fetchTestCases(0, 100)
   fetchTestCaseConds(0, 100)
 })

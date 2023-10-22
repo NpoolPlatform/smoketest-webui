@@ -134,8 +134,11 @@ const fetchModules = (offset: number, limit: number) => {
         Type: NotifyType.Error
       }
     }
-  }, () => {
-    // TODO
+  }, (error: boolean, rows?: Array<Module>) => {
+    if (error || !rows?.length) {
+      return
+    }
+    fetchModules(offset + limit, limit)
   })
 }
 
