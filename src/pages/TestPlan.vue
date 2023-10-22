@@ -800,7 +800,13 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
   void post(testCasePath(_case) as string, _case.InputVal)
     .then((resp: unknown) => {
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      if (!_case.OutputVal) {
+        _case.OutputVal = (resp as Record<string, unknown>).Infos as Record<string, unknown>
+      }
       _testCase.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      if (!_testCase.OutputVal) {
+        _testCase.OutputVal = (resp as Record<string, unknown>).Infos as Record<string, unknown>
+      }
       runPreConds(_testCase, condIndex + 1, done, error)
     })
     .catch((err: Error) => {
@@ -837,8 +843,11 @@ const runTestCase = (_testCase: TestCase, done: (output: Record<string, unknown>
   void post(testCasePath(_testCase) as string, _testCase.InputVal)
     .then((resp: unknown) => {
       _testCase.Error = undefined
-      _testCase.OutputVal = ((resp as Record<string, unknown>).Info) as Record<string, unknown>
-      done(((resp as Record<string, unknown>).Info) as Record<string, unknown>)
+      _testCase.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
+      if (!_testCase.OutputVal) {
+        _testCase.OutputVal = (resp as Record<string, unknown>).Infos as Record<string, unknown>
+      }
+      done(((resp as Record<string, unknown>).Info || (resp as Record<string, unknown>).Infos) as Record<string, unknown>)
     })
     .catch((err: Error) => {
       _testCase.Error = err
