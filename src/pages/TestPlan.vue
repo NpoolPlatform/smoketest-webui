@@ -705,6 +705,7 @@ const onBatchCreateTestCases = (_loadedTestPlans: BlobContent, index: number) =>
 const onBatchCreate = (_loadedTestPlans: BlobContent, index: number) => {
   if (index >= _loadedTestPlans.TestPlans.length) {
     onBatchCreateTestCases(_loadedTestPlans, 0)
+    return
   }
   const _testplan = _loadedTestPlans.TestPlans[index]
   console.log(_testplan)

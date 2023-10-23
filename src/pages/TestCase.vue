@@ -604,11 +604,12 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
 
   const _case = _loadedTestCases.TestCases[index]
   const _apiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.EntID as string
+  const _moduleID = _module.module(undefined, _case.ModuleName)?.ID as string
   testCase.createTestCase({
     ID: _case.ID,
     Name: _case.Name,
     Description: _case.Description,
-    ModuleID: _case.ModuleID,
+    ModuleID: _moduleID,
     ApiID: _apiID,
     Input: JSON.stringify(_case.InputVal),
     InputDesc: JSON.stringify(_case.Args),
