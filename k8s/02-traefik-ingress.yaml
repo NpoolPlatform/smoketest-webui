@@ -18,7 +18,7 @@ spec:
     - hosts:
         - '*.development.npool.top'
         - development.npool.top
-      secretName: npool-top-tls
+      secretName: development-npool-top-tls
   rules:
     - host: smoketest.development.npool.top
       http: &http_rules
