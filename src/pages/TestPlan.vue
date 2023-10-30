@@ -99,7 +99,7 @@
             <q-btn class='btn' @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn disable class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
           </q-td>
@@ -817,7 +817,6 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
 }
 
 const runCleaner = (_testCase: TestCase, condIndex: number) => {
-  console.log('cleaner: ')
   let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
   if (condIndex >= cleaners.length) {
     return
@@ -861,7 +860,7 @@ const validateTestCaseResult = (_testCase: TestCase, output?: Record<string, unk
   let passed = true
   Object.keys(_testCase.OutputVal).forEach((k) => {
     if (_testCase.OutputVal[k] !== output?.[k]) {
-      if (Array.isArray(_testCase.OutputVal[k]) && Array.isArray(output?.[k])) {
+      if (Array.isArray(_testCase.OutputVal) && Array.isArray(output)) {
         if (JSON.stringify(_testCase.OutputVal[k]) === JSON.stringify(output?.[k])) {
           return passed
         }
@@ -919,6 +918,7 @@ const runPlanTestCase = (_case: PlanTestCase, done: ()=>void) => {
     })
   }, (err: Error) => {
     console.log('runPreConds', err)
+    runCleaner(_testCase, 0)
     done()
   })
 }
