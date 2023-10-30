@@ -817,6 +817,7 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
 }
 
 const runCleaner = (_testCase: TestCase, condIndex: number) => {
+  console.log('cleaner: ')
   let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
   if (condIndex >= cleaners.length) {
     return
@@ -901,7 +902,7 @@ const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unkno
   })
 }
 
-const runPlanTestCase = (_case: PlanTestCase) => {
+const runPlanTestCase = (_case: PlanTestCase, done: ()=>void) => {
   const _testCase = testCase.testcase(_case.TestCaseID)
   if (!_testCase) {
     return
@@ -910,12 +911,15 @@ const runPlanTestCase = (_case: PlanTestCase) => {
     runTestCase(_testCase, (output: Record<string, unknown>) => {
       reportTestCaseResult(_case, output)
       runCleaner(_testCase, 0)
+      done()
     }, (err: Error) => {
       reportTestCaseResult(_case, undefined, err)
       runCleaner(_testCase, 0)
+      done()
     })
   }, (err: Error) => {
     console.log('runPreConds', err)
+    done()
   })
 }
 
@@ -933,9 +937,20 @@ const onExecuteTestPlanClick = () => {
         return a.Index > b.Index ? 1 : -1
       })
     }
-    cases?.forEach((planTestCase) => {
-      runPlanTestCase(planTestCase)
-    })
+    if (cases?.length === 0) {
+      return
+    }
+
+    const recursive = (index: number) => {
+      runPlanTestCase(cases?.[index] as PlanTestCase, () => {
+        if (index === cases?.length as number - 1) {
+          return
+        }
+        index++
+        recursive(index)
+      })
+    }
+    recursive(0)
   })
 }
 
