@@ -865,6 +865,11 @@ const validateTestCaseResult = (_testCase: TestCase, output?: Record<string, unk
           return passed
         }
       }
+      if (Array.isArray(_testCase.OutputVal[k]) && Array.isArray(output?.[k])) {
+        if (JSON.stringify(_testCase.OutputVal[k]) === JSON.stringify(output?.[k])) {
+          return passed
+        }
+      }
       passed = false
     }
   })
