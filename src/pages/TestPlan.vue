@@ -99,7 +99,7 @@
             <q-btn class='btn' @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn class='btn' disable @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
           </q-td>
