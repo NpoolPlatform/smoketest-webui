@@ -287,6 +287,12 @@ const testCaseColumns = computed(() => [
     field: (row: PlanTestCase) => row.TestCaseID
   },
   {
+    name: 'Name',
+    label: t('MSG_NAME'),
+    align: 'left',
+    field: (row: PlanTestCase) => testCase.testcase(row.TestCaseID)?.TestCaseType
+  },
+  {
     name: 'Result',
     label: t('MSG_RESULT'),
     align: 'left',
