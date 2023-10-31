@@ -287,8 +287,8 @@ const testCaseColumns = computed(() => [
     field: (row: PlanTestCase) => row.TestCaseID
   },
   {
-    name: 'Name',
-    label: t('MSG_NAME'),
+    name: 'TestCaseType',
+    label: t('MSG_TEST_CASE_TYPE'),
     align: 'left',
     field: (row: PlanTestCase) => testCase.testcase(row.TestCaseID)?.TestCaseType
   },
