@@ -99,7 +99,7 @@
             <q-btn class='btn' @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn disable class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn class='btn' disable @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
           </q-td>
@@ -285,6 +285,12 @@ const testCaseColumns = computed(() => [
     label: t('MSG_CASE_ID'),
     align: 'left',
     field: (row: PlanTestCase) => row.TestCaseID
+  },
+  {
+    name: 'TestCaseType',
+    label: t('MSG_TEST_CASE_TYPE'),
+    align: 'left',
+    field: (row: PlanTestCase) => testCase.testcase(row.TestCaseID)?.TestCaseType
   },
   {
     name: 'Result',
@@ -860,6 +866,11 @@ const validateTestCaseResult = (_testCase: TestCase, output?: Record<string, unk
   let passed = true
   Object.keys(_testCase.OutputVal).forEach((k) => {
     if (_testCase.OutputVal[k] !== output?.[k]) {
+      if (Array.isArray(_testCase.OutputVal) && Array.isArray(output)) {
+        if (JSON.stringify(_testCase.OutputVal[k]) === JSON.stringify(output?.[k])) {
+          return passed
+        }
+      }
       if (Array.isArray(_testCase.OutputVal[k]) && Array.isArray(output?.[k])) {
         if (JSON.stringify(_testCase.OutputVal[k]) === JSON.stringify(output?.[k])) {
           return passed
@@ -901,7 +912,7 @@ const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unkno
   })
 }
 
-const runPlanTestCase = (_case: PlanTestCase) => {
+const runPlanTestCase = (_case: PlanTestCase, done: ()=>void) => {
   const _testCase = testCase.testcase(_case.TestCaseID)
   if (!_testCase) {
     return
@@ -910,12 +921,16 @@ const runPlanTestCase = (_case: PlanTestCase) => {
     runTestCase(_testCase, (output: Record<string, unknown>) => {
       reportTestCaseResult(_case, output)
       runCleaner(_testCase, 0)
+      done()
     }, (err: Error) => {
       reportTestCaseResult(_case, undefined, err)
       runCleaner(_testCase, 0)
+      done()
     })
   }, (err: Error) => {
     console.log('runPreConds', err)
+    runCleaner(_testCase, 0)
+    done()
   })
 }
 
@@ -933,9 +948,20 @@ const onExecuteTestPlanClick = () => {
         return a.Index > b.Index ? 1 : -1
       })
     }
-    cases?.forEach((planTestCase) => {
-      runPlanTestCase(planTestCase)
-    })
+    if (cases?.length === 0) {
+      return
+    }
+
+    const recursive = (index: number) => {
+      runPlanTestCase(cases?.[index] as PlanTestCase, () => {
+        if (index === cases?.length as number - 1) {
+          return
+        }
+        index++
+        recursive(index)
+      })
+    }
+    recursive(0)
   })
 }
 
