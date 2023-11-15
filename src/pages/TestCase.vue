@@ -462,8 +462,9 @@
           hide-selected
           fill-input
           input-debounce='0'
-          :options='options'
+          :options='displayModules'
           dense
+          @filter='onModuleFilter'
           @filter-abort='onAbortFilter'
           :label='$t("MSG_MODULE")'
           class='filter'
@@ -687,6 +688,8 @@ const columns = computed(() => [
 ])
 
 const options = ref([] as string[])
+const moduleFilter = ref('')
+const displayModules = computed(() => options.value?.filter((el) => el.toLowerCase().includes(moduleFilter.value?.toLowerCase())))
 
 const log = (_log: string) => {
   executionLog.value = _log
@@ -978,6 +981,12 @@ const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?
 const onPathFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
     pathFilter.value = val
+  })
+}
+
+const onModuleFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+  update(() => {
+    moduleFilter.value = val
   })
 }
 
