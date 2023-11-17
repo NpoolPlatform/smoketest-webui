@@ -734,7 +734,17 @@ const runCleaner = async (_testCase: TestCase) => {
     if (!_case) {
       continue
     }
-    _case.InputVal = testCase.input(_case)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const inputVal = {} as Record<string, any>
+    v.Args.forEach((al) => {
+      if (al.From?.Type === 'Output') {
+        inputVal[al.Name] = _testCase.OutputVal[al.From?.Src]
+      }
+      if (al.From?.Type === 'Input') {
+        inputVal[al.Name] = _testCase.InputVal[al.From?.Src]
+      }
+    })
+    _case.InputVal = inputVal
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
