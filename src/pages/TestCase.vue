@@ -595,7 +595,6 @@ const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
   }, () => {
     // TODO
   })
-  console.log('argArr: ', argArr)
 }
 
 const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
@@ -1292,8 +1291,6 @@ const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
     return
   }
   const conds = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
-  console.log('conds:', conds)
-  console.log('_case:', _case)
   const newIndex = conds.length
   testCaseCond.createTestCaseCond({
     TestCaseID: _testCase.ID,
@@ -1353,7 +1350,6 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     OldIndex: 0,
     Editing: false
   }
-  console.log('CleanerTestCase: ', cleanerTestCase.Args)
   if (cleanerTestCase.Args) {
     addingCleaner.value.Args.push(...cleanerTestCase.Args)
   }
@@ -1373,7 +1369,6 @@ const onConfirmCreateCleanerArgClick = (_testCase: TestCase, arg: Arg) => {
     return
   }
   addingCleaner.value?.Args?.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
-  // console.log('Arg: ', arg)
 }
 
 const onCancelCreateCleanerArgClick = (arg: Arg) => {
