@@ -233,6 +233,7 @@
                       class='filter'
                       v-model='arg.From'
                       :disable='!arg.Editing'
+                      @update:model-value='onUpdateCleanerArg(arg.From, cond)'
                     />
                     <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
@@ -539,7 +540,8 @@ import {
   useModuleStore,
   Module,
   TestCaseTypes,
-  TestCaseClasses
+  TestCaseClasses,
+  ArgSrc
 } from 'src/localstore'
 import { NotifyType, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
@@ -567,6 +569,32 @@ const uploadFile = (evt: Event) => {
     }
     reader.readAsText(filename)
   }
+}
+
+const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
+  const argArr = JSON.parse(cond.ArgumentMap) as Array<Arg>
+  argArr.forEach((el) => {
+    if (el.From) {
+      if (el.From?.Src === arg?.Src) {
+        el.From.TestCaseID = arg.TestCaseID
+      }
+    }
+  })
+  testCaseCond.updateTestCaseCond({
+    ID: cond.ID,
+    ArgumentMap: JSON.stringify(argArr),
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
+  console.log('argArr: ', argArr)
 }
 
 const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
@@ -1253,6 +1281,8 @@ const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
     return
   }
   const conds = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  console.log('conds:', conds)
+  console.log('_case:', _case)
   const newIndex = conds.length
   testCaseCond.createTestCaseCond({
     TestCaseID: _testCase.ID,
@@ -1312,6 +1342,7 @@ const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase
     OldIndex: 0,
     Editing: false
   }
+  console.log('CleanerTestCase: ', cleanerTestCase.Args)
   if (cleanerTestCase.Args) {
     addingCleaner.value.Args.push(...cleanerTestCase.Args)
   }
@@ -1326,11 +1357,12 @@ const onModifyCleanerArgClick = (arg: Arg) => {
 
 const onConfirmCreateCleanerArgClick = (_testCase: TestCase, arg: Arg) => {
   arg.Editing = false
-  const index = addingCleaner.value.Args.findIndex((el) => el.Name === arg.Name)
+  const index = addingCleaner.value?.Args?.findIndex((el) => el.Name === arg.Name)
   if (index < 0) {
     return
   }
-  addingCleaner.value.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+  addingCleaner.value?.Args?.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+  // console.log('Arg: ', arg)
 }
 
 const onCancelCreateCleanerArgClick = (arg: Arg) => {
