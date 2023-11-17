@@ -233,7 +233,9 @@
                       class='filter'
                       v-model='arg.From'
                       :disable='!arg.Editing'
+                      @update:model-value='onUpdateCleanerArg(arg.From, cond)'
                     />
+                    {{ arg.From }}
                     <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
                     </q-btn>
@@ -462,8 +464,9 @@
           hide-selected
           fill-input
           input-debounce='0'
-          :options='options'
+          :options='displayModules'
           dense
+          @filter='onModuleFilter'
           @filter-abort='onAbortFilter'
           :label='$t("MSG_MODULE")'
           class='filter'
@@ -538,7 +541,8 @@ import {
   useModuleStore,
   Module,
   TestCaseTypes,
-  TestCaseClasses
+  TestCaseClasses,
+  ArgSrc
 } from 'src/localstore'
 import { NotifyType, formatTime } from 'npool-cli-v4'
 import { post } from 'src/boot/axios'
@@ -566,6 +570,31 @@ const uploadFile = (evt: Event) => {
     }
     reader.readAsText(filename)
   }
+}
+
+const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
+  const argArr = JSON.parse(cond.ArgumentMap) as Array<Arg>
+  argArr.forEach((el) => {
+    if (el.From) {
+      if (el.From?.Src === arg?.Src) {
+        el.From.TestCaseID = arg.TestCaseID
+      }
+    }
+  })
+  testCaseCond.updateTestCaseCond({
+    ID: cond.ID,
+    ArgumentMap: JSON.stringify(argArr),
+    Message: {
+      Error: {
+        Title: 'MSG_DELETE_TEST_CASE_COND',
+        Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
+        Popup: true,
+        Type: NotifyType.Error
+      }
+    }
+  }, () => {
+    // TODO
+  })
 }
 
 const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
@@ -687,6 +716,8 @@ const columns = computed(() => [
 ])
 
 const options = ref([] as string[])
+const moduleFilter = ref('')
+const displayModules = computed(() => options.value?.filter((el) => el.toLowerCase().includes(moduleFilter.value?.toLowerCase())))
 
 const log = (_log: string) => {
   executionLog.value = _log
@@ -702,7 +733,17 @@ const runCleaner = async (_testCase: TestCase) => {
     if (!_case) {
       continue
     }
-    _case.InputVal = testCase.input(_case)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const inputVal = {} as Record<string, any>
+    v.Args.forEach((al) => {
+      if (al.From?.Type === 'Output') {
+        inputVal[al.Name] = _testCase.OutputVal[al.From?.Src]
+      }
+      if (al.From?.Type === 'Input') {
+        inputVal[al.Name] = _testCase.InputVal[al.From?.Src]
+      }
+    })
+    _case.InputVal = inputVal
     try {
       const resp = await post(testCasePath(_case) as string, _case.InputVal)
       _case.OutputVal = (resp as Record<string, unknown>).Info as Record<string, unknown>
@@ -978,6 +1019,12 @@ const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?
 const onPathFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
   update(() => {
     pathFilter.value = val
+  })
+}
+
+const onModuleFilter = (val: string, update: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+  update(() => {
+    moduleFilter.value = val
   })
 }
 
@@ -1317,11 +1364,11 @@ const onModifyCleanerArgClick = (arg: Arg) => {
 
 const onConfirmCreateCleanerArgClick = (_testCase: TestCase, arg: Arg) => {
   arg.Editing = false
-  const index = addingCleaner.value.Args.findIndex((el) => el.Name === arg.Name)
+  const index = addingCleaner.value?.Args?.findIndex((el) => el.Name === arg.Name)
   if (index < 0) {
     return
   }
-  addingCleaner.value.Args.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
+  addingCleaner.value?.Args?.splice(index >= 0 ? index : 0, index >= 0 ? 1 : 0, arg)
 }
 
 const onCancelCreateCleanerArgClick = (arg: Arg) => {
