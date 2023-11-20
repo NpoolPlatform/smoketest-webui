@@ -235,7 +235,6 @@
                       :disable='!arg.Editing'
                       @update:model-value='onUpdateCleanerArg(arg.From, cond)'
                     />
-                    {{ arg.From }}
                     <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
                     </q-btn>
@@ -735,8 +734,6 @@ const runCleaner = async (_testCase: TestCase) => {
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputVal = {} as Record<string, any>
-    console.log('v: ', v)
-    console.log('case: ', _case)
     v.Args.forEach((al) => {
       if (al.From?.Type === 'Output') {
         inputVal[al.Name] = _testCase.OutputVal[al.From?.Src]
