@@ -735,11 +735,12 @@ const runCleaner = async (_testCase: TestCase) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputVal = {} as Record<string, any>
     v.Args.forEach((al) => {
+      const argTestCase = testCase.testcase(al.From?.TestCaseID as string)
       if (al.From?.Type === 'Output') {
-        inputVal[al.Name] = _testCase.OutputVal[al.From?.Src]
+        inputVal[al.Name] = argTestCase?.OutputVal?.[al.From?.Src]
       }
       if (al.From?.Type === 'Input') {
-        inputVal[al.Name] = _testCase.InputVal[al.From?.Src]
+        inputVal[al.Name] = argTestCase?.InputVal?.[al.From?.Src]
       }
     })
     _case.InputVal = inputVal
