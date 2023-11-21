@@ -461,6 +461,7 @@ const onAddTestCaseClick = () => {
   }
   showingTestCase.value = true
   updatingTestCase.value = false
+  targetPlanTestCase.value.Index = planTestCases.value?.length as number
 }
 
 const selectedTestCase = ref([] as Array<PlanTestCase>)
