@@ -1201,7 +1201,7 @@ const onConfirmModifyArgClick = (_testCase: TestCase, arg: Arg) => {
 }
 
 const onDeleteArgClick = (_testCase: TestCase, arg: Arg) => {
-  _testCase.Args = _testCase.Args.filter((el) => el.Name !== arg.Name)
+  _testCase.Args = _testCase.Args.filter((el) => el.Name !== arg.Name || (el.Name === arg.Name && el.ParentID !== arg.ParentID))
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
