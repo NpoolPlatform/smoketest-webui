@@ -95,7 +95,7 @@
             <q-btn dense class='btn' @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               编辑
             </q-btn>
-            <q-btn disable dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
             <q-btn dense class='btn' @click='onDepracateTestCaseClick(props.row)'>
@@ -670,7 +670,7 @@ const testCases = computed(() => {
   if (showDeprecated.value) {
     return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
   }
-  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
+  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
 })
 
 const testCaseCond = useTestCaseCondStore()
