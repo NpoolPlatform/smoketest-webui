@@ -837,6 +837,7 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
   target.value = { ...testCase }
   showing.value = true
   cloning.value = true
+  updating.value = false
 }
 
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
