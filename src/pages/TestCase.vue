@@ -95,7 +95,7 @@
             <q-btn dense class='btn' @click='onEditTestCaseClick(props.row)' :disable='props.row.Deprecated'>
               编辑
             </q-btn>
-            <q-btn disable dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn dense class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
             <q-btn dense class='btn' @click='onDepracateTestCaseClick(props.row)'>
@@ -235,6 +235,7 @@
                       :disable='!arg.Editing'
                       @update:model-value='onUpdateCleanerArg(arg.From, cond)'
                     />
+                    {{ arg.From }}
                     <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
                     </q-btn>
@@ -669,7 +670,7 @@ const testCases = computed(() => {
   if (showDeprecated.value) {
     return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
   }
-  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
+  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
 })
 
 const testCaseCond = useTestCaseCondStore()
@@ -836,6 +837,7 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
   target.value = { ...testCase }
   showing.value = true
   cloning.value = true
+  updating.value = false
 }
 
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
@@ -1199,7 +1201,7 @@ const onConfirmModifyArgClick = (_testCase: TestCase, arg: Arg) => {
 }
 
 const onDeleteArgClick = (_testCase: TestCase, arg: Arg) => {
-  _testCase.Args = _testCase.Args.filter((el) => el.Name !== arg.Name)
+  _testCase.Args = _testCase.Args.filter((el) => el.Name !== arg.Name || (el.Name === arg.Name && el.ParentID !== arg.ParentID))
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,

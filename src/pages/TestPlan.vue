@@ -99,7 +99,7 @@
             <q-btn class='btn' @click='onTestCaseClick(props.row)'>
               编辑
             </q-btn>
-            <q-btn class='btn' disable @click='onDeleteTestCaseClick(props.row)'>
+            <q-btn class='btn' @click='onDeleteTestCaseClick(props.row)'>
               删除
             </q-btn>
           </q-td>
@@ -461,6 +461,7 @@ const onAddTestCaseClick = () => {
   }
   showingTestCase.value = true
   updatingTestCase.value = false
+  targetPlanTestCase.value.Index = planTestCases.value?.length as number
 }
 
 const selectedTestCase = ref([] as Array<PlanTestCase>)
@@ -791,6 +792,7 @@ const testCasePath = (_testCase?: TestCase) => {
 
 const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
   let preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  console.log('conds: ', preConds)
   if (condIndex >= preConds.length) {
     done()
     return
@@ -835,7 +837,26 @@ const runCleaner = (_testCase: TestCase, condIndex: number) => {
   if (!_case) {
     return
   }
-  _case.InputVal = testCase.input(_case)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inputVal = {} as Record<string, any>
+  cond.Args.forEach((al) => {
+    const argTestCase = testCase.testcase(al.From?.TestCaseID as string)
+    if (al.From?.Type === 'Output') {
+      inputVal[al.Name] = argTestCase?.OutputVal?.[al.From?.Src]
+    }
+    if (al.From?.Type === 'Input') {
+      inputVal[al.Name] = argTestCase?.InputVal?.[al.From?.Src]
+    }
+  })
+  _case.InputVal = inputVal
+  const record = {} as Record<string, unknown>
+  cond.Args.forEach((al) => {
+    if (al.Type === 'Object') {
+      record[al.Name] = inputVal
+      _case.InputVal = record
+    }
+  })
+  // _case.InputVal = testCase.input(_case)
   void post(testCasePath(_case) as string, _case.InputVal)
     .then(() => {
       runCleaner(_testCase, condIndex + 1)
