@@ -1,5 +1,5 @@
-import { BaseRequest } from 'npool-cli-v4'
 import { TestCaseClass, TestCaseType } from 'src/localstore/testcase'
+import { BaseRequest } from 'src/npoolstore/request'
 
 export enum TestCaseResult {
   Skipped = 'Skipped',

@@ -1,4 +1,3 @@
-import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
 import { API } from './const'
 import { ModuleState } from './state'
@@ -9,6 +8,7 @@ import {
   Module,
   UpdateModuleRequest, UpdateModuleResponse
 } from './types'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export const useModuleStore = defineStore('local-module', {
   state: (): ModuleState => ({

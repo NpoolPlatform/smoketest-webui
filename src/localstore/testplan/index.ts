@@ -10,9 +10,9 @@ import {
   UpdateTestPlanRequest,
   UpdateTestPlanResponse
 } from './types'
-import { doActionWithError } from 'npool-cli-v4'
 import { API } from './const'
 import { TestPlanState } from './state'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export const useTestPlanStore = defineStore('local-testplan', {
   state: (): TestPlanState => ({

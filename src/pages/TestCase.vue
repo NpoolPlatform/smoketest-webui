@@ -543,7 +543,7 @@ import {
   TestCaseClasses,
   ArgSrc
 } from 'src/localstore'
-import { NotifyType, formatTime } from 'npool-cli-v4'
+import { notify, utils } from 'src/npoolstore'
 import { post } from 'src/boot/axios'
 import { QSelect, uid } from 'quasar'
 
@@ -588,7 +588,7 @@ const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
         Title: 'MSG_DELETE_TEST_CASE_COND',
         Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -614,7 +614,7 @@ const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
         Title: 'MSG_CREATE_TEST_CASE_COND',
         Message: 'MSG_CREATE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -649,7 +649,7 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
         Title: 'MSG_CREATE_TEST_CASE',
         Message: 'MSG_CREATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -847,7 +847,7 @@ const onDeleteTestCaseClick = (_testCase: TestCase) => {
         Title: 'MSG_DELETE_TEST_CASE',
         Message: 'MSG_DELETE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -874,7 +874,7 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
         Title: 'MSG_UPDATE_TEST_CASE',
         Message: 'MSG_UPDATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -894,7 +894,7 @@ const fetchAPIs = (offset: number, limit: number) => {
         Title: 'MSG_GET_APIS',
         Message: 'MSG_GET_APIS_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows: Array<API>) => {
@@ -918,7 +918,7 @@ const onExportClick = () => {
     Conds: testCaseConds.value
   } as BlobContent
   const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
-  const filename = 'testcase-' + formatTime(new Date().getTime() / 1000) + '.json'
+  const filename = 'testcase-' + utils.formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
 }
 
@@ -1007,7 +1007,7 @@ const cloneCond = (testCaseID: string, conds: Array<TestCaseCond>, index: number
         Title: 'MSG_CLONE_TEST_CASE_COND',
         Message: 'MSG_CLONE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -1060,7 +1060,7 @@ const onSubmit = () => {
           Title: 'MSG_CREATE_TEST_CASE',
           Message: 'MSG_CREATE_TEST_CASE_FAIL',
           Popup: true,
-          Type: NotifyType.Error
+          Type: notify.NotifyType.Error
         }
       }
     }, () => {
@@ -1087,7 +1087,7 @@ const onSubmit = () => {
         Title: 'MSG_CREATE_TEST_CASE',
         Message: 'MSG_CREATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, _case?: TestCase) => {
@@ -1118,7 +1118,7 @@ const onConfirmModifyCondClick = (_testCaseCond: TestCaseCond) => {
         Title: 'MSG_DELETE_TEST_CASE_COND',
         Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -1160,7 +1160,7 @@ const onConfirmCreateArgClick = (_testCase: TestCase) => {
         Title: 'MSG_UPDATE_TEST_CASE',
         Message: 'MSG_UPDATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1191,7 +1191,7 @@ const onConfirmModifyArgClick = (_testCase: TestCase, arg: Arg) => {
         Title: 'MSG_UPDATE_TEST_CASE',
         Message: 'MSG_UPDATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1211,7 +1211,7 @@ const onDeleteArgClick = (_testCase: TestCase, arg: Arg) => {
         Title: 'MSG_UPDATE_TEST_CASE',
         Message: 'MSG_UPDATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1242,7 +1242,7 @@ const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
         Title: 'MSG_DELETE_TEST_CASE_COND',
         Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1280,7 +1280,7 @@ const onDeleteTestCaseCondClick = (cond: TestCaseCond) => {
         Title: 'MSG_DELETE_TEST_CASE_COND',
         Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1311,7 +1311,7 @@ const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
         Title: 'MSG_DELETE_TEST_CASE_COND',
         Message: 'MSG_DELETE_TEST_CASE_COND_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1392,7 +1392,7 @@ const fetchTestCases = (offset: number, limit: number) => {
         Title: 'MSG_GET_TEST_CASES',
         Message: 'MSG_GET_TEST_CASES_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<TestCase>) => {
@@ -1415,7 +1415,7 @@ const fetchModules = (offset: number, limit: number) => {
         Title: 'MSG_GET_MODULES',
         Message: 'MSG_GET_MODULES_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Module[]) => {
@@ -1437,7 +1437,7 @@ const fetchTestCaseConds = (offset: number, limit: number) => {
         Title: 'MSG_GET_TEST_CASE_CONDS',
         Message: 'MSG_GET_TEST_CASE_CONDS_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<TestCaseCond>) => {

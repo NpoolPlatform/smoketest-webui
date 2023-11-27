@@ -24,13 +24,13 @@
 </template>
 <script setup lang='ts'>
 import { ref, defineAsyncComponent } from 'vue'
-import { useLocalUserStore } from 'npool-cli-v4'
+import { user } from 'src/npoolstore'
 import { MainDrawerMenus } from 'src/menus/menus'
 import { MenuItem, useMenuStore, HomePageBreadcrumbs } from 'src/localstore'
 
 const DrawerMenu = defineAsyncComponent(() => import('src/components/drawer/DrawerMenu.vue'))
 
-const logined = useLocalUserStore()
+const logined = user.useLocalUserStore()
 const menus = useMenuStore()
 
 const leftDrawerOpen = ref(true)

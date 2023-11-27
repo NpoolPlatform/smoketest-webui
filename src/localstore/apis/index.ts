@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { APIS as APIEnum } from './const'
 import { API, GetAPIsRequest, GetAPIsResponse, GetDomainsRequest, GetDomainsResponse } from './types'
-import { doActionWithError } from 'npool-cli-v4'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export * from './types'
 

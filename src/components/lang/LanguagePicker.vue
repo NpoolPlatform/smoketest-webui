@@ -21,7 +21,7 @@
   </q-select>
 </template>
 <script setup lang='ts'>
-import { useAdminAppLangStore } from 'npool-cli-v4'
+import { applang } from 'src/npoolstore'
 import { computed, defineEmits, defineProps, toRef, ref, onMounted } from 'vue'
 
 interface Props {
@@ -35,8 +35,8 @@ const updating = toRef(props, 'updating')
 
 const lang = ref(language.value)
 
-const _lang = useAdminAppLangStore()
-const langs = computed(() => _lang.AppLangs.AppLangs)
+const _lang = applang.useAppLangStore()
+const langs = computed(() => _lang.langs())
 const languages = computed(() => Array.from(langs.value).map((el) => {
   return {
     value: el.LangID,

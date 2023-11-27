@@ -221,7 +221,7 @@ import {
   CondType,
   TestCaseResult
 } from 'src/localstore'
-import { NotifyType, useLocalUserStore, formatTime } from 'npool-cli-v4'
+import { user, notify, utils } from 'src/npoolstore'
 import { post } from 'src/boot/axios'
 import { QSelect } from 'quasar'
 import { stringify as csvStringify } from 'csv-stringify/sync'
@@ -320,7 +320,7 @@ const filterTestCases = computed(() => {
 })
 
 const testCaseCond = useTestCaseCondStore()
-const logined = useLocalUserStore()
+const logined = user.useLocalUserStore()
 
 const fetchTestPlans = (offset: number, limit: number) => {
   testPlan.getTestPlans({
@@ -331,7 +331,7 @@ const fetchTestPlans = (offset: number, limit: number) => {
         Title: 'MSG_UPDATE_TEST_PLAN',
         Message: 'MSG_UPDATE_TEST_PLAN_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows: Array<TestPlan>) => {
@@ -389,7 +389,7 @@ const clonePlanTestcase = (testPlanID: string, testcases: Array<PlanTestCase>, i
         Title: 'MSG_CLONE_PLAN_TEST_CASE',
         Message: 'MSG_CLONE_PLAN_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -411,7 +411,7 @@ const onTestPlanSubmit = () => {
           Title: 'MSG_UPDATE_TEST_PLAN',
           Message: 'MSG_UPDATE_TEST_PLAN_FAIL',
           Popup: true,
-          Type: NotifyType.Error
+          Type: notify.NotifyType.Error
         }
       }
     }, () => {
@@ -431,7 +431,7 @@ const onTestPlanSubmit = () => {
         Title: 'MSG_CREATE_TEST_PLAN',
         Message: 'MSG_CREATE_TEST_PLAN_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, _testplan?: TestPlan) => {
@@ -493,7 +493,7 @@ const onTestCaseSubmit = () => {
           Title: 'MSG_UPDATE_PLAN_TEST_CASE',
           Message: 'MSG_UPDATE_PLAN_TEST_CASE_FAIL',
           Popup: true,
-          Type: NotifyType.Error
+          Type: notify.NotifyType.Error
         }
       }
     }, () => {
@@ -511,7 +511,7 @@ const onTestCaseSubmit = () => {
         Title: 'MSG_CREATE_PLAN_TEST_CASE',
         Message: 'MSG_CREATE_PLAN_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -554,7 +554,7 @@ const fetchAPIs = (offset: number, limit: number) => {
         Title: 'MSG_GET_APIS',
         Message: 'MSG_GET_APIS_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows: Array<API>) => {
@@ -577,7 +577,7 @@ const fetchTestCases = (offset: number, limit: number) => {
         Title: 'MSG_GET_TEST_CASES',
         Message: 'MSG_GET_TEST_CASES_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<TestCase>) => {
@@ -601,7 +601,7 @@ const fetchPlanTestCases = (testPlanID: string, offset: number, limit: number) =
         Title: 'MSG_GET_PlAN_TEST_CASES',
         Message: 'MSG_GET_PlAN_TEST_CASES_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<PlanTestCase>) => {
@@ -625,7 +625,7 @@ const fetchTestCaseConds = (offset: number, limit: number) => {
         Title: 'MSG_GET_TEST_CASE_CONDS',
         Message: 'MSG_GET_TEST_CASE_CONDS_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<TestCaseCond>) => {
@@ -657,7 +657,7 @@ const onDeleteTestPlanClick = () => {
           Title: 'MSG_DELETE_TEST_PLAN',
           Message: 'MSG_DELETE_TEST_PLAN_FAIL',
           Popup: true,
-          Type: NotifyType.Error
+          Type: notify.NotifyType.Error
         }
       }
     }, () => {
@@ -698,7 +698,7 @@ const onBatchCreateTestCases = (_loadedTestPlans: BlobContent, index: number) =>
         Title: 'MSG_CREATE_PLAN_TEST_CASE',
         Message: 'MSG_CREATE_PLAN_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -725,7 +725,7 @@ const onBatchCreate = (_loadedTestPlans: BlobContent, index: number) => {
         Title: 'MSG_CREATE_TEST_PLAN',
         Message: 'MSG_CREATE_TEST_PLAN_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean) => {
@@ -742,7 +742,7 @@ const onExportClick = () => {
     PlanTestCases: planTestCases.value
   } as BlobContent
   const blob = new Blob([JSON.stringify(blobContent)], { type: 'text/plain;charset=utf-8' })
-  const filename = 'testplan-' + formatTime(new Date().getTime() / 1000) + '.json'
+  const filename = 'testplan-' + utils.formatTime(new Date().getTime() / 1000) + '.json'
   saveAs(blob, filename)
 }
 
@@ -925,7 +925,7 @@ const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unkno
         Title: 'MSG_UPDATE_TEST_PLAN_CASE',
         Message: 'MSG_UPDATE_TEST_PLAN_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -1002,7 +1002,7 @@ const onTestCasePass = (_case: PlanTestCase, pass: boolean) => {
         Title: 'MSG_UPDATE_TEST_CASE',
         Message: 'MSG_UPDATE_TEST_CASE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
