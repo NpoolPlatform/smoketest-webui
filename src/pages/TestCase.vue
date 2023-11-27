@@ -235,7 +235,6 @@
                       :disable='!arg.Editing'
                       @update:model-value='onUpdateCleanerArg(arg.From, cond)'
                     />
-                    {{ arg.From }}
                     <q-btn dense class='btn' @click='onModifyCleanerArgClick(arg)'>
                       修改
                     </q-btn>
