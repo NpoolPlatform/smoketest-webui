@@ -425,7 +425,7 @@ const onTestPlanSubmit = () => {
 
   testPlan.createTestPlan({
     Name: targetTestPlan.value.Name,
-    CreatedBy: logined.User.ID,
+    CreatedBy: logined.User.EntID,
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_PLAN',
@@ -719,7 +719,7 @@ const onBatchCreate = (_loadedTestPlans: BlobContent, index: number) => {
   testPlan.createTestPlan({
     ID: _testplan.ID,
     Name: _testplan.Name,
-    CreatedBy: logined.User.ID,
+    CreatedBy: logined.User.EntID,
     Message: {
       Error: {
         Title: 'MSG_CREATE_TEST_PLAN',
