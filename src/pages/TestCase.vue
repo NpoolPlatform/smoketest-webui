@@ -225,7 +225,16 @@
                     <q-field class='cleaner-arg' dense label='Argument Name' stack-label>
                       {{ arg.Name }}
                     </q-field>
+                    <q-input
+                      v-if='arg.Value'
+                      dense
+                      v-model.number='arg.Value'
+                      :disable='!arg.Editing'
+                      label='Value'
+                      :rules='[val => !!val || "Field is required"]'
+                    />
                     <q-select
+                      v-else
                       label='From TestCase Arg'
                       dense
                       :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.ID))'
@@ -735,12 +744,17 @@ const runCleaner = async (_testCase: TestCase) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputVal = {} as Record<string, any>
     v.Args.forEach((al) => {
-      const argTestCase = testCase.testcase(al.From?.TestCaseID as string)
-      if (al.From?.Type === 'Output') {
-        inputVal[al.Name] = argTestCase?.OutputVal?.[al.From?.Src]
+      if (al.From) {
+        const argTestCase = testCase.testcase(al.From?.TestCaseID)
+        if (al.From?.Type === 'Output') {
+          inputVal[al.Name] = argTestCase?.OutputVal?.[al.From?.Src]
+        }
+        if (al.From?.Type === 'Input') {
+          inputVal[al.Name] = argTestCase?.InputVal?.[al.From?.Src]
+        }
       }
-      if (al.From?.Type === 'Input') {
-        inputVal[al.Name] = argTestCase?.InputVal?.[al.From?.Src]
+      if (al.Value) {
+        inputVal[al.Name] = al.Value
       }
     })
     _case.InputVal = inputVal
