@@ -1,4 +1,3 @@
-import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
 import { TestCaseCond } from './cond'
 import { API } from './const'
@@ -15,6 +14,7 @@ import {
 import { CondType } from './cond/def'
 import { TestCaseState } from './state'
 import { uid } from 'quasar'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export const useTestCaseStore = defineStore('local-testcase', {
   state: (): TestCaseState => ({

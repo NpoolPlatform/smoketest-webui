@@ -1,4 +1,3 @@
-import { doActionWithError } from 'npool-cli-v4'
 import { defineStore } from 'pinia'
 import { Arg } from '../base/arg'
 import { API } from './const'
@@ -11,6 +10,7 @@ import {
   TestCaseCond,
   UpdateTestCaseCondRequest, UpdateTestCaseCondResponse
 } from './types'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export const useTestCaseCondStore = defineStore('local-testcasecond', {
   state: (): TestCaseCondState => ({

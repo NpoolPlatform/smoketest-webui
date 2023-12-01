@@ -1,4 +1,4 @@
-import { BaseRequest } from 'npool-cli-v4'
+import { BaseRequest } from 'src/npoolstore/request'
 
 /** @default "DefaultMethod" */
 export enum Method {

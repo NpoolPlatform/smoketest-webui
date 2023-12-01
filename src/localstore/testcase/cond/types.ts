@@ -1,4 +1,4 @@
-import { BaseRequest } from 'npool-cli-v4'
+import { BaseRequest } from 'src/npoolstore/request'
 import { Arg } from '../base/arg'
 import { CondType } from './def'
 

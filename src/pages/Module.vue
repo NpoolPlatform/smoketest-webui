@@ -64,7 +64,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Module, useLocalAPIStore, useModuleStore } from 'src/localstore'
-import { NotifyType } from 'npool-cli-v4'
+import { notify } from 'src/npoolstore'
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { t } = useI18n({ useScope: 'global' })
@@ -114,7 +114,7 @@ const fetchDomains = () => {
         Title: 'MSG_GET_DOMAINS',
         Message: 'MSG_GET_DOMAINS_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {
@@ -131,7 +131,7 @@ const fetchModules = (offset: number, limit: number) => {
         Title: 'MSG_GET_MODULES',
         Message: 'MSG_GET_MODULES_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, (error: boolean, rows?: Array<Module>) => {
@@ -175,7 +175,7 @@ const onModuleSubmit = () => {
         Title: 'MSG_CREATE_MODULE',
         Message: 'MSG_CREATE_MODULE_FAIL',
         Popup: true,
-        Type: NotifyType.Error
+        Type: notify.NotifyType.Error
       }
     }
   }, () => {

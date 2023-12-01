@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { doActionWithError } from 'npool-cli-v4'
 import { API } from './const'
 import { PlanTestCaseState } from './state'
 import {
@@ -14,6 +13,7 @@ import {
   UpdatePlanTestCaseRequest,
   UpdatePlanTestCaseResponse
 } from './types'
+import { doActionWithError } from 'src/npoolstore/request'
 
 export const usePlanTestCaseStore = defineStore('local-plantestcase', {
   state: (): PlanTestCaseState => ({

@@ -1,4 +1,4 @@
-import { BaseRequest } from 'npool-cli-v4'
+import { BaseRequest } from 'src/npoolstore/request'
 import { Arg, TestCaseClass, TestCaseType } from './base/arg'
 
 export interface TestCase {
