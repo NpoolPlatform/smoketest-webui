@@ -60,7 +60,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
             return
           }
           if (v.From) {
-            const _case = this.TestCases.find((el) => el.ID === v.From?.TestCaseID)
+            const _case = this.TestCases.find((el) => el.EntID === v.From?.TestCaseID)
             switch (v.From.Type) {
               case ArgType.Input:
                 input[v.Name] = _case?.InputVal?.[v.From.Src]
@@ -113,7 +113,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
         const srcs = [] as Array<ArgSrc>
         for (const key of Object.keys(this.input(testCase))) {
           srcs.push({
-            TestCaseID: testCase.ID,
+            TestCaseID: testCase.EntID,
             Src: key,
             Type: ArgType.Input
           })
@@ -128,7 +128,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
           }
           for (const key of Object.keys(outputVal)) {
             srcs.push({
-              TestCaseID: testCase.ID,
+              TestCaseID: testCase.EntID,
               Src: key,
               Type: ArgType.Output
             })
@@ -144,7 +144,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
           if (v.CondType === CondType.Cleaner) {
             return
           }
-          const _case = this.TestCases.find((el) => el.ID === v.CondTestCaseID)
+          const _case = this.TestCases.find((el) => el.EntID === v.CondTestCaseID)
           if (!_case) {
             return
           }
@@ -161,7 +161,7 @@ export const useTestCaseStore = defineStore('local-testcase', {
     },
     testcase (): (id: string) => TestCase | undefined {
       return (id: string) => {
-        return this.TestCases.find((el) => el.ID === id)
+        return this.TestCases.find((el) => el.EntID === id)
       }
     },
     path (): (testCase?: TestCase) => string | undefined {

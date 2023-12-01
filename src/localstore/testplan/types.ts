@@ -13,11 +13,12 @@ export enum TestPlanResult {
 }
 
 export interface TestPlan {
-  ID?: string
+  ID?: number
+  EntID?: string
   Name: string
   State: TestPlanState
   CreatedBy: string
-  Email: string
+  CreatorEmail: string
   Executor: string
   ExecutorEmail: string
   Fails: number
@@ -29,7 +30,7 @@ export interface TestPlan {
 }
 
 export interface CreateTestPlanRequest extends BaseRequest {
-  ID?: string
+  EntID?: string
   Name: string
   CreatedBy: string
   Exectuor?: string
@@ -41,7 +42,8 @@ export interface CreateTestPlanResponse {
 }
 
 export interface UpdateTestPlanRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
   Name?: string
   State?: TestPlanState
   Executor?: string
@@ -68,7 +70,8 @@ export interface GetTestPlansResponse {
 }
 
 export interface DeleteTestPlanRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
 }
 
 export interface DeleteTestPlanResponse {

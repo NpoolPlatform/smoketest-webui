@@ -8,7 +8,8 @@ export enum TestCaseResult {
 }
 
 export interface PlanTestCase {
-  ID?: string
+  ID?: number
+  EntID?: string
   TestPlanID: string
   TestCaseID: string
   TestCaseName: string
@@ -33,7 +34,7 @@ export interface PlanTestCase {
 }
 
 export interface CreatePlanTestCaseRequest extends BaseRequest {
-  ID?: string
+  EntID?: string
   TestPlanID: string
   TestCaseID: string
   Description?: string
@@ -45,7 +46,8 @@ export interface CreatePlanTestCaseResponse {
 }
 
 export interface UpdatePlanTestCaseRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
   Input?: string
   Output?: string
   Description?: string
@@ -71,7 +73,8 @@ export interface GetPlanTestCasesResponse {
 }
 
 export interface DeletePlanTestCaseRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
 }
 
 export interface DeletePlanTestCaseResponse {

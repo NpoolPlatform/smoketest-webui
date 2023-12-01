@@ -2,7 +2,8 @@ import { BaseRequest } from 'src/npoolstore/request'
 import { Arg, TestCaseClass, TestCaseType } from './base/arg'
 
 export interface TestCase {
-  ID: string
+  ID: number
+  EntID: string
   Name: string
   Description: string
   ModuleID: string
@@ -37,7 +38,7 @@ export interface TestCase {
 }
 
 export interface CreateTestCaseRequest extends BaseRequest {
-  ID?: string
+  EntID?: string
   Name: string
   Description: string
   ModuleID: string
@@ -54,7 +55,8 @@ export interface CreateTestCaseResponse {
 }
 
 export interface UpdateTestCaseRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
   Name?: string
   Description?: string
   Expectation?: string
@@ -80,7 +82,8 @@ export interface GetTestCasesResponse {
 }
 
 export interface DeleteTestCaseRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
 }
 
 export interface DeleteTestCaseResponse {
