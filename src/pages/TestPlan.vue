@@ -803,7 +803,6 @@ const testCasePath = (_testCase?: TestCase) => {
 
 const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
   let preConds = testCaseCond.getConds(_testCase.EntID, CondType.PreCondition)
-  console.log('conds: ', preConds)
   if (condIndex >= preConds.length) {
     done()
     return
