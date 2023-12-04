@@ -591,6 +591,7 @@ const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
   })
   testCaseCond.updateTestCaseCond({
     ID: cond.ID,
+    EntID: cond.EntID,
     ArgumentMap: JSON.stringify(argArr),
     Message: {
       Error: {
@@ -1376,6 +1377,7 @@ const addingCleaner = ref(undefined as unknown as TestCaseCond)
 
 const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase) => {
   addingCleaner.value = {
+    ID: undefined as unknown as number,
     EntID: uid(),
     Index: 0,
     CondType: CondType.Cleaner,
