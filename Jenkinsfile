@@ -157,8 +157,7 @@ pipeline {
       }
       steps {
         sh(returnStdout: true, script: '''
-          revlist=`git rev-list --tags --max-count=1`
-          tag=`git describe --tags $revlist`
+          tag=`git tag -l | sort -V | tail -n1`
           git reset --hard
           git checkout $tag
           set +e
