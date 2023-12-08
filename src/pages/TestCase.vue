@@ -126,7 +126,7 @@
           </q-td>
           <q-td colspan='4'>
             <div
-              v-for='cond in testCaseCond.getConds(props.row.ID, CondType.PreCondition)'
+              v-for='cond in testCaseCond.getConds(props.row.EntID, CondType.PreCondition)'
               :key='cond.ID'
             >
               <q-tr>
@@ -186,8 +186,8 @@
           </q-td>
           <q-td colspan='4'>
             <div
-              v-for='cond in testCaseCond.getConds(props.row.ID, CondType.Cleaner)'
-              :key='cond.ID'
+              v-for='cond in testCaseCond.getConds(props.row.EntID, CondType.Cleaner)'
+              :key='cond.EntID'
             >
               <q-tr>
                 <q-td>
@@ -237,7 +237,7 @@
                       v-else
                       label='From TestCase Arg'
                       dense
-                      :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.ID))'
+                      :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.EntID))'
                       :option-label='(item) => fromArgMapLabel(item)'
                       class='filter'
                       v-model='arg.From'
@@ -291,7 +291,7 @@
                   <q-select
                     label='From TestCase Arg'
                     dense
-                    :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.ID))'
+                    :options='testCase.cleanerArgSrcs(props.row, testCaseCond.getConds(props.row.EntID))'
                     :option-label='(item) => fromArgMapLabel(item)'
                     class='filter'
                     v-model='arg.From'
@@ -339,7 +339,7 @@
               <q-select
                 label='From PreConds Arg'
                 dense
-                :options='testCase.argSrcs(testCaseCond.getConds(props.row.ID, CondType.PreCondition))'
+                :options='testCase.argSrcs(testCaseCond.getConds(props.row.EntID, CondType.PreCondition))'
                 :option-label='(item) => fromArgMapLabel(item)'
                 :disable='!arg.Editing'
                 class='filter'
@@ -393,7 +393,7 @@
               <q-select
                 label='From PreConds Arg'
                 dense
-                :options='testCase.argSrcs(testCaseCond.getConds(props.row.ID, CondType.PreCondition))'
+                :options='testCase.argSrcs(testCaseCond.getConds(props.row.EntID, CondType.PreCondition))'
                 :option-label='(item) => fromArgMapLabel(item)'
                 class='filter'
                 v-model='newArg.From'
@@ -591,6 +591,7 @@ const onUpdateCleanerArg = (arg: ArgSrc | undefined, cond: TestCaseCond) => {
   })
   testCaseCond.updateTestCaseCond({
     ID: cond.ID,
+    EntID: cond.EntID,
     ArgumentMap: JSON.stringify(argArr),
     Message: {
       Error: {
@@ -612,7 +613,7 @@ const onBatchCreateConds = (_loadedTestCases: BlobContent, index: number) => {
 
   const _cond = _loadedTestCases.Conds[index]
   testCaseCond.createTestCaseCond({
-    ID: _cond.ID,
+    EntID: _cond.EntID,
     TestCaseID: _cond.TestCaseID,
     CondTestCaseID: _cond.CondTestCaseID,
     ArgumentMap: _cond.ArgumentMap,
@@ -641,9 +642,9 @@ const onBatchCreate = (_loadedTestCases: BlobContent, index: number) => {
 
   const _case = _loadedTestCases.TestCases[index]
   const _apiID = apis.getAPIByPath(_case.ApiPathPrefix, _case.ApiPath)?.EntID as string
-  const _moduleID = _module.module(undefined, _case.ModuleName)?.ID as string
+  const _moduleID = _module.module(undefined, _case.ModuleName)?.EntID as string
   testCase.createTestCase({
-    ID: _case.ID,
+    EntID: _case.EntID,
     Name: _case.Name,
     Description: _case.Description,
     ModuleID: _moduleID,
@@ -678,7 +679,7 @@ const testCases = computed(() => {
   if (showDeprecated.value) {
     return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
   }
-  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
+  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.EntID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
 })
 
 const testCaseCond = useTestCaseCondStore()
@@ -690,7 +691,7 @@ const testCaseConds = computed(() => {
 })
 
 const testCaseByID = (id: string) => {
-  return condTestCases.value.find((el) => el.ID === id)
+  return condTestCases.value.find((el) => el.EntID === id)
 }
 
 const columns = computed(() => [
@@ -699,6 +700,12 @@ const columns = computed(() => [
     label: t('MSG_ID'),
     align: 'left',
     field: (row: TestCase) => row.ID
+  },
+  {
+    name: 'EntID',
+    label: t('MSG_ENTID'),
+    align: 'left',
+    field: (row: TestCase) => row.EntID
   },
   {
     name: 'Module',
@@ -732,7 +739,7 @@ const log = (_log: string) => {
 }
 
 const runCleaner = async (_testCase: TestCase) => {
-  const cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  const cleaners = testCaseCond.getConds(_testCase.EntID, CondType.Cleaner)
   cleaners.sort((a: TestCaseCond, b: TestCaseCond) => {
     return a.Index > b.Index ? 1 : -1
   })
@@ -807,7 +814,7 @@ const onExecTestCaseClick = async (_testCase: TestCase) => {
 }
 
 const runPreConds = async (_testCase: TestCase) => {
-  const preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  const preConds = testCaseCond.getConds(_testCase.EntID, CondType.PreCondition)
   preConds.sort((a: TestCaseCond, b: TestCaseCond) => {
     return a.Index > b.Index ? 1 : -1
   })
@@ -856,6 +863,7 @@ const onCloneTestCaseClick = (testCase: TestCase) => {
 const onDeleteTestCaseClick = (_testCase: TestCase) => {
   testCase.deleteTestCase({
     ID: _testCase.ID,
+    EntID: _testCase.EntID,
     Message: {
       Error: {
         Title: 'MSG_DELETE_TEST_CASE',
@@ -877,6 +885,7 @@ const onSaveTestCaseClick = (_testCase: TestCase) => {
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
+    EntID: _testCase.EntID,
     Name: _testCase.Name,
     Description: _testCase.Description,
     Input: JSON.stringify(_testCase.InputVal),
@@ -957,7 +966,7 @@ watch(module, () => {
 })
 
 watch(() => target.value.ModuleName, () => {
-  target.value.ModuleID = _module.Modules.find((el) => el.Name === target.value.ModuleName)?.ID as string
+  target.value.ModuleID = _module.Modules.find((el) => el.Name === target.value.ModuleName)?.EntID as string
 })
 
 const pathFilter = ref('')
@@ -1061,6 +1070,7 @@ const onSubmit = () => {
   if (updating.value) {
     testCase.updateTestCase({
       ID: target.value.ID,
+      EntID: target.value.EntID,
       Name: target.value.Name,
       Description: target.value.Description,
       Input: JSON.stringify(target.value.InputVal),
@@ -1084,7 +1094,7 @@ const onSubmit = () => {
     return
   }
 
-  const testCaseID = target.value.ID
+  const testCaseID = target.value.EntID
 
   testCase.createTestCase({
     Name: target.value.Name,
@@ -1112,7 +1122,7 @@ const onSubmit = () => {
       return
     }
     const conds = testCaseCond.getConds(testCaseID)
-    cloneCond(_case?.ID as string, conds, 0)
+    cloneCond(_case?.EntID as string, conds, 0)
   })
 }
 
@@ -1126,6 +1136,7 @@ const onModifyCondClick = (_testCaseCond: TestCaseCond) => {
 const onConfirmModifyCondClick = (_testCaseCond: TestCaseCond) => {
   testCaseCond.updateTestCaseCond({
     ID: _testCaseCond.ID,
+    EntID: _testCaseCond.EntID,
     Index: _testCaseCond.Index,
     Message: {
       Error: {
@@ -1167,6 +1178,7 @@ const onConfirmCreateArgClick = (_testCase: TestCase) => {
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
+    EntID: _testCase.EntID,
     Input: JSON.stringify(_testCase.InputVal),
     InputDesc: JSON.stringify(_testCase.Args),
     Message: {
@@ -1198,6 +1210,7 @@ const onConfirmModifyArgClick = (_testCase: TestCase, arg: Arg) => {
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
+    EntID: _testCase.EntID,
     Input: JSON.stringify(_testCase.InputVal),
     InputDesc: JSON.stringify(_testCase.Args),
     Message: {
@@ -1218,6 +1231,7 @@ const onDeleteArgClick = (_testCase: TestCase, arg: Arg) => {
   _testCase.InputVal = testCase.input(_testCase)
   testCase.updateTestCase({
     ID: _testCase.ID,
+    EntID: _testCase.EntID,
     Input: JSON.stringify(_testCase.InputVal),
     InputDesc: JSON.stringify(_testCase.Args),
     Message: {
@@ -1239,15 +1253,15 @@ const onCreatePreCondClick = (testCase: TestCase) => {
 
 const onConfirmCreatePreCondClick = (_testCase: TestCase) => {
   _testCase.AddingPreCond = false
-  const _case = testCase.testcase(preCondTestCase.value.ID)
+  const _case = testCase.testcase(preCondTestCase.value.EntID)
   if (!_case) {
     return
   }
-  const conds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
+  const conds = testCaseCond.getConds(_testCase.EntID, CondType.PreCondition)
   const newIndex = conds.length
   testCaseCond.createTestCaseCond({
-    TestCaseID: _testCase.ID,
-    CondTestCaseID: preCondTestCase.value.ID,
+    TestCaseID: _testCase.EntID,
+    CondTestCaseID: preCondTestCase.value.EntID,
     ArgumentMap: JSON.stringify(preCondTestCase.value.Args),
     Index: newIndex,
     CondType: CondType.PreCondition,
@@ -1289,6 +1303,7 @@ const onCancelCreatePreCondClick = (testCase: TestCase) => {
 const onDeleteTestCaseCondClick = (cond: TestCaseCond) => {
   testCaseCond.deleteTestCaseCond({
     ID: cond.ID,
+    EntID: cond.EntID,
     Message: {
       Error: {
         Title: 'MSG_DELETE_TEST_CASE_COND',
@@ -1308,14 +1323,14 @@ const onCreateCleanerClick = (testCase: TestCase) => {
 
 const onConfirmCreateCleanerClick = (_testCase: TestCase) => {
   _testCase.AddingCleaner = false
-  const _case = testCase.testcase(cleanerTestCase.value.ID)
+  const _case = testCase.testcase(cleanerTestCase.value.EntID)
   if (!_case) {
     return
   }
-  const conds = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  const conds = testCaseCond.getConds(_testCase.EntID, CondType.Cleaner)
   const newIndex = conds.length
   testCaseCond.createTestCaseCond({
-    TestCaseID: _testCase.ID,
+    TestCaseID: _testCase.EntID,
     CondTestCaseID: addingCleaner.value.CondTestCaseID,
     ArgumentMap: JSON.stringify(addingCleaner.value.Args),
     Index: newIndex,
@@ -1362,11 +1377,12 @@ const addingCleaner = ref(undefined as unknown as TestCaseCond)
 
 const onCleanerTestCaseUpdated = (_testCase: TestCase, cleanerTestCase: TestCase) => {
   addingCleaner.value = {
-    ID: uid(),
+    ID: undefined as unknown as number,
+    EntID: uid(),
     Index: 0,
     CondType: CondType.Cleaner,
-    TestCaseID: _testCase.ID,
-    CondTestCaseID: cleanerTestCase.ID,
+    TestCaseID: _testCase.EntID,
+    CondTestCaseID: cleanerTestCase.EntID,
     Args: [],
     ArgumentMap: '',
     OldIndex: 0,

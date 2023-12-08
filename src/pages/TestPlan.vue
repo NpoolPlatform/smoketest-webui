@@ -248,10 +248,16 @@ const testPlanColumns = computed(() => [
     field: (row: TestPlan) => row.ID
   },
   {
+    name: 'EntID',
+    label: t('MSG_ENTID'),
+    align: 'left',
+    field: (row: TestPlan) => row.EntID
+  },
+  {
     name: 'CreatedBy',
     label: t('MSG_CREATED_BY'),
     align: 'left',
-    field: (row: TestPlan) => row.Email
+    field: (row: TestPlan) => row.CreatorEmail
   },
   {
     name: 'Executor',
@@ -304,14 +310,14 @@ const testPlan = useTestPlanStore()
 const testPlans = computed(() => testPlan.TestPlans)
 
 const planTestCase = usePlanTestCaseStore()
-const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.ID as string)?.sort((a: PlanTestCase, b: PlanTestCase) => {
+const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.EntID as string)?.sort((a: PlanTestCase, b: PlanTestCase) => {
   return a.Index > b.Index ? 1 : -1
 }))
 
 const testCase = useTestCaseStore()
 const allTestCases = computed(() => testCase.TestCases)
 const testCases = computed(() => allTestCases.value.filter((v) => {
-  const index = planTestCases.value?.findIndex((el) => v.ID === el.TestCaseID)
+  const index = planTestCases.value?.findIndex((el) => v.EntID === el.TestCaseID)
   return index === undefined || index < 0
 }))
 
@@ -404,7 +410,8 @@ const onTestPlanSubmit = () => {
   showingTestPlan.value = false
   if (updatingTestPlan.value) {
     testPlan.updateTestPlan({
-      ID: targetTestPlan.value.ID as string,
+      ID: targetTestPlan.value.ID as number,
+      EntID: targetTestPlan.value.EntID as string,
       Name: targetTestPlan.value.Name,
       Message: {
         Error: {
@@ -421,7 +428,7 @@ const onTestPlanSubmit = () => {
     return
   }
 
-  const testPlanID = targetTestPlan.value.ID
+  const testPlanID = targetTestPlan.value.EntID
 
   testPlan.createTestPlan({
     Name: targetTestPlan.value.Name,
@@ -442,7 +449,7 @@ const onTestPlanSubmit = () => {
       return
     }
     const testcases = planTestCase.testcases(testPlanID as string)
-    clonePlanTestcase(_testplan?.ID as string, testcases as [], 0)
+    clonePlanTestcase(_testplan?.EntID as string, testcases as [], 0)
   })
 }
 
@@ -468,7 +475,8 @@ const selectedTestCase = ref([] as Array<PlanTestCase>)
 
 const onDeleteTestCaseClick = (_case: PlanTestCase) => {
   planTestCase.deletePlanTestCase({
-    ID: _case.ID as string,
+    ID: _case.ID as number,
+    EntID: _case.EntID as string,
     Message: {
       Error: {
         Title: 'MSG_DELETE_PLAN_TEST_CASE',
@@ -486,7 +494,8 @@ const onTestCaseSubmit = () => {
   if (updatingTestCase.value) {
     updatingTestCase.value = false
     planTestCase.updatePlanTestCase({
-      ID: targetPlanTestCase.value.ID as string,
+      ID: targetPlanTestCase.value.ID as number,
+      EntID: targetPlanTestCase.value.EntID as string,
       Index: targetPlanTestCase.value.Index,
       Message: {
         Error: {
@@ -503,8 +512,8 @@ const onTestCaseSubmit = () => {
   }
 
   planTestCase.createPlanTestCase({
-    TestCaseID: targetTestCase.value.ID,
-    TestPlanID: selectedPlan.value?.[0]?.ID as string,
+    TestCaseID: targetTestCase.value.EntID,
+    TestPlanID: selectedPlan.value?.[0]?.EntID as string,
     Index: targetPlanTestCase.value.Index,
     Message: {
       Error: {
@@ -651,7 +660,8 @@ const selectedPlan = ref([] as unknown as Array<TestPlan>)
 const onDeleteTestPlanClick = () => {
   selectedPlan.value.forEach((v) => {
     testPlan.deleteTestPlan({
-      ID: v.ID as string,
+      ID: v.ID as number,
+      EntID: v.EntID as string,
       Message: {
         Error: {
           Title: 'MSG_DELETE_TEST_PLAN',
@@ -689,7 +699,7 @@ const onBatchCreateTestCases = (_loadedTestPlans: BlobContent, index: number) =>
 
   const _testcase = _loadedTestPlans.PlanTestCases[index]
   planTestCase.createPlanTestCase({
-    ID: _testcase.ID,
+    EntID: _testcase.EntID,
     TestCaseID: _testcase.TestCaseID,
     TestPlanID: _testcase.TestPlanID,
     Index: _testcase.Index,
@@ -717,7 +727,7 @@ const onBatchCreate = (_loadedTestPlans: BlobContent, index: number) => {
   const _testplan = _loadedTestPlans.TestPlans[index]
   console.log(_testplan)
   testPlan.createTestPlan({
-    ID: _testplan.ID,
+    EntID: _testplan.EntID,
     Name: _testplan.Name,
     CreatedBy: logined.User.EntID,
     Message: {
@@ -752,6 +762,7 @@ const onExportTestResultClick = () => {
   }
   const columns = {
     ID: `${t('MSG_ID')}`,
+    EntID: `${t('MSG_ENTID')}`,
     Result: `${t('MSG_RESULT')}`,
     TestPlanID: `${t('MSG_TESTPLAN_ID')}`,
     TestCaseID: `${t('MSG_TESTCASE_ID')}`,
@@ -775,7 +786,7 @@ const onExportTestResultClick = () => {
     columns: columns
   })
   const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), output], { type: 'text/plain;charset=utf-8' })
-  const filename = `testplan-${selectedPlan.value[0].ID as string}-${new Date().getTime() / 1000}.csv`
+  const filename = `testplan-${selectedPlan.value[0].EntID as string}-${new Date().getTime() / 1000}.csv`
   saveAs(blob, filename)
 }
 
@@ -791,8 +802,7 @@ const testCasePath = (_testCase?: TestCase) => {
 }
 
 const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, error: (err: Error) => void) => {
-  let preConds = testCaseCond.getConds(_testCase.ID, CondType.PreCondition)
-  console.log('conds: ', preConds)
+  let preConds = testCaseCond.getConds(_testCase.EntID, CondType.PreCondition)
   if (condIndex >= preConds.length) {
     done()
     return
@@ -825,7 +835,7 @@ const runPreConds = (_testCase: TestCase, condIndex: number, done: () => void, e
 }
 
 const runCleaner = (_testCase: TestCase, condIndex: number) => {
-  let cleaners = testCaseCond.getConds(_testCase.ID, CondType.Cleaner)
+  let cleaners = testCaseCond.getConds(_testCase.EntID, CondType.Cleaner)
   if (condIndex >= cleaners.length) {
     return
   }
@@ -916,7 +926,8 @@ const reportTestCaseResult = (_case: PlanTestCase, output?: Record<string, unkno
     passed = TestCaseResult.Failed
   }
   planTestCase.updatePlanTestCase({
-    ID: _case.ID as string,
+    ID: _case.ID as number,
+    EntID: _case.EntID as string,
     Result: passed,
     Output: JSON.stringify(output),
     Input: _testCase.Input,
@@ -957,13 +968,13 @@ const runPlanTestCase = (_case: PlanTestCase, done: ()=>void) => {
 
 const onFetchTestPlanCaseClick = () => {
   selectedPlan.value.forEach((v) => {
-    fetchPlanTestCases(v.ID as string, 0, 100)
+    fetchPlanTestCases(v.EntID as string, 0, 100)
   })
 }
 
 const onExecuteTestPlanClick = () => {
   selectedPlan.value.forEach((v) => {
-    let cases = planTestCase.testcases(v.ID as string)
+    let cases = planTestCase.testcases(v.EntID as string)
     if (typeof cases !== 'undefined') {
       cases = cases.sort((a: PlanTestCase, b: PlanTestCase) => {
         return a.Index > b.Index ? 1 : -1
@@ -995,7 +1006,8 @@ const onTestCaseClick = (_case: PlanTestCase) => {
 
 const onTestCasePass = (_case: PlanTestCase, pass: boolean) => {
   planTestCase.updatePlanTestCase({
-    ID: _case.ID as string,
+    ID: _case.ID as number,
+    EntID: _case.EntID as string,
     Result: pass ? TestCaseResult.Passed : TestCaseResult.Failed,
     Message: {
       Error: {

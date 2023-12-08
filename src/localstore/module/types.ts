@@ -1,7 +1,8 @@
 import { BaseRequest } from 'src/npoolstore/request'
 
 export interface Module {
-  ID: string
+  ID: number
+  EntID: string
   Name: string
   Description: string
   CreatedAt: number
@@ -17,7 +18,8 @@ export interface CreateModuleResponse {
 }
 
 export interface DeleteModuleRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
 }
 
 export interface DeleteModuleResponse {
@@ -25,7 +27,8 @@ export interface DeleteModuleResponse {
 }
 
 export interface UpdateModuleRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
   Name?: string
   Description?: string
 }

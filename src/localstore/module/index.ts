@@ -18,7 +18,7 @@ export const useModuleStore = defineStore('local-module', {
   getters: {
     module (): (id?: string, name?: string) => Module | undefined {
       return (id?: string, name?: string) => {
-        return this.Modules.find((el) => (id?.length && el.ID === id) || (name?.length && el.Name === name))
+        return this.Modules.find((el) => (id?.length && el.EntID === id) || (name?.length && el.Name === name))
       }
     }
   },

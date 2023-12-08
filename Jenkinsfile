@@ -4,7 +4,7 @@ pipeline {
     stage('Clone') {
       steps {
         git(url: scm.userRemoteConfigs[0].url, branch: '$BRANCH_NAME', changelog: true, credentialsId: 'KK-github-key', poll: true)
-        sh 'git submodule update --init --recursive'
+        sh 'rm src/npoolstore -rf; git submodule update --init --recursive'
       }
     }
 
@@ -75,7 +75,6 @@ pipeline {
                 patch=$(( $patch + 1 ))
                 git reset --hard
                 git checkout $tag
-                git submodule update --init --recursive
                 ;;
             esac
             tag=$major.$minor.$patch
@@ -158,11 +157,9 @@ pipeline {
       }
       steps {
         sh(returnStdout: true, script: '''
-          revlist=`git rev-list --tags --max-count=1`
-          tag=`git describe --tags $revlist`
+          tag=`git tag -l | sort -V | tail -n1`
           git reset --hard
           git checkout $tag
-          git submodule update --init --recursive
           set +e
           PATH=/usr/local/bin:$PATH:./node_modules/@quasar/app/bin command quasar
           rc=$?
@@ -267,7 +264,6 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-          git submodule update --init --recursive
           sed -i "s/smoketest-webui-v1:latest/smoketest-webui-v1:$tag/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/development/$TARGET_ENV/g" k8s/02-traefik-ingress.yaml
@@ -294,7 +290,6 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-          git submodule update --init --recursive
           sed -i "s/smoketest-webui-v1:latest/smoketest-webui-v1:$tag/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" k8s/01-smoketest-webui-v1.yaml
           sed -i "s/development/$TARGET_ENV/g" k8s/02-traefik-ingress.yaml

@@ -3,7 +3,8 @@ import { Arg } from '../base/arg'
 import { CondType } from './def'
 
 export interface TestCaseCond {
-  ID: string
+  ID: number
+  EntID: string
   CondType: CondType
   TestCaseID: string
   CondTestCaseID: string
@@ -15,7 +16,7 @@ export interface TestCaseCond {
 }
 
 export interface CreateTestCaseCondRequest extends BaseRequest {
-  ID?: string
+  EntID?: string
   TestCaseID: string
   CondTestCaseID: string
   ArgumentMap: string
@@ -28,7 +29,8 @@ export interface CreateTestCaseCondResponse {
 }
 
 export interface UpdateTestCaseCondRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
   ArgumentMap?: string
   CondType?: CondType
   Index?: number
@@ -49,7 +51,8 @@ export interface GetTestCaseCondsResponse {
 }
 
 export interface DeleteTestCaseCondRequest extends BaseRequest {
-  ID: string
+  ID: number
+  EntID: string
 }
 
 export interface DeleteTestCaseCondResponse {

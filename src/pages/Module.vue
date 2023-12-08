@@ -83,6 +83,12 @@ const moduleColumns = computed(() => [
     field: (row: Module) => row.ID
   },
   {
+    name: 'EntID',
+    label: t('MSG_ENTID'),
+    align: 'left',
+    field: (row: Module) => row.EntID
+  },
+  {
     name: 'Description',
     label: t('MSG_DESCRIPTION'),
     align: 'left',
