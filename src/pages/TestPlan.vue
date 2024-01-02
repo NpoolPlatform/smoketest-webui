@@ -1050,4 +1050,10 @@ const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?
 <style lang='sass' scoped>
 .filter
   min-width: 220px
+
+.test-case-header
+  max-width: 440px
+  word-wrap: break-word
+  word-break: break-all
+  white-space: pre-wrap
 </style>
