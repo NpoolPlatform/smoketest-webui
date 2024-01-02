@@ -676,10 +676,22 @@ const testCase = useTestCaseStore()
 const name = ref('')
 
 const testCases = computed(() => {
-  if (showDeprecated.value) {
-    return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
-  }
-  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.EntID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
+  return testCase.TestCases.filter((el) => {
+    let ok = true
+    if (name.value.length) {
+      ok &&= el.Name?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.ModuleName?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.ApiPath?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.EntID?.toLowerCase()?.includes?.(name.value?.toLowerCase())
+    }
+    if (ok && module.value.length) {
+      ok &&= el.ModuleName?.toLowerCase()?.includes?.(module.value.toLowerCase())
+    }
+    if (!showDeprecated.value) {
+      ok &&= !el.Deprecated
+    }
+    return ok
+  })
 })
 
 const testCaseCond = useTestCaseCondStore()
