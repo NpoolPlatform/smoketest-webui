@@ -115,7 +115,7 @@
           <q-td>
             <div>Description</div>
           </q-td>
-          <q-td colspan='4'>
+          <q-td colspan='5'>
             <q-input dense v-model='props.row.Description' />
           </q-td>
         </q-tr>
@@ -124,7 +124,7 @@
           <q-td>
             <div>PreConds</div>
           </q-td>
-          <q-td colspan='4'>
+          <q-td colspan='5'>
             <div
               v-for='cond in testCaseCond.getConds(props.row.EntID, CondType.PreCondition)'
               :key='cond.ID'
@@ -184,7 +184,7 @@
           <q-td>
             <div>Cleaners</div>
           </q-td>
-          <q-td colspan='4'>
+          <q-td colspan='5'>
             <div
               v-for='cond in testCaseCond.getConds(props.row.EntID, CondType.Cleaner)'
               :key='cond.EntID'
@@ -316,7 +316,7 @@
           <q-td>
             <div>Arguments</div>
           </q-td>
-          <q-td colspan='2'>
+          <q-td colspan='3'>
             <div
               v-for='(arg, index) in props.row.Args'
               :key='index'
@@ -444,7 +444,7 @@
           <q-td>
             <div>Output</div>
           </q-td>
-          <q-td colspan='4'>
+          <q-td colspan='5'>
             <div class='row'>
               <pre v-if='!props.row.Error' class='output arguments' v-html='JSON.stringify(props.row.OutputVal, null, 2)' />
               <div v-else class='output arguments error' v-html='props.row.Error' />
@@ -453,7 +453,7 @@
         </q-tr>
       </template>
     </q-table>
-    <q-input type='textarea' v-model='executionLog' />
+    <q-input v-if='false' type='textarea' v-model='executionLog' />
   </div>
   <q-dialog
     v-model='showing'
@@ -676,10 +676,22 @@ const testCase = useTestCaseStore()
 const name = ref('')
 
 const testCases = computed(() => {
-  if (showDeprecated.value) {
-    return testCase.TestCases.filter((el) => el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase()))
-  }
-  return testCase.TestCases.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.EntID?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(name.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(name.value?.toLowerCase())))
+  return testCase.TestCases.filter((el) => {
+    let ok = true
+    if (name.value.length) {
+      ok &&= el.Name?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.ModuleName?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.ApiPath?.toLowerCase()?.includes?.(name.value.toLowerCase()) ||
+             el.EntID?.toLowerCase()?.includes?.(name.value?.toLowerCase())
+    }
+    if (ok && module.value.length) {
+      ok &&= el.ModuleName?.toLowerCase()?.includes?.(module.value.toLowerCase())
+    }
+    if (!showDeprecated.value) {
+      ok &&= !el.Deprecated
+    }
+    return ok
+  })
 })
 
 const testCaseCond = useTestCaseCondStore()

@@ -12,6 +12,11 @@
       @row-click='(evt, row, index) => onTestPlanClick(row)'
     >
       <template #top-right>
+        <q-input
+          dense
+          v-model='title'
+          :label='$t("MSG_TITLE")'
+        />
         <input
           ref='loadFileButton'
           type='file'
@@ -307,7 +312,8 @@ const testCaseColumns = computed(() => [
 ])
 
 const testPlan = useTestPlanStore()
-const testPlans = computed(() => testPlan.TestPlans)
+const title = ref('')
+const testPlans = computed(() => testPlan.TestPlans.filter((el) => el.Name.includes(title.value)))
 
 const planTestCase = usePlanTestCaseStore()
 const planTestCases = computed(() => planTestCase.testcases(selectedPlan.value?.[0]?.EntID as string)?.sort((a: PlanTestCase, b: PlanTestCase) => {
@@ -322,7 +328,12 @@ const testCases = computed(() => allTestCases.value.filter((v) => {
 }))
 
 const filterTestCases = computed(() => {
-  return testCases.value.filter((el) => !el.Deprecated && (el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) || el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase())))
+  return testCases.value.filter((el) => {
+    return !el.Deprecated &&
+          (el.Name?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) ||
+           el.ModuleName?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()) ||
+           el.ApiPath?.toLowerCase()?.includes?.(testcaseFilter.value?.toLowerCase()))
+  })
 })
 
 const testCaseCond = useTestCaseCondStore()
@@ -1039,4 +1050,10 @@ const onTestCaseFilter = (val: string, update: (callbackFn: () => void, afterFn?
 <style lang='sass' scoped>
 .filter
   min-width: 220px
+
+.test-case-header
+  max-width: 440px
+  word-wrap: break-word
+  word-break: break-all
+  white-space: pre-wrap
 </style>
