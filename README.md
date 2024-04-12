@@ -19,6 +19,11 @@ vue3 framework use quasar ui and pinia manage store
 - Update：需要携带ID和EntID更新，找不到记录需要返回错误信息
 - Delete：需要携带ID和EntID删除，找不到记录需要返回错误信息
 
+## gateway path规范
+- 大后台操作的grpc path统一加上Admin前缀，如AdminGetFees
+- 大后台操作的http path统一加上admin，如/v1/admin/get/appfees
+- 携带Admin前缀的接口应该包含TargetAppID，以及TargetUserID（如果需要获取某用户信息）
+
 ## middleware 参数Ent和ID检查
 - 当一个接口的参数在同一个数据库时，需要检查ID和EntID的有效性
 - 当一个接口的参数不在同一个数据库时，仅需检查EntID为UUID即可
