@@ -6,6 +6,7 @@ vue3 framework use quasar ui and pinia manage store
 
 ## middleware CRUD语义
 - Create语义：创建资源，需要检查api权限，创建成功返回空，创建错误返回错误信息
+- Create锁：防止创建重复资源时不再由Redis锁控制，由数据库的exist子句来确认资源唯一性
 - Update语义：携带ID或EntID更新，或者携带ID和EntID更新，需要检查ID和EntID匹配以及资源有效性以及api权限，若找不到删除的对象，需要返回错误信息
 - Exist语义：判断EntID是否存在，只需要检查EntID是否存在
 - ExistConds语义：判断满足条件的记录是否存在，只需要检查满足调试的记录是否存在
