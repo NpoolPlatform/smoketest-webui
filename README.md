@@ -18,6 +18,7 @@ vue3 framework use quasar ui and pinia manage store
 ## gateway CRUD语义
 - Update：需要携带ID和EntID更新，找不到记录需要返回错误信息
 - Delete：需要携带ID和EntID删除，找不到记录需要返回错误信息
+- gateway增加check pattern
 
 ## gateway path规范
 - 大后台操作的grpc path统一加上Admin前缀，如AdminGetFees
