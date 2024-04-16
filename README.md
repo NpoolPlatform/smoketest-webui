@@ -13,7 +13,7 @@ vue3 framework use quasar ui and pinia manage store
 - Get语义：将EntID指定记录取出，Get语义如果记录不存在不返回错误，返回空
 - Gets语义：将符合条件的记录取出
 - GetOnly语义：将符合条件且仅有一条记录的记录取出，GetOnly语义如果记录不存在不返回错误，返回空，如果多于一条记录返回错误
-- 资源唯一性：不再由Redis锁控制，创建或更新时由数据库的exists子句来确认资源唯一性
+- 资源唯一性：不再由Redis锁控制，创建或更新时由数据库的exists子句来确认资源唯一性（需要将deleted_at不为0的资源排除在外）
 - query：query需要同时支持query，exist的写法，将公共的query部分提取到basequery.go，queryHandler和existHandler继承baseQueryHandler使用相同的query过程
 
 ## gateway CRUD语义及规范
