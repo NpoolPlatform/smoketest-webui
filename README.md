@@ -4,21 +4,23 @@
 
 vue3 framework use quasar ui and pinia manage store
 
-## middleware CRUD语义
+## middleware CRUD语义及规范
 - Create语义：创建资源，需要检查api权限，创建成功返回空，创建错误返回错误信息
 - Update语义：携带ID或EntID更新，或者携带ID和EntID更新，需要检查ID和EntID匹配以及资源有效性以及api权限，若找不到删除的对象，需要返回错误信息
-- 资源唯一性：不再由Redis锁控制，创建或更新时由数据库的exists子句来确认资源唯一性
 - Exist语义：判断EntID是否存在，只需要检查EntID是否存在
 - ExistConds语义：判断满足条件的记录是否存在，只需要检查满足调试的记录是否存在
 - Delete语义：使用ID或EntID删除，需要检查ID或者EntID是否存在且能够删除，使用ID和EntID删除，需要检查ID和EntID匹配，实作上通常先取出记录，然后删除，如果取出记录失败，直接返回空，如果记录不存在不返回错误，返回空
 - Get语义：将EntID指定记录取出，Get语义如果记录不存在不返回错误，返回空
 - Gets语义：将符合条件的记录取出
 - GetOnly语义：将符合条件且仅有一条记录的记录取出，GetOnly语义如果记录不存在不返回错误，返回空，如果多于一条记录返回错误
+- 资源唯一性：不再由Redis锁控制，创建或更新时由数据库的exists子句来确认资源唯一性
+- query：query需要同时支持query，exist的写法，将公共的query部分提取到basequery.go，queryHandler和existHandler继承baseQueryHandler使用相同的query过程
 
-## gateway CRUD语义
+## gateway CRUD语义及规范
 - Update：需要携带ID和EntID更新，找不到记录需要返回错误信息
 - Delete：需要携带ID和EntID删除，找不到记录需要返回错误信息
 - gateway增加check pattern
+- 跨模块的检查放在gateway，其他检查放在middleware
 
 ## gateway path规范
 - 大后台操作的grpc path统一加上Admin前缀，如AdminGetFees
