@@ -9,7 +9,7 @@ vue3 framework use quasar ui and pinia manage store
 - Update语义：携带ID或EntID更新，或者携带ID和EntID更新，需要检查ID和EntID匹配以及资源有效性以及api权限，若找不到删除的对象，需要返回错误信息
 - Exist语义：判断EntID是否存在，只需要检查EntID是否存在
 - ExistConds语义：判断满足条件的记录是否存在，只需要检查满足调试的记录是否存在
-- Delete语义：使用ID或EntID删除，需要检查ID或者EntID是否存在且能够删除，使用ID和EntID删除，需要检查ID和EntID匹配，实作上通常先取出记录，然后删除，如果取出记录失败，直接返回空，如果记录不存在不返回错误，返回空
+- Delete语义：使用ID或EntID删除，需要检查ID或者EntID是否存在且能够删除，使用ID和EntID删除，需要检查ID和EntID匹配，实作上通常先取出记录，然后删除，如果取出记录失败，直接返回空，如果记录不存在不返回错误，返回空；删除成功也返回空
 - Get语义：将EntID指定记录取出，Get语义如果记录不存在不返回错误，返回空
 - Gets语义：将符合条件的记录取出
 - GetOnly语义：将符合条件且仅有一条记录的记录取出，GetOnly语义如果记录不存在不返回错误，返回空，如果多于一条记录返回错误
