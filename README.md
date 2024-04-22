@@ -15,6 +15,8 @@ vue3 framework use quasar ui and pinia manage store
 - GetOnly语义：将符合条件且仅有一条记录的记录取出，GetOnly语义如果记录不存在不返回错误，返回空，如果多于一条记录返回错误
 - 资源唯一性：不再由Redis锁控制，创建或更新时由数据库的exists子句来确认资源唯一性（需要将deleted_at不为0的资源排除在外）
 - query：query需要同时支持query，exist的写法，将公共的query部分提取到basequery.go，queryHandler和existHandler继承baseQueryHandler使用相同的query过程
+- 当一个接口的参数在同一个数据库时，需要检查ID和EntID的有效性
+- 当一个接口的参数不在同一个数据库时，仅需检查EntID为UUID即可
 
 ## gateway CRUD语义及规范
 - Update：需要携带ID和EntID更新，找不到记录需要返回错误信息
@@ -27,9 +29,10 @@ vue3 framework use quasar ui and pinia manage store
 - 大后台操作的http path统一加上admin，如/v1/admin/get/appfees
 - 携带Admin前缀的接口应该包含TargetAppID，以及TargetUserID（如果需要获取某用户信息）
 
-## middleware 参数Ent和ID检查
-- 当一个接口的参数在同一个数据库时，需要检查ID和EntID的有效性
-- 当一个接口的参数不在同一个数据库时，仅需检查EntID为UUID即可
+## middleware和gateway
+- middleware需要支持全部不需要和其他模板交互的业务逻辑
+- gateway需要支持跨模块的检查
+- middleware和gateway每个接口都需要做入参合法性检查（gw如果检查返回的是grpc的报错，则说明gw没有处理，需要补上检查）
 
 ## 用例命名规范（未更新）
 - master分支，采用```服务名-接口名-序号-用例描述```，如：
