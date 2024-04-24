@@ -27,7 +27,7 @@ vue3 framework use quasar ui and pinia manage store
 ## gateway path规范
 - 大后台操作的grpc path统一加上Admin前缀，如AdminGetFees
 - 大后台操作的http path统一加上admin，如/v1/admin/get/appfees
-- 携带Admin前缀的接口应该包含TargetAppID，以及TargetUserID（如果需要获取某用户信息）
+- 携带Admin前缀的接口应该包含TargetAppID以及TargetUserID（如果需要获取指定APP或某用户信息）
 
 ## middleware和gateway
 - middleware需要支持全部不需要和其他模板交互的业务逻辑
