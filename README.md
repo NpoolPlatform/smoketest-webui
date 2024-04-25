@@ -31,7 +31,6 @@ vue3 framework use quasar ui and pinia manage store
 - app管理员创建或更新用户数据的grpc path统一加上user，如v1/create/user/feeorder
 - app管理员获取指定用户数据，path参考：/v1/get/compensates（传入TargetUserID即可）
 - 登录用户获取自己的数据，Path加上my前缀，如/v1/get/my/compensates（需要检查UserID）
-
 - 获取应用内用户无关的数据，path参考：/v1/get/compensates
 
 ## middleware和gateway
