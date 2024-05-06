@@ -37,6 +37,49 @@ vue3 framework use quasar ui and pinia manage store
 - middleware需要支持全部不需要和其他模板交互的业务逻辑
 - gateway需要支持跨模块的检查
 - middleware和gateway每个接口都需要做入参合法性检查（gw如果检查返回的是grpc的报错，则说明gw没有处理，需要补上检查）
+  
+## 接口测试检查项
+
+**middleware创建**
+- 传入{}执行，无panic且报错返回
+- 传入参数缺失，无panic且报错返回（每一个参数都需要缺失验证，根据业务判断是否为optional的参数，不同的场景可optional的参数不同）
+- 必要参数完整及有效，创建成功，返回{}
+- 根据业务判断部分字段是否可重复
+- 入参合法性检查，不合法需要报错返回（如数字大小及范围校验）
+- EntID参数值有效，需要使用传入的EntID创建，创建成功返回{}
+- EntID参数缺失，创建成功且使用随机uuid为EntID，创建成功返回{}
+- 传入参数与已删除数据重复，重新创建应成功，创建成功返回{}
+
+**middleware删除**
+- 传入{}执行，无panic且报错返回
+- 使用EntID删除，删除应成功，返回{}
+- 使用ID删除，删除应成功，返回{}
+- 使用EntID和ID删除且EntID和ID匹配，删除应成功，返回{}
+- 使用EntID和ID删除且EntID和ID不匹配，不会删除，返回{}
+- EntID不存在，不会删除，返回{}
+- EntID已删除，不能重复删除，返回{}，deleted_at不会被更新
+
+**middleware更新**
+- 传入{}执行，无panic且报错返回
+- 除EntID和ID外，其他参数不传，更新应报错返回update nothing
+- 使用EntID更新，更新应成功，返回{}
+- 使用ID更新，更新应成功，返回{}
+- 使用EntID和ID更新且EntID和ID匹配，更新应成功，返回{}
+- 使用EntID和ID更新且EntID和ID不匹配，更新应报错返回
+- EntID不存在，不会更新，报错返回
+- EntID已删除，不能更新，报错返回，updated_at不会被更新
+
+**gateway CRUD**
+- CRUD如果报错都需要返回错误信息
+- 传入{}执行，无panic且报错返回
+- 和其他模块有交互的检查，如AppID有效性
+- 入参合法性检查（gw如果检查返回的是grpc的报错，则说明gw没有处理，需要补上检查）
+
+**其他检查**
+- 根据业务判断接口或参数是否有存在必要
+- message pb的optional定义检查
+- middleware需要实现无需和其他模块交互的全部业务检查
+- grpc和http的path定义检查
 
 ## 用例命名规范（未更新）
 - master分支，采用```服务名-接口名-序号-用例描述```，如：
