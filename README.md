@@ -69,6 +69,8 @@ vue3 framework use quasar ui and pinia manage store
 - 使用EntID和ID更新且EntID和ID不匹配，更新应报错返回
 - EntID不存在，不会更新，报错返回
 - EntID已删除，不能更新，报错返回，updated_at不会被更新
+- 更新内容与自己相同，更新成功
+- 更新内容与其他重复，更新报错
 
 **gateway CRUD**
 - CRUD如果报错都需要返回错误信息
