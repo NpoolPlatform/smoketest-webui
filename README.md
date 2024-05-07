@@ -58,6 +58,7 @@ vue3 framework use quasar ui and pinia manage store
 - 使用EntID和ID删除且EntID和ID不匹配，不会删除，返回{}
 - EntID不存在，不会删除，返回{}
 - EntID已删除，不能重复删除，返回{}，deleted_at不会被更新
+- 部分模块删除成功后需要将关联其他表记录删除
 
 **middleware更新**
 - 传入{}执行，无panic且报错返回
@@ -74,6 +75,7 @@ vue3 framework use quasar ui and pinia manage store
 - 传入{}执行，无panic且报错返回
 - 和其他模块有交互的检查，如AppID有效性
 - 入参合法性检查（gw如果检查返回的是grpc的报错，则说明gw没有处理，需要补上检查）
+- 返回内容与pb定义info相同
 
 **其他检查**
 - 根据业务判断接口或参数是否有存在必要
